@@ -18,6 +18,3 @@ This repository contains a deterministic TypeScript core for the NIIT CAS onboar
 npm install
 npm test
 ```
-
-
-The `npm test` script points Node at `dist/tests` (directory mode) for cross-platform compatibility (Windows glob expansion can differ from POSIX shells).
