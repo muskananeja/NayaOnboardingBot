@@ -1,0 +1,2567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naya — NIIT CAS Onboarding Bot</title>
+<style>
+/* ═══════════════════════════════════════
+   NIIT BRAND TOKENS
+═══════════════════════════════════════ */
+:root {
+  --orange:        #E8431A;
+  --orange-mid:    #F26522;
+  --orange-pale:   #FFF0EB;
+  --orange-border: rgba(232,67,26,.22);
+  --navy:          #003087;
+  --navy-dark:     #001F5B;
+  --navy-light:    #E8EDF7;
+  --navy-border:   rgba(0,48,135,.2);
+  --white:         #FFFFFF;
+  --g50:           #F9FAFB;
+  --g100:          #F3F4F6;
+  --g200:          #E5E7EB;
+  --g300:          #D1D5DB;
+  --g400:          #9CA3AF;
+  --g500:          #6B7280;
+  --g600:          #4B5563;
+  --g800:          #1F2937;
+  --green:         #059669;
+  --green-bg:      #D1FAE5;
+  --amber:         #D97706;
+  --amber-bg:      #FEF3C7;
+  --red:           #DC2626;
+  --red-bg:        #FEE2E2;
+  --radius-sm:     6px;
+  --radius-md:     10px;
+  --radius-lg:     16px;
+  --radius-xl:     20px;
+  --shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:     0 4px 12px rgba(0,0,0,.1);
+  --shadow-lg:     0 12px 32px rgba(0,0,0,.15);
+}
+
+/* ─── RESET ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  font-size:14px;
+  color:var(--g800);
+  background:var(--g100);
+  display:flex;
+  flex-direction:column;
+}
+button{cursor:pointer;font-family:inherit;border:none;background:none;}
+input{font-family:inherit;}
+a{color:var(--orange);text-decoration:none;}
+a:hover{text-decoration:underline;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--g300);border-radius:4px;}
+
+/* ═══════════════════════════════════════
+   ONBOARDING OVERLAY
+═══════════════════════════════════════ */
+#onboarding{
+  position:fixed;inset:0;
+  background:var(--navy-dark);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;padding:20px;
+}
+.ob-card{
+  background:var(--white);
+  border-radius:var(--radius-xl);
+  padding:40px 36px;
+  width:100%;max-width:500px;
+  box-shadow:var(--shadow-lg);
+  text-align:center;
+}
+.ob-logo{
+  width:68px;height:68px;
+  background:var(--orange);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:900;color:white;
+  margin:0 auto 18px;
+  box-shadow:0 6px 20px rgba(232,67,26,.35);
+}
+.ob-card h1{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+.ob-card .tagline{font-size:14px;color:var(--g500);line-height:1.6;margin-bottom:28px;}
+
+/* Step indicators */
+.ob-steps{display:flex;gap:6px;justify-content:center;margin-bottom:28px;}
+.ob-step{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--g200);transition:background .2s;
+}
+.ob-step.active{background:var(--orange);width:24px;border-radius:4px;}
+.ob-step.done{background:var(--green);}
+
+/* Name step */
+.ob-label{
+  display:block;text-align:left;
+  font-size:12px;font-weight:700;
+  color:var(--g500);text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:6px;
+}
+.ob-input{
+  width:100%;padding:12px 14px;
+  border:2px solid var(--g200);border-radius:var(--radius-md);
+  font-size:15px;outline:none;
+  transition:border-color .15s;
+  margin-bottom:20px;
+}
+.ob-input:focus{border-color:var(--orange);}
+
+/* Hire-type cards */
+.ht-grid{display:flex;gap:12px;margin:16px 0 24px;}
+.ht-card{
+  flex:1;padding:18px 14px;
+  border:2px solid var(--g200);border-radius:var(--radius-md);
+  cursor:pointer;text-align:left;
+  transition:all .2s;
+}
+.ht-card:hover{border-color:var(--orange);background:var(--orange-pale);}
+.ht-card.selected{border-color:var(--orange);background:var(--orange-pale);}
+.ht-card .ht-icon{font-size:28px;margin-bottom:8px;}
+.ht-card h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.ht-card p{font-size:12px;color:var(--g500);line-height:1.4;}
+
+/* Primary CTA */
+.ob-btn{
+  width:100%;padding:13px;
+  background:var(--orange);color:white;
+  border-radius:var(--radius-md);
+  font-size:15px;font-weight:700;
+  transition:background .15s;
+  margin-top:4px;
+}
+.ob-btn:hover{background:#C73A16;}
+.ob-btn:disabled{background:var(--g300);cursor:not-allowed;}
+
+/* ═══════════════════════════════════════
+   TOP NAV
+═══════════════════════════════════════ */
+#topnav{
+  height:56px;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+  flex-shrink:0;z-index:100;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-icon{
+  width:32px;height:32px;
+  background:var(--orange);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:white;
+}
+.nav-title{font-size:15px;font-weight:700;color:white;}
+.nav-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:1px;}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-badge{
+  background:var(--orange);color:white;
+  padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+}
+.nav-pct{font-size:12px;color:rgba(255,255,255,.65);}
+.nav-pct strong{color:white;}
+
+/* ═══════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════ */
+#app{display:flex;flex:1;overflow:hidden;}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+#sidebar{
+  width:272px;flex-shrink:0;
+  background:white;
+  border-right:1px solid var(--g200);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sb-head{
+  padding:14px 16px;
+  background:var(--orange-pale);
+  border-bottom:1px solid var(--orange-border);
+}
+.sb-head-label{
+  font-size:11px;font-weight:700;
+  color:var(--orange);text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:10px;
+}
+.sb-progress-labels{
+  display:flex;justify-content:space-between;
+  font-size:11px;color:var(--g500);margin-bottom:5px;
+}
+.sb-progress-labels strong{color:var(--navy);}
+.sb-bar-wrap{background:var(--g200);border-radius:4px;height:6px;overflow:hidden;}
+.sb-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--orange),var(--orange-mid));
+  border-radius:4px;transition:width .4s ease;
+}
+
+.sb-body{flex:1;overflow-y:auto;padding:6px 0;}
+
+/* Phase groups */
+.ph-group{margin-bottom:2px;}
+.ph-head{
+  padding:7px 14px;
+  font-size:11px;font-weight:700;
+  color:var(--g400);text-transform:uppercase;letter-spacing:.7px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.ph-head:hover{background:var(--g50);}
+.ph-head.current{color:var(--navy);background:var(--navy-light);}
+.ph-head.locked{color:var(--g300);}
+.ph-badge{
+  font-size:10px;padding:2px 7px;border-radius:10px;
+  background:var(--g200);color:var(--g500);font-weight:600;
+}
+.ph-badge.done{background:var(--green-bg);color:var(--green);}
+.ph-badge.active{background:var(--orange);color:white;}
+.ph-badge.locked{background:var(--g100);color:var(--g300);}
+
+/* Task items */
+.tk-item{
+  padding:6px 14px 6px 28px;
+  font-size:12px;
+  display:flex;align-items:center;gap:7px;
+  cursor:pointer;
+  color:var(--g600);
+  border-left:3px solid transparent;
+  transition:all .12s;
+}
+.tk-item:hover{background:var(--g50);}
+.tk-item.active{
+  background:var(--orange-pale);
+  color:var(--orange);
+  border-left-color:var(--orange);
+  font-weight:600;
+}
+.tk-item.complete{color:var(--green);}
+.tk-item.blocked{color:var(--red);}
+.tk-item.skipped{color:var(--g400);text-decoration:line-through;}
+.tk-item.locked{color:var(--g300);cursor:default;}
+.tk-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+}
+.tk-dot.pending   {background:var(--g300);}
+.tk-dot.in_progress{background:var(--orange-mid);}
+.tk-dot.complete  {background:var(--green);}
+.tk-dot.blocked   {background:var(--red);}
+.tk-dot.skipped   {background:var(--g300);}
+.tk-dot.locked    {background:var(--g200);}
+
+.sb-foot{
+  padding:10px 14px;
+  border-top:1px solid var(--g200);
+  font-size:11px;color:var(--g400);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.sb-reset{
+  font-size:11px;color:var(--g400);
+  text-decoration:underline;cursor:pointer;
+}
+.sb-reset:hover{color:var(--red);}
+
+/* ═══════════════════════════════════════
+   CHAT AREA
+═══════════════════════════════════════ */
+#chat-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+#chat-msgs{
+  flex:1;overflow-y:auto;
+  padding:22px 24px;
+  display:flex;flex-direction:column;gap:14px;
+}
+
+/* Message row */
+.msg{
+  display:flex;gap:10px;
+  max-width:82%;
+  animation:fadeUp .2s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.msg.bot{align-self:flex-start;}
+.msg.user{align-self:flex-end;flex-direction:row-reverse;}
+
+.msg-av{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;flex-shrink:0;
+}
+.msg.bot .msg-av{background:var(--navy);color:white;}
+.msg.user .msg-av{background:var(--orange);color:white;font-size:11px;}
+
+.msg-bub{
+  padding:11px 15px;
+  border-radius:var(--radius-lg);
+  font-size:14px;line-height:1.55;
+}
+.msg.bot .msg-bub{
+  background:white;color:var(--g800);
+  border:1px solid var(--g200);
+  border-top-left-radius:4px;
+  box-shadow:var(--shadow-sm);
+  max-width:100%;
+}
+.msg.user .msg-bub{
+  background:var(--navy);color:white;
+  border-top-right-radius:4px;
+}
+
+/* Rich content inside bubbles */
+.bub-phase-tag{
+  display:inline-block;
+  background:var(--navy-light);color:var(--navy);
+  padding:2px 8px;border-radius:10px;
+  font-size:11px;font-weight:700;
+  margin-bottom:7px;
+}
+.bub-task-title{
+  font-size:16px;font-weight:800;color:var(--orange);
+  margin-bottom:5px;
+}
+.bub-strong{font-weight:700;}
+.bub-p{margin-bottom:7px;}
+.bub-p:last-child{margin-bottom:0;}
+
+/* Banners inside bubbles */
+.banner{
+  border-radius:var(--radius-sm);padding:9px 12px;
+  margin-bottom:9px;font-size:13px;
+  display:flex;gap:8px;align-items:flex-start;
+}
+.banner.warn {background:var(--amber-bg);border-left:3px solid var(--amber);color:#78350F;}
+.banner.info {background:var(--navy-light);border-left:3px solid var(--navy);color:var(--navy);}
+.banner.ok   {background:var(--green-bg);border-left:3px solid var(--green);color:#065F46;}
+.banner.err  {background:var(--red-bg);border-left:3px solid var(--red);color:#7F1D1D;}
+
+/* Contact card */
+.contact-card{
+  background:var(--navy-light);border:1px solid var(--navy-border);
+  border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;
+}
+.contact-card .cc-name{font-weight:700;color:var(--navy);font-size:13px;}
+.contact-card .cc-row{font-size:12px;color:var(--g600);margin-top:3px;}
+
+/* Resource card */
+.res-card{
+  background:var(--orange-pale);border:1px solid var(--orange-border);
+  border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;
+}
+.res-card .rc-title{font-weight:700;color:var(--orange);font-size:13px;margin-bottom:4px;}
+.res-card .rc-item{font-size:12px;color:var(--g600);padding:2px 0;}
+
+/* Checklist */
+.bub-checklist{margin:8px 0;}
+.bub-cl-item{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 0;font-size:13px;
+}
+.cl-dot{
+  width:16px;height:16px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;flex-shrink:0;
+}
+.cl-dot.done{background:var(--green);color:white;}
+.cl-dot.todo{background:var(--g200);color:var(--g400);}
+.cl-dot.blk {background:var(--red);color:white;}
+.cl-dot.skip{background:var(--g300);color:white;}
+
+/* Progress summary box */
+.prog-box{
+  background:var(--g50);border:1px solid var(--g200);
+  border-radius:var(--radius-sm);padding:12px;margin-top:8px;
+}
+.prog-row{
+  display:flex;justify-content:space-between;
+  font-size:12px;padding:3px 0;
+}
+.prog-row .pr-lbl{color:var(--g500);}
+.prog-row .pr-val{font-weight:700;color:var(--g800);}
+
+/* Phase unlock box */
+.unlock-box{
+  background:linear-gradient(135deg,var(--navy),#0A4A9A);
+  color:white;border-radius:var(--radius-md);
+  padding:18px;text-align:center;margin-top:8px;
+}
+.unlock-box h3{font-size:17px;font-weight:800;margin-bottom:5px;}
+.unlock-box p{font-size:13px;opacity:.82;line-height:1.5;}
+
+/* Divider */
+.bub-hr{height:1px;background:var(--g200);margin:9px 0;}
+
+/* Inline template block */
+.template-block{
+  background:var(--g50);border:1px solid var(--g200);
+  border-radius:var(--radius-sm);padding:12px;margin-top:8px;
+  font-size:12px;color:var(--g600);line-height:1.6;
+  white-space:pre-wrap;font-style:italic;
+}
+
+/* ── TYPING INDICATOR ── */
+.typing-wrap{display:flex;gap:10px;align-items:flex-end;}
+.typing-bub{
+  background:white;border:1px solid var(--g200);
+  border-radius:var(--radius-lg);border-top-left-radius:4px;
+  padding:13px 16px;display:flex;gap:4px;
+  box-shadow:var(--shadow-sm);
+}
+.t-dot{
+  width:6px;height:6px;background:var(--g400);border-radius:50%;
+  animation:tdot 1.2s infinite;
+}
+.t-dot:nth-child(2){animation-delay:.2s;}
+.t-dot:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+
+/* ═══════════════════════════════════════
+   OPTIONS PANEL
+═══════════════════════════════════════ */
+#opts-panel{
+  padding:14px 20px 16px;
+  background:white;
+  border-top:1px solid var(--g200);
+  flex-shrink:0;
+}
+.opts-grid{display:flex;flex-wrap:wrap;gap:8px;}
+
+.opt-btn{
+  padding:9px 17px;
+  border-radius:24px;
+  font-size:13px;font-weight:600;
+  transition:all .13s;
+  border:2px solid var(--navy);
+  color:var(--navy);background:white;
+  display:flex;align-items:center;gap:5px;
+}
+.opt-btn:hover{background:var(--navy);color:white;}
+.opt-btn.primary{background:var(--orange);border-color:var(--orange);color:white;}
+.opt-btn.primary:hover{background:#C73A16;border-color:#C73A16;}
+.opt-btn.ghost{border-color:var(--g300);color:var(--g500);}
+.opt-btn.ghost:hover{background:var(--g100);color:var(--g800);}
+.opt-btn.warn{border-color:var(--amber);color:#78350F;}
+.opt-btn.warn:hover{background:var(--amber-bg);}
+.opt-btn.danger{border-color:var(--red);color:var(--red);}
+.opt-btn.danger:hover{background:var(--red-bg);}
+
+/* Free-text input row */
+.txt-row{display:flex;gap:8px;margin-top:8px;}
+.txt-in{
+  flex:1;padding:9px 14px;
+  border:2px solid var(--g200);border-radius:24px;
+  font-size:13px;outline:none;
+  transition:border-color .15s;
+}
+.txt-in:focus{border-color:var(--orange);}
+.txt-go{
+  padding:9px 18px;
+  background:var(--orange);color:white;
+  border-radius:24px;font-size:13px;font-weight:700;
+  transition:background .13s;
+}
+.txt-go:hover{background:#C73A16;}
+
+.opts-hint{font-size:11px;color:var(--g400);text-align:center;margin-top:6px;}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:720px){
+  #sidebar{display:none;}
+  .msg{max-width:96%;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ ONBOARDING OVERLAY ══ -->
+<div id="onboarding">
+  <div class="ob-card">
+    <div class="ob-logo">N</div>
+    <h1>Welcome to Naya</h1>
+    <p class="tagline">Your NIIT CAS onboarding guide — 90 days, step by step.</p>
+    <div class="ob-steps">
+      <div class="ob-step active" id="obs1"></div>
+      <div class="ob-step" id="obs2"></div>
+    </div>
+
+    <!-- Step 1: Name -->
+    <div id="ob-step1">
+      <label class="ob-label">Your first name</label>
+      <input class="ob-input" id="ob-name" type="text" placeholder="e.g. Priya" maxlength="40"/>
+      <button class="ob-btn" id="ob-name-next" disabled>Next →</button>
+    </div>
+
+    <!-- Step 2: hire_type -->
+    <div id="ob-step2" style="display:none;">
+      <label class="ob-label">I am joining as a…</label>
+      <div class="ht-grid">
+        <div class="ht-card" data-ht="entry" onclick="selectHT(this)">
+          <div class="ht-icon">🎓</div>
+          <h3>Entry Analyst</h3>
+          <p>Recent graduate or early-career joiner</p>
+        </div>
+        <div class="ht-card" data-ht="lateral" onclick="selectHT(this)">
+          <div class="ht-icon">💼</div>
+          <h3>Lateral Analyst</h3>
+          <p>Experienced professional switching into CAS</p>
+        </div>
+      </div>
+      <button class="ob-btn" id="ob-ht-start" disabled>Start Onboarding →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOP NAV ══ -->
+<nav id="topnav" style="display:none;">
+  <div class="nav-brand">
+    <div class="nav-icon">N</div>
+    <div>
+      <div class="nav-title">Naya</div>
+      <div class="nav-sub">NIIT CAS Onboarding</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-badge" id="nav-ht-badge">Entry</span>
+    <span class="nav-pct">Overall: <strong id="nav-pct-val">0%</strong></span>
+  </div>
+</nav>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sb-head">
+      <div class="sb-head-label">Your Progress</div>
+      <div class="sb-progress-labels">
+        <span id="sb-done-lbl">0 tasks complete</span>
+        <strong id="sb-pct-lbl">0%</strong>
+      </div>
+      <div class="sb-bar-wrap"><div class="sb-bar" id="sb-bar" style="width:0%"></div></div>
+    </div>
+    <div class="sb-body" id="sb-body">
+      <!-- Phase groups injected by JS -->
+    </div>
+    <div class="sb-foot">
+      <span>Naya v1.0 | NIIT CAS</span>
+      <span class="sb-reset" onclick="confirmReset()">↺ Reset</span>
+    </div>
+  </aside>
+
+  <!-- CHAT -->
+  <div id="chat-wrap">
+    <div id="chat-msgs"></div>
+    <div id="opts-panel">
+      <div class="opts-grid" id="opts-grid"></div>
+      <div class="txt-row" id="txt-row" style="display:none;">
+        <input class="txt-in" id="txt-in" placeholder="Type here…" />
+        <button class="txt-go" id="txt-go">Send</button>
+      </div>
+      <div class="opts-hint" id="opts-hint"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ PLACEHOLDER FOR JS (Parts 2, 3, 4 injected here) ══ -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// PART 2 — STATE MODEL + TASK REGISTRY
+// ═══════════════════════════════════════════════════════════════
+
+const STORAGE_KEY = 'naya_state_v1';
+
+// ── Default state factory ──
+function defaultState(name, hire_type) {
+  const allTaskIds = [
+    'P1','P2','P3','P4','P5','P6','P7',
+    'D1','D2','D3','D4',
+    'W1','W2','W3','W4','W5',
+    'M1','M2','M3','M4','M5','M6','M7',
+    'S1','S2','S3','S4','S5','S6',
+    'T1','T2','T3','T4','T5','T6'
+  ];
+  const task_states = {};
+  const retry_counts = {};
+  allTaskIds.forEach(id => { task_states[id] = 'PENDING'; retry_counts[id] = 0; });
+
+  return {
+    user_name: name,
+    hire_type,
+    phase: 'PH0',
+    task_states,
+    retry_counts,
+    meeting_states: { D1: 'not_started', D2: 'not_started' },
+    connect_list: [],
+    roster_type: null,
+    access_states: { access_teams: false, access_repository: false, access_onboarding_channel: false },
+    submission_states: { form_submitted: false, pdf_sent: false },
+    symphony_states: { provisioned: false, walkthrough_done: false, test_entry_logged: false },
+    long_running: {
+      M1: {
+        phase_week: { PH3: 0, PH4: 0, PH5: 0 },
+        connect_streak: { PH3: {}, PH4: {}, PH5: {} },
+        connect_mode: 'recurring',
+        connect_consistency: null
+      },
+      M4: {
+        streams: {
+          service_lines:              { started: false, takeaways_confirmed: false },
+          storefront_deep_dives:      { started: false, takeaways_confirmed: false },
+          practice_room_recordings:   { started: false, links_received: false, takeaways_confirmed: false },
+          core_consulting_frameworks: { started: false, takeaways_confirmed: false }
+        },
+        streams_complete: 0,
+        milestone_reached: false
+      }
+    },
+    M6: { casper: { access: false, used: false, requested: false }, repository: { used: false } },
+    M3: { priority_team_name: null },
+    survey_states: {
+      M7: { survey_submitted: false, checkin_done: false },
+      S6: { survey_submitted: false, checkin_done: false },
+      T6: { survey_submitted: false, check_in_done: false, next_quarter_plan_defined: false }
+    },
+    T2: { assigned: false, scope_defined: false, ownership_confirmed: false, deliverable_submitted: false, feedback_received: false },
+    T3: { forums_attended: 0, contribution_confirmed: false },
+    T4: { event_attended: false, event_not_available: false },
+    T5: { feedback_requested: false, feedback_received: false },
+    blocked_tasks: [],
+    skipped_tasks: [],
+    carry_forward: {},
+    is_new: true
+  };
+}
+
+// ── Persistence ──
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); }
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+function clearState() { localStorage.removeItem(STORAGE_KEY); }
+
+// ── Live state object ──
+let S = null;
+
+// ── Task registry ──
+const PHASES = [
+  {
+    id: 'PH0', name: 'Pre-Onboarding', short: 'Pre',
+    tasks: ['P1','P2','P3','P4','P5','P6','P7'],
+    milestone: 'P7',
+    survey: null
+  },
+  {
+    id: 'PH1', name: 'Day 1', short: 'Day 1',
+    tasks: ['D1','D2','D3','D4'],
+    milestone: 'D4',
+    survey: null
+  },
+  {
+    id: 'PH2', name: 'Week 1', short: 'Wk 1',
+    tasks: ['W1','W2','W3','W4','W5'],
+    milestone: 'W5',
+    survey: null
+  },
+  {
+    id: 'PH3', name: '30-Day', short: '30d',
+    tasks: ['M1','M2','M3','M4','M5','M6','M7'],
+    milestone: 'M7',
+    survey: 'https://www.surveymonkey.com/r/CASOnboardingFeedback30'
+  },
+  {
+    id: 'PH4', name: '60-Day', short: '60d',
+    tasks: ['S1','S2','S3','S4','S5','S6'],
+    milestone: 'S6',
+    survey: 'https://www.surveymonkey.com/r/CASOnboardingFeedback60'
+  },
+  {
+    id: 'PH5', name: '90-Day', short: '90d',
+    tasks: ['T1','T2','T3','T4','T5','T6'],
+    milestone: 'T6',
+    survey: 'https://www.surveymonkey.com/r/CASOnboardingFeedback90'
+  }
+];
+
+const PHASE_ORDER = ['PH0','PH1','PH2','PH3','PH4','PH5'];
+
+const TASKS = {
+  P1: { id:'P1', phase:'PH0', title:'Check Welcome Email',        type:'ACTION',       dep:null,         depType:null },
+  P2: { id:'P2', phase:'PH0', title:'Confirm IT Access',          type:'ACTION',       dep:'P1',         depType:'STRONG' },
+  P3: { id:'P3', phase:'PH0', title:'Join Teams Channels',        type:'ACTION',       dep:'P2',         depType:'STRONG' },
+  P4: { id:'P4', phase:'PH0', title:'Review Org + CAS Overview',  type:'ACTION',       dep:'P3',         depType:'WEAK' },
+  P5: { id:'P5', phase:'PH0', title:'Draft Intro Email',          type:'ACTION',       dep:'P4',         depType:'WEAK' },
+  P6: { id:'P6', phase:'PH0', title:'Create Bio Draft',           type:'ACTION',       dep:'P4',         depType:'WEAK' },
+  P7: { id:'P7', phase:'PH0', title:'Review Coffee Connect List', type:'ACTION',       dep:'P4',         depType:'WEAK' },
+  D1: { id:'D1', phase:'PH1', title:'Meet Buddy',                 type:'ACTION',       dep:null,         depType:null },
+  D2: { id:'D2', phase:'PH1', title:'Meet Coach',                 type:'ACTION',       dep:'D1',         depType:'WEAK' },
+  D3: { id:'D3', phase:'PH1', title:'Confirm System Access',      type:'ACTION',       dep:'P2',         depType:'DEDUP' },
+  D4: { id:'D4', phase:'PH1', title:'Submit Manual of Me',        type:'ACTION',       dep:'D3',         depType:'WEAK' },
+  W1: { id:'W1', phase:'PH2', title:'Confirm Connect List',       type:'ACTION',       dep:'P7',         depType:'WEAK' },
+  W2: { id:'W2', phase:'PH2', title:'Review MoM Profiles',        type:'ACTION',       dep:'W1',         depType:'WEAK' },
+  W3: { id:'W3', phase:'PH2', title:'Select 3-5 People',          type:'ACTION',       dep:'W1',         depType:'STRONG' },
+  W4: { id:'W4', phase:'PH2', title:'Draft & Send Invites',       type:'ACTION',       dep:'W3',         depType:'STRONG' },
+  W5: { id:'W5', phase:'PH2', title:'Complete First Connects',    type:'OUTCOME',      dep:'W4',         depType:'STRONG' },
+  M1: { id:'M1', phase:'PH3', title:'Weekly Connects',            type:'LONG_RUNNING', dep:'D1',         depType:'WEAK' },
+  M2: { id:'M2', phase:'PH3', title:'Symphony Setup',             type:'ACTION',       dep:'D3',         depType:'STRONG' },
+  M3: { id:'M3', phase:'PH3', title:'Priority Team Meeting',      type:'ACTION',       dep:null,         depType:null },
+  M4: { id:'M4', phase:'PH3', title:'Review CAS Content',         type:'LONG_RUNNING', dep:'D3',         depType:'WEAK' },
+  M5: { id:'M5', phase:'PH3', title:'Create One-Slider',          type:'ACTION',       dep:'P6',         depType:'WEAK' },
+  M6: { id:'M6', phase:'PH3', title:'Engage with CAS Tools',      type:'ACTION',       dep:'M2',         depType:'STRONG' },
+  M7: { id:'M7', phase:'PH3', title:'30-Day Survey',              type:'MILESTONE',    dep:'M1',         depType:'WEAK' },
+  S1: { id:'S1', phase:'PH4', title:'Continue Weekly Connects',   type:'LONG_RUNNING', dep:'M1',         depType:'CARRY_FWD' },
+  S2: { id:'S2', phase:'PH4', title:'Complete Remaining Connects',type:'OUTCOME',      dep:'W5',         depType:'CARRY_FWD' },
+  S3: { id:'S3', phase:'PH4', title:'Storefront Presentation',    type:'OUTCOME',      dep:'M4',         depType:'WEAK' },
+  S4: { id:'S4', phase:'PH4', title:'Join/Shadow Project',        type:'OUTCOME',      dep:'S1',         depType:'WEAK' },
+  S5: { id:'S5', phase:'PH4', title:'Balanced Scorecard',         type:'OUTCOME',      dep:'S1',         depType:'WEAK' },
+  S6: { id:'S6', phase:'PH4', title:'60-Day Survey',              type:'MILESTONE',    dep:'S1',         depType:'WEAK' },
+  T1: { id:'T1', phase:'PH5', title:'Continue Weekly Connects',   type:'LONG_RUNNING', dep:'S1',         depType:'CARRY_FWD' },
+  T2: { id:'T2', phase:'PH5', title:'Independent Project Role',   type:'OUTCOME_PLUS', dep:'M2',         depType:'STRONG' },
+  T3: { id:'T3', phase:'PH5', title:'Priority Team Forums',       type:'LIGHT_LR',     dep:'M3',         depType:'WEAK' },
+  T4: { id:'T4', phase:'PH5', title:'Consulting Connect/Conv.',   type:'EVENT',        dep:null,         depType:null },
+  T5: { id:'T5', phase:'PH5', title:'Request Coach Feedback',     type:'OUTCOME',      dep:'T1',         depType:'WEAK' },
+  T6: { id:'T6', phase:'PH5', title:'90-Day Survey + Plan',       type:'MILESTONE',    dep:'T1',         depType:'WEAK' }
+};
+
+// ── Phase index helpers ──
+function phaseIndex(phId) { return PHASE_ORDER.indexOf(phId); }
+function currentPhaseObj() { return PHASES.find(p => p.id === S.phase); }
+function getPhaseOf(taskId) { return TASKS[taskId].phase; }
+
+// ── Progress helpers ──
+function phaseProgress(phId) {
+  const ph = PHASES.find(p => p.id === phId);
+  if (!ph) return 0;
+  let score = 0, total = ph.tasks.length;
+  ph.tasks.forEach(tid => {
+    const st = S.task_states[tid];
+    if (st === 'COMPLETE') score += 1;
+    else if (st === 'IN_PROGRESS' && ['LONG_RUNNING','LIGHT_LR'].includes(TASKS[tid].type)) score += 0.5;
+  });
+  return Math.round((score / total) * 100);
+}
+
+function overallProgress() {
+  const all = Object.keys(TASKS);
+  let score = 0;
+  all.forEach(tid => {
+    const st = S.task_states[tid];
+    if (st === 'COMPLETE') score += 1;
+    else if (st === 'IN_PROGRESS' && ['LONG_RUNNING','LIGHT_LR'].includes(TASKS[tid].type)) score += 0.5;
+  });
+  return Math.round((score / all.length) * 100);
+}
+
+function completedCount(phId) {
+  const ph = PHASES.find(p => p.id === phId);
+  return ph.tasks.filter(tid => S.task_states[tid] === 'COMPLETE').length;
+}
+
+// ── Phase unlock check ──
+function isPhaseUnlocked(phId) {
+  const idx = phaseIndex(phId);
+  if (idx === 0) return true; // PH0 always unlocked
+  const prevPh = PHASES[idx - 1];
+  const prog = phaseProgress(prevPh.id);
+  const milestoneAttempted = S.task_states[prevPh.milestone] !== 'PENDING';
+  return prog >= 80 || milestoneAttempted;
+}
+
+// ── Highest unlocked phase ──
+function highestUnlockedPhase() {
+  for (let i = PHASE_ORDER.length - 1; i >= 0; i--) {
+    if (isPhaseUnlocked(PHASE_ORDER[i])) return PHASE_ORDER[i];
+  }
+  return 'PH0';
+}
+
+// ── Carry-forward check ──
+function shouldCheckPhaseUnlock() {
+  const curPh = S.phase;
+  const next = PHASE_ORDER[phaseIndex(curPh) + 1];
+  if (!next) return false;
+  return isPhaseUnlocked(next) && phaseIndex(S.phase) < phaseIndex(next);
+}
+
+// ── Set task state ──
+function setTaskState(tid, newState) {
+  if (S.task_states[tid] === 'COMPLETE' && newState !== 'COMPLETE') return; // never regress
+  S.task_states[tid] = newState;
+  if (newState === 'BLOCKED' && !S.blocked_tasks.includes(tid)) S.blocked_tasks.push(tid);
+  if (newState !== 'BLOCKED') S.blocked_tasks = S.blocked_tasks.filter(t => t !== tid);
+  if (newState === 'SKIPPED' && !S.skipped_tasks.includes(tid)) S.skipped_tasks.push(tid);
+  if (newState !== 'SKIPPED') S.skipped_tasks = S.skipped_tasks.filter(t => t !== tid);
+  saveState();
+}
+
+// ── Advance S.phase if newly unlocked ──
+function advancePhaseIfNeeded() {
+  const highest = highestUnlockedPhase();
+  if (phaseIndex(highest) > phaseIndex(S.phase)) {
+    S.phase = highest;
+    saveState();
+    return true;
+  }
+  return false;
+}
+
+// ── Helper: hire_type label ──
+function htLabel() { return S.hire_type === 'entry' ? 'Entry Analyst' : 'Lateral Analyst'; }
+function isEntry() { return S.hire_type === 'entry'; }
+
+// ── NIIT contacts ──
+const CONTACT_PRACHI = `<div class="contact-card">
+  <div class="cc-name">📇 Prachi Nautiyal</div>
+  <div class="cc-row">Email: <a href="mailto:Prachi.Nautiyal@niitmts.com">Prachi.Nautiyal@niitmts.com</a></div>
+  <div class="cc-row">Teams: <a href="mailto:prachi.nautiyal@niit.com">prachi.nautiyal@niit.com</a></div>
+</div>`;
+
+const PLACEHOLDER_MSG = `<div class="banner info">ℹ️ <span>This resource is a <strong>placeholder</strong> — ask your Coach or Buddy for the link/file before you begin.</span></div>`;
+
+
+// ═══════════════════════════════════════════════════════════════
+// PART 3 — CONVERSATION ENGINE + PH0–PH2 TASK FLOWS
+// ═══════════════════════════════════════════════════════════════
+
+// ── UI helpers ──
+function scrollBottom() {
+  const el = document.getElementById('chat-msgs');
+  el.scrollTop = el.scrollHeight;
+}
+
+function addMsg(role, html) {
+  const msgs = document.getElementById('chat-msgs');
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+
+  let avContent = role === 'bot' ? 'N' : (S ? S.user_name.charAt(0).toUpperCase() : 'U');
+  wrap.innerHTML = `
+    <div class="msg-av">${avContent}</div>
+    <div class="msg-bub">${html}</div>`;
+  msgs.appendChild(wrap);
+  scrollBottom();
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-msgs');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg bot';
+  wrap.id = 'typing-indicator';
+  wrap.innerHTML = `
+    <div class="msg-av">N</div>
+    <div class="typing-bub">
+      <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+    </div>`;
+  msgs.appendChild(wrap);
+  scrollBottom();
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function setOptions(opts, hint) {
+  const grid = document.getElementById('opts-grid');
+  const txtRow = document.getElementById('txt-row');
+  const hintEl = document.getElementById('opts-hint');
+  grid.innerHTML = '';
+  txtRow.style.display = 'none';
+  hintEl.textContent = hint || '';
+
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = `opt-btn ${opt.style || ''}`;
+    btn.innerHTML = opt.label;
+    btn.onclick = () => handleOption(opt);
+    grid.appendChild(btn);
+  });
+}
+
+function showTextInput(placeholder, onSubmit) {
+  const txtRow = document.getElementById('txt-row');
+  const txtIn  = document.getElementById('txt-in');
+  const txtGo  = document.getElementById('txt-go');
+  txtIn.placeholder = placeholder || 'Type here…';
+  txtIn.value = '';
+  txtRow.style.display = 'flex';
+  txtGo.onclick = () => { if (txtIn.value.trim()) onSubmit(txtIn.value.trim()); };
+  txtIn.onkeydown = (e) => { if (e.key === 'Enter' && txtIn.value.trim()) onSubmit(txtIn.value.trim()); };
+  txtIn.focus();
+}
+
+function hideTextInput() {
+  document.getElementById('txt-row').style.display = 'none';
+}
+
+// ── Delayed bot reply ──
+function botReply(html, opts, hint, delay) {
+  const d = delay !== undefined ? delay : 900;
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addMsg('bot', html);
+    if (opts) setOptions(opts, hint);
+    else setOptions([], hint);
+  }, d);
+}
+
+// ── User speaks ──
+function userSays(text) {
+  addMsg('user', text);
+}
+
+// ── Handle option click ──
+function handleOption(opt) {
+  userSays(opt.label.replace(/<[^>]+>/g, '').trim());
+  setOptions([], '');
+  hideTextInput();
+  if (opt.action) opt.action();
+}
+
+// ── Current task context ──
+let currentTask = null;
+let taskNode   = null;
+
+function openTask(taskId) {
+  const t = TASKS[taskId];
+  if (!t) return;
+
+  // Check phase locked
+  if (!isPhaseUnlocked(t.phase)) {
+    botReply(`<div class="banner warn">🔒 <span><strong>${PHASES.find(p=>p.id===t.phase).name}</strong> hasn't unlocked yet. Complete at least 80% of the previous phase first.</span></div>`, [
+      { label:'← Back', style:'ghost', action: showResumeOrWelcome }
+    ]);
+    return;
+  }
+
+  // If already COMPLETE
+  if (S.task_states[taskId] === 'COMPLETE') {
+    botReply(`<div class="banner ok">✅ <span><strong>${t.title}</strong> is already marked complete.</span></div>`, [
+      { label:'Continue to next task', style:'primary', action: openNextTask },
+      { label:'View checklist', style:'ghost', action: showChecklist }
+    ]);
+    return;
+  }
+
+  currentTask = taskId;
+  taskNode = 'main';
+  setTaskState(taskId, 'IN_PROGRESS');
+  updateSidebar();
+
+  // Dependency check
+  const dep = t.dep;
+  const depType = t.depType;
+  let depBanner = '';
+  if (dep && depType === 'STRONG') {
+    const depState = S.task_states[dep];
+    if (depState !== 'COMPLETE') {
+      depBanner = `<div class="banner warn">⚠️ <span><strong>${TASKS[dep].title}</strong> (${dep}) hasn't been completed — it's a recommended prerequisite. You can still proceed.</span></div>`;
+    }
+  }
+  if (dep && depType === 'DEDUP') {
+    const depState = S.task_states[dep];
+    if (depState === 'COMPLETE') {
+      depBanner = `<div class="banner info">ℹ️ <span>You already confirmed IT access in <strong>${dep}</strong>. This check is about day-to-day usability — not credential setup.</span></div>`;
+    }
+  }
+
+  // Route to task handler
+  const handler = TASK_HANDLERS[taskId];
+  if (handler) handler(depBanner);
+  else genericTask(taskId, depBanner);
+}
+
+function openNextTask() {
+  // Find next PENDING/IN_PROGRESS task in current or next phase
+  const phases = PHASES.filter(p => isPhaseUnlocked(p.id));
+  for (const ph of phases) {
+    for (const tid of ph.tasks) {
+      const st = S.task_states[tid];
+      if (st === 'PENDING' || st === 'IN_PROGRESS' || st === 'BLOCKED') {
+        openTask(tid);
+        return;
+      }
+    }
+  }
+  botReply(`<div class="banner ok">🎉 You've completed all available tasks! Check back after your next milestone survey.</div>`, [
+    { label:'View checklist', style:'ghost', action: showChecklist }
+  ]);
+}
+
+function genericTask(tid, banner) {
+  const t = TASKS[tid];
+  botReply(`${banner}<div class="bub-task-title">${t.id}: ${t.title}</div>
+    <p class="bub-p">Let's work through this task together.</p>`, [
+    { label:'✅ Mark complete', style:'primary', action: () => completeTask(tid) },
+    { label:'🔄 In progress', style:'', action: () => { setTaskState(tid,'IN_PROGRESS'); openNextTask(); } },
+    { label:'🚫 Mark blocked', style:'danger', action: () => blockTask(tid) },
+    { label:'⏭️ Skip', style:'ghost', action: () => skipTask(tid) }
+  ]);
+}
+
+function completeTask(tid, msg) {
+  setTaskState(tid, 'COMPLETE');
+  updateSidebar();
+  const unlocked = advancePhaseIfNeeded();
+  const finMsg = msg || `<div class="banner ok">✅ <span><strong>${TASKS[tid].title}</strong> marked complete!</span></div>`;
+  if (unlocked) {
+    const newPh = PHASES.find(p => p.id === S.phase);
+    botReply(finMsg + `<div class="unlock-box"><h3>🔓 ${newPh.name} Unlocked!</h3><p>You've unlocked the next phase. Ready to continue?</p></div>`, [
+      { label:`Start ${newPh.name} →`, style:'primary', action: openNextTask },
+      { label:'View checklist', style:'ghost', action: showChecklist }
+    ], '', 600);
+  } else {
+    botReply(finMsg, [
+      { label:'Next task →', style:'primary', action: openNextTask },
+      { label:'View checklist', style:'ghost', action: showChecklist }
+    ], '', 600);
+  }
+}
+
+function blockTask(tid) {
+  setTaskState(tid, 'BLOCKED');
+  updateSidebar();
+  botReply(`<div class="banner err">🚫 <span><strong>${TASKS[tid].title}</strong> marked as blocked. It'll appear in your resume summary every session until resolved.</span></div>`, [
+    { label:'Next task →', style:'primary', action: openNextTask },
+    { label:'Try again later', style:'ghost', action: showResumeOrWelcome }
+  ]);
+}
+
+function skipTask(tid) {
+  const t = TASKS[tid];
+  if (t.type === 'MILESTONE') {
+    botReply(`<div class="banner warn">⚠️ <span>Milestone tasks cannot be skipped — they close out the phase. Please complete the survey to continue.</span></div>`, [
+      { label:'Take me to the survey', style:'primary', action: () => openTask(tid) }
+    ]);
+    return;
+  }
+  setTaskState(tid, 'SKIPPED');
+  updateSidebar();
+  botReply(`<div class="banner warn">⏭️ <span><strong>${t.title}</strong> skipped. It'll resurface at the end of this phase.</span></div>`, [
+    { label:'Next task →', style:'primary', action: openNextTask },
+    { label:'View checklist', style:'ghost', action: showChecklist }
+  ]);
+}
+
+function showHelpBranch(tid) {
+  botReply(`<strong>Need help with ${TASKS[tid].title}?</strong><br>
+    <p class="bub-p" style="margin-top:6px;">Choose an option below:</p>`, [
+    { label:'🚫 Mark as BLOCKED', style:'danger', action: () => blockTask(tid) },
+    { label:'🔄 Try again later', style:'ghost', action: () => { setTaskState(tid,'IN_PROGRESS'); showResumeOrWelcome(); } },
+    { label:'📋 View checklist', style:'ghost', action: showChecklist },
+    { label:'← Back to task', style:'ghost', action: () => openTask(tid) }
+  ]);
+}
+
+// ══════════════════════════════════════════════════
+// RESUME & WELCOME
+// ══════════════════════════════════════════════════
+function showResumeOrWelcome() {
+  updateSidebar();
+  if (S.is_new) {
+    S.is_new = false;
+    saveState();
+    showWelcome();
+  } else {
+    showResume();
+  }
+}
+
+function showWelcome() {
+  const ph = PHASES.find(p => p.id === 'PH0');
+  botReply(`<div class="bub-phase-tag">Pre-Onboarding — Phase 0</div>
+    <div class="bub-task-title">Hi ${S.user_name}! 👋 Welcome to NIIT CAS.</div>
+    <p class="bub-p">I'm <strong>Naya</strong>, your onboarding guide. I'll walk you through every step — from setting up IT access today to completing your 90-day plan.</p>
+    <p class="bub-p">You're joining as a <strong>${htLabel()}</strong>. This journey has <strong>6 phases</strong> and <strong>36 tasks</strong>.</p>
+    <p class="bub-p">Let's start with the basics — your welcome email and IT setup.</p>`, [
+    { label:'Let\'s go! →', style:'primary', action: () => openTask('P1') },
+    { label:'View all phases', style:'ghost', action: showChecklist }
+  ]);
+}
+
+function showResume() {
+  const blocked = S.blocked_tasks.map(t => `<li>🚫 ${t}: ${TASKS[t].title}</li>`).join('');
+  const skipped = S.skipped_tasks.map(t => `<li>⏭️ ${t}: ${TASKS[t].title}</li>`).join('');
+  const ph = PHASES.find(p => p.id === S.phase);
+  const prog = phaseProgress(S.phase);
+  const done = completedCount(S.phase);
+
+  let blockedSection = blocked ? `<div class="bub-hr"></div><p class="bub-p"><strong>Blocked tasks:</strong></p><ul style="padding-left:16px;font-size:13px;color:#DC2626;">${blocked}</ul>` : '';
+  let skippedSection = skipped ? `<div class="bub-hr"></div><p class="bub-p"><strong>Skipped tasks:</strong></p><ul style="padding-left:16px;font-size:13px;color:#9CA3AF;">${skipped}</ul>` : '';
+
+  botReply(`<strong>Welcome back, ${S.user_name}! 👋</strong>
+    <div class="prog-box" style="margin-top:8px;">
+      <div class="prog-row"><span class="pr-lbl">Current phase</span><span class="pr-val">${ph.name}</span></div>
+      <div class="prog-row"><span class="pr-lbl">Phase progress</span><span class="pr-val">${done}/${ph.tasks.length} tasks (${prog}%)</span></div>
+      <div class="prog-row"><span class="pr-lbl">Overall progress</span><span class="pr-val">${overallProgress()}%</span></div>
+      ${S.blocked_tasks.length ? `<div class="prog-row"><span class="pr-lbl" style="color:#DC2626;">Blocked</span><span class="pr-val" style="color:#DC2626;">${S.blocked_tasks.length} tasks</span></div>` : ''}
+    </div>
+    ${blockedSection}${skippedSection}`, [
+    { label:'▶ Resume next task', style:'primary', action: openNextTask },
+    { label:'📋 Full checklist', style:'ghost', action: showChecklist },
+    { label:'🔀 Jump to a phase', style:'ghost', action: showPhaseJump }
+  ]);
+}
+
+function showChecklist() {
+  let html = '<strong>📋 Your Onboarding Checklist</strong><div class="bub-hr"></div>';
+  PHASES.forEach(ph => {
+    const locked = !isPhaseUnlocked(ph.id);
+    html += `<p class="bub-p" style="margin-bottom:4px;font-weight:700;color:${locked?'#9CA3AF':'#003087'};">${ph.name}${locked?' 🔒':''}</p>`;
+    html += '<div class="bub-checklist">';
+    ph.tasks.forEach(tid => {
+      const st = S.task_states[tid];
+      const icons = { PENDING:'○', IN_PROGRESS:'◑', COMPLETE:'✓', BLOCKED:'✗', SKIPPED:'—' };
+      const colors = { PENDING:'todo', IN_PROGRESS:'todo', COMPLETE:'done', BLOCKED:'blk', SKIPPED:'skip' };
+      html += `<div class="bub-cl-item"><div class="cl-dot ${colors[st]||'todo'}">${icons[st]||'○'}</div><span>${tid}: ${TASKS[tid].title}</span></div>`;
+    });
+    html += '</div>';
+  });
+  botReply(html, [
+    { label:'▶ Resume next task', style:'primary', action: openNextTask },
+    { label:'🔀 Jump to a phase', style:'ghost', action: showPhaseJump }
+  ]);
+}
+
+function showPhaseJump() {
+  const opts = PHASES.filter(p => isPhaseUnlocked(p.id)).map(ph => ({
+    label: ph.name,
+    style: ph.id === S.phase ? 'primary' : '',
+    action: () => {
+      S.phase = ph.id;
+      saveState();
+      openNextTask();
+    }
+  }));
+  opts.push({ label:'← Back', style:'ghost', action: showResume });
+  botReply('<strong>Jump to a phase:</strong>', opts);
+}
+
+// ══════════════════════════════════════════════════
+// TASK HANDLERS — PH0
+// ══════════════════════════════════════════════════
+const TASK_HANDLERS = {};
+
+// ── P1: Check Welcome Email ──
+TASK_HANDLERS['P1'] = function(banner) {
+  botReply(`${banner}<div class="bub-phase-tag">Pre-Onboarding</div>
+    <div class="bub-task-title">P1: Check Welcome Email</div>
+    <p class="bub-p">Your welcome email from NIIT HR contains your login credentials and contact details for your Buddy and Coach.</p>
+    <p class="bub-p">Have you received and located it?</p>`, [
+    { label:'[A] Yes, I have it', style:'primary', action: p1_hasEmail },
+    { label:'[B] Can\'t find it', style:'', action: p1_cantFind },
+    { label:'[C] Haven\'t received it', style:'', action: p1_notReceived },
+    { label:'[D] Skip for now', style:'ghost', action: () => skipTask('P1') }
+  ]);
+};
+function p1_hasEmail() {
+  botReply(`Does your welcome email include your <strong>login credentials</strong> (M365 username + password)?`, [
+    { label:'[A] Yes, credentials confirmed', style:'primary', action: () => completeTask('P1', `<div class="banner ok">✅ Welcome email confirmed with credentials. Moving to IT access setup.</div>`) },
+    { label:'[B] Email found but no credentials', style:'', action: p1_noCredentials },
+    { label:'[C] Not sure', style:'ghost', action: p1_notSure }
+  ]);
+}
+function p1_noCredentials() {
+  S.retry_counts['P1'] = (S.retry_counts['P1'] || 0) + 1;
+  saveState();
+  if (S.retry_counts['P1'] >= 2) {
+    botReply(`<div class="banner warn">⚠️ You've tried twice. Let's escalate.</div>
+      <p class="bub-p">Credentials are sometimes sent in a <strong>separate email from IT</strong> (not HR). Check for an email from your IT team or Microsoft with subject "Your Microsoft 365 credentials".</p>`, [
+      { label:'Found it!', style:'primary', action: () => completeTask('P1', '<div class="banner ok">✅ Credentials found. Welcome email confirmed!</div>') },
+      { label:'Still can\'t find it', style:'danger', action: () => showHelpBranch('P1') }
+    ]);
+  } else {
+    botReply(`<p class="bub-p">Credentials are sometimes sent in a <strong>separate IT email</strong>. Try:</p>
+      <ul style="padding-left:18px;font-size:13px;margin-top:4px;">
+        <li>Search: sender "IT@niit.com" or subject "credentials"</li>
+        <li>Check the email attachment (sometimes a PDF)</li>
+        <li>Check spam/junk folder</li>
+      </ul>`, [
+      { label:'Found it!', style:'primary', action: () => completeTask('P1', '<div class="banner ok">✅ Credentials confirmed!</div>') },
+      { label:'Still missing', style:'', action: () => showHelpBranch('P1') }
+    ]);
+  }
+}
+function p1_notSure() {
+  botReply(`Your credentials are usually your <strong>NIIT email address</strong> (e.g. firstname.lastname@niitmts.com) and a temporary password. Check your welcome email again — it should be in the body or an attached PDF.`, [
+    { label:'Found credentials ✅', style:'primary', action: () => completeTask('P1', '<div class="banner ok">✅ Welcome email confirmed!</div>') },
+    { label:'Still unsure', style:'', action: () => showHelpBranch('P1') }
+  ]);
+}
+function p1_cantFind() {
+  botReply(`Let's find it. Try these searches in your personal email inbox:
+    <ul style="padding-left:18px;font-size:13px;margin-top:6px;">
+      <li>Sender: "niit.com" or "niitmts.com"</li>
+      <li>Subject: "Welcome to NIIT" or "Onboarding"</li>
+      <li>Check <strong>spam, promotions, and all inboxes</strong></li>
+    </ul>`, [
+    { label:'Found it! ✅', style:'primary', action: p1_hasEmail },
+    { label:'Still can\'t find it', style:'', action: () => showHelpBranch('P1') }
+  ]);
+}
+function p1_notReceived() {
+  botReply(`It may take a day or two after your contract is confirmed. In the meantime:
+    <ul style="padding-left:18px;font-size:13px;margin-top:6px;">
+      <li>Check spam and promotions tabs</li>
+      <li>If it's Day 1, contact your <strong>Buddy</strong> or <strong>recruiting contact</strong></li>
+      <li>IT Helpdesk details are usually in your offer letter</li>
+    </ul>`, [
+    { label:'Just found it ✅', style:'primary', action: p1_hasEmail },
+    { label:'Mark as BLOCKED', style:'danger', action: () => blockTask('P1') },
+    { label:'Skip for now', style:'ghost', action: () => skipTask('P1') }
+  ]);
+}
+
+// ── P2: Confirm IT Access ──
+TASK_HANDLERS['P2'] = function(banner) {
+  const p1state = S.task_states['P1'];
+  let warn = banner;
+  if (p1state === 'BLOCKED') warn += `<div class="banner warn">⚠️ P1 is blocked — you may not have credentials yet. You can still try if you received them another way.</div>`;
+  if (p1state === 'SKIPPED') warn += `<div class="banner warn">⚠️ You skipped P1. Make sure you have your credentials before continuing.</div>`;
+
+  botReply(`${warn}<div class="bub-task-title">P2: Confirm IT Access</div>
+    <p class="bub-p">Log into <a href="https://login.microsoftonline.com" target="_blank">Microsoft 365</a> and open <strong>Microsoft Teams</strong>.</p>
+    <p class="bub-p">Can you log in and see Teams?</p>`, [
+    { label:'[A] Yes — logged in, Teams is open', style:'primary', action: p2_loggedIn },
+    { label:'[B] Have credentials, can\'t log in', style:'', action: p2_cantLogin },
+    { label:'[C] No credentials yet', style:'', action: p2_noCredentials },
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('P2') }
+  ]);
+};
+function p2_loggedIn() {
+  botReply(`When Teams opens, can you see your assigned channels — including a <strong>CAS Team</strong> channel?`, [
+    { label:'Yes, all visible ✅', style:'primary', action: () => completeTask('P2', '<div class="banner ok">✅ IT access confirmed. Teams is working.</div>') },
+    { label:'Teams opens but channels are missing', style:'', action: () => {
+      botReply(`<p class="bub-p">Channels can take a few hours to appear after provisioning. Try:</p>
+        <ul style="padding-left:18px;font-size:13px;">
+          <li>Click <strong>Teams</strong> in the left sidebar → scroll down</li>
+          <li>Search for "CAS" in the search bar</li>
+          <li>Sign out and back in</li>
+        </ul>`, [
+        { label:'Found channels ✅', style:'primary', action: () => completeTask('P2', '<div class="banner ok">✅ IT access confirmed!</div>') },
+        { label:'Still not showing', style:'', action: () => showHelpBranch('P2') }
+      ]);
+    }}
+  ]);
+}
+function p2_cantLogin() {
+  botReply(`<p class="bub-p">Try these steps:</p>
+    <ul style="padding-left:18px;font-size:13px;">
+      <li>Use a private/incognito browser window</li>
+      <li>Try the <strong>Teams desktop app</strong> instead of the browser</li>
+      <li>Clear browser cache and cookies</li>
+      <li>Contact <strong>IT Helpdesk</strong> (details in your welcome email)</li>
+    </ul>`, [
+    { label:'Fixed — logged in ✅', style:'primary', action: () => completeTask('P2', '<div class="banner ok">✅ IT access confirmed!</div>') },
+    { label:'Still blocked', style:'danger', action: () => showHelpBranch('P2') }
+  ]);
+}
+function p2_noCredentials() {
+  botReply(`<div class="banner warn">⚠️ No credentials yet? Let's resolve P1 first.</div>
+    <p class="bub-p">Your credentials come from your welcome email. If you don't have them, contact your Buddy or the IT Helpdesk.</p>`, [
+    { label:'Go back to P1', style:'primary', action: () => openTask('P1') },
+    { label:'Mark P2 as BLOCKED', style:'danger', action: () => blockTask('P2') }
+  ]);
+}
+
+// ── P3: Join Teams Channels ──
+TASK_HANDLERS['P3'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">P3: Join Teams Channels</div>
+    <p class="bub-p">You need access to these 5 channels:</p>
+    <div class="bub-checklist">
+      <div class="bub-cl-item"><div class="cl-dot todo">1</div><span>CAS Team (general)</span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">2</div><span>NIIT Practice Management</span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">3</div><span>CAS Onboarding Channel (private — Buddy adds you)</span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">4</div><span>Your assigned project / function channel</span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">5</div><span>All Hands / Company channel</span></div>
+    </div>`, [
+    { label:'[A] Joined all 5 ✅', style:'primary', action: p3_allJoined },
+    { label:'[B] Joined some, not all', style:'', action: p3_someJoined },
+    { label:'[C] Haven\'t started yet', style:'', action: p3_notStarted },
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('P3') }
+  ]);
+};
+function p3_allJoined() {
+  botReply(`Can you see messages and files in all 5 channels?`, [
+    { label:'Yes, all accessible ✅', style:'primary', action: () => completeTask('P3', '<div class="banner ok">✅ All 5 Teams channels confirmed accessible!</div>') },
+    { label:'Some appear empty or locked', style:'', action: p3_someJoined }
+  ]);
+}
+function p3_someJoined() {
+  botReply(`Which channel is causing issues?`, [
+    { label:'Private Onboarding Channel', style:'', action: () => {
+      botReply(`<div class="banner info">ℹ️ The private Onboarding Channel requires your <strong>Buddy</strong> to add you. Contact your Buddy to request access.</div>
+        <p class="bub-p">Once your Buddy adds you, you'll get a notification in Teams.</p>`, [
+        { label:'Buddy has added me ✅', style:'primary', action: () => completeTask('P3', '<div class="banner ok">✅ All channels confirmed!</div>') },
+        { label:'Can\'t reach Buddy', style:'danger', action: () => blockTask('P3') }
+      ]);
+    }},
+    { label:'Another channel', style:'', action: () => {
+      botReply(`Try: Open Teams → click <strong>"Teams"</strong> in the left bar → <strong>"Join or create a team"</strong> → search for the channel name. Your Coach or Buddy can also share a direct invite link.`, [
+        { label:'Joined now ✅', style:'primary', action: () => completeTask('P3', '<div class="banner ok">✅ All channels confirmed!</div>') },
+        { label:'Still having trouble', style:'', action: () => showHelpBranch('P3') }
+      ]);
+    }}
+  ]);
+}
+function p3_notStarted() {
+  botReply(`Here's how to join channels in Teams:
+    <ol style="padding-left:18px;font-size:13px;margin-top:6px;">
+      <li>Open Teams and click <strong>"Teams"</strong> in the left sidebar</li>
+      <li>Click <strong>"Join or create a team"</strong> at the bottom</li>
+      <li>Search for each channel by name and click Join</li>
+      <li>For the private Onboarding channel — ask your Buddy to add you</li>
+    </ol>`, [
+    { label:'Done — all joined ✅', style:'primary', action: () => completeTask('P3', '<div class="banner ok">✅ All 5 Teams channels joined!</div>') },
+    { label:'Need more help', style:'', action: () => showHelpBranch('P3') }
+  ]);
+}
+
+// ── P4: Review Org + CAS Overview ──
+TASK_HANDLERS['P4'] = function(banner) {
+  const tip = isEntry()
+    ? `💡 <em>Entry tip: Don't worry about memorising names yet — just get a feel for the structure.</em>`
+    : `💡 <em>Lateral tip: Focus on how CAS differs from your previous org. Note the storefront model.</em>`;
+  botReply(`${banner}<div class="bub-task-title">P4: Review Org + CAS Overview</div>
+    <p class="bub-p">Before Day 1, get familiar with who NIIT CAS is and how the team is structured.</p>
+    <div class="res-card">
+      <div class="rc-title">📚 Resources (CAS Repository → 03 Onboarding Guide Resources)</div>
+      <div class="rc-item">🎥 Session 1 — Welcome to NIIT CAS</div>
+      <div class="rc-item">🎥 Session 2 — NIIT CAS Deep Dive</div>
+      <div class="rc-item">🎥 Session 3 — Intro to Wider NIIT</div>
+      <div class="rc-item">📄 CAS Org Chart (CAS Repository)</div>
+    </div>
+    <p class="bub-p" style="margin-top:8px;">${tip}</p>`, [
+    { label:'[A] Reviewed it all', style:'primary', action: p4_reviewed },
+    { label:'[B] Reviewed some', style:'', action: () => { setTaskState('P4','IN_PROGRESS'); botReply('<div class="banner info">ℹ️ No problem — come back when you\'ve had a chance to go through more. I\'ll remind you next session.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]); }},
+    { label:'[C] Haven\'t started', style:'', action: () => { setTaskState('P4','IN_PROGRESS'); botReply('<p class="bub-p">The sessions are about 30 minutes each. Even one session before Day 1 helps. Come back and confirm when you\'re done!</p>', [{ label:'Next task →', style:'primary', action: openNextTask }]); }},
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('P4') }
+  ]);
+};
+function p4_reviewed() {
+  botReply(`Quick check — can you <strong>name one CAS service line or practice area</strong>?`, [
+    { label:'Yes — Learning Transformation', style:'primary', action: () => completeTask('P4', '<div class="banner ok">✅ CAS overview reviewed. Good to go!</div>') },
+    { label:'Yes — Workforce Skilling', style:'primary', action: () => completeTask('P4', '<div class="banner ok">✅ CAS overview reviewed!</div>') },
+    { label:'Yes — L&T Technologies / Intelligence', style:'primary', action: () => completeTask('P4', '<div class="banner ok">✅ CAS overview reviewed!</div>') },
+    { label:'Not sure yet', style:'ghost', action: () => {
+      botReply(`<p class="bub-p">That's okay! The four main service areas are: <strong>Learning Transformation, Workforce Skilling, L&T Technologies,</strong> and <strong>L&T Intelligence</strong>. You'll learn much more on Day 1.</p>`, [
+        { label:'Got it — mark complete ✅', style:'primary', action: () => completeTask('P4', '<div class="banner ok">✅ CAS overview reviewed!</div>') }
+      ]);
+    }}
+  ]);
+}
+
+// ── P5: Draft Intro Email ──
+TASK_HANDLERS['P5'] = function(banner) {
+  const templateEntry = `Hi CAS Team,
+
+My name is ${S.user_name} and I'm joining as an Entry Analyst. I'm excited to be part of the team and look forward to connecting with everyone.
+
+I'll be in touch to set up some coffee connects in my first week.
+
+Best,
+${S.user_name}`;
+
+  const templateLateral = `Hi CAS Team,
+
+My name is ${S.user_name} and I'm joining CAS from [Previous Organisation], where I focused on [area of expertise]. I'm excited to bring that experience into the consulting environment here and look forward to connecting.
+
+I'll be in touch to schedule some coffee connects this week.
+
+Best,
+${S.user_name}`;
+
+  const template = isEntry() ? templateEntry : templateLateral;
+  const tip = isEntry()
+    ? `💡 <em>Keep it warm and brief — 3-4 lines is perfect.</em>`
+    : `💡 <em>Add a line about your previous department and what you bring. Be specific.</em>`;
+
+  botReply(`${banner}<div class="bub-task-title">P5: Draft Intro Email</div>
+    <p class="bub-p">Send a brief intro email to the CAS team. <strong>CC your Coach</strong>.</p>
+    <p class="bub-p">${tip}</p>`, [
+    { label:'[A] Drafted and sent ✅', style:'primary', action: p5_sent },
+    { label:'[B] Show me the template', style:'', action: () => {
+      botReply(`Here's your template — customise and send:<div class="template-block">${template}</div>`, [
+        { label:'Sent it ✅', style:'primary', action: p5_sent },
+        { label:'Will send later', style:'ghost', action: () => { setTaskState('P5','IN_PROGRESS'); openNextTask(); } }
+      ]);
+    }},
+    { label:'[C] Will do it later', style:'ghost', action: () => { setTaskState('P5','IN_PROGRESS'); openNextTask(); } },
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('P5') }
+  ]);
+};
+function p5_sent() {
+  botReply(`Did you <strong>CC your Coach</strong> on the email?`, [
+    { label:'Yes, Coach is CC\'d ✅', style:'primary', action: () => completeTask('P5', '<div class="banner ok">✅ Intro email sent with Coach CC\'d!</div>') },
+    { label:'Forgot — sending now', style:'', action: () => completeTask('P5', '<div class="banner ok">✅ Intro email complete!</div>') }
+  ]);
+}
+
+// ── P6: Create Bio Draft ──
+TASK_HANDLERS['P6'] = function(banner) {
+  const tip = isEntry()
+    ? `💡 <em>Focus on academic projects, internships, and the analytical skills you're building.</em>`
+    : `💡 <em>Write as a consultant — lead with outcomes from previous roles, not responsibilities.</em>`;
+
+  botReply(`${banner}<div class="bub-task-title">P6: Create Bio Draft</div>
+    <p class="bub-p">Your bio is submitted to Prachi and used for your St. Charles Consulting Group profile.</p>
+    ${CONTACT_PRACHI}
+    <p class="bub-p" style="margin-top:8px;">Key sections: Name | Summary | Expertise | Experience | Education | Headshot</p>
+    <p class="bub-p">${tip}</p>`, [
+    { label:'[A] Bio sent to Prachi ✅', style:'', action: () => { botReply(`Did you also create your <strong>St. Charles Consulting Group</strong> profile?`, [
+      { label:'Yes — both done ✅', style:'primary', action: () => completeTask('P6', '<div class="banner ok">✅ Bio submitted and St. Charles profile created!</div>') },
+      { label:'Not yet — will do', style:'', action: () => { setTaskState('P6','IN_PROGRESS'); openNextTask(); } }
+    ]); }},
+    { label:'[B] Profile created ✅', style:'', action: () => { botReply(`Did you also send your bio to Prachi?`, [
+      { label:'Yes — both done ✅', style:'primary', action: () => completeTask('P6', '<div class="banner ok">✅ Bio and profile complete!</div>') },
+      { label:'Not yet', style:'', action: () => { setTaskState('P6','IN_PROGRESS'); openNextTask(); } }
+    ]); }},
+    { label:'[C] Both done ✅', style:'primary', action: () => completeTask('P6', '<div class="banner ok">✅ Bio and St. Charles profile complete!</div>') },
+    { label:'[D] Haven\'t started', style:'', action: () => {
+      botReply(`That's fine! Draft your bio using the 6 sections above and email it to Prachi when ready. Come back to confirm.`, [
+        { label:'Will do — next task', style:'primary', action: () => { setTaskState('P6','IN_PROGRESS'); openNextTask(); } }
+      ]);
+    }},
+    { label:'[E] Skip', style:'ghost', action: () => skipTask('P6') }
+  ]);
+};
+
+// ── P7: Review Coffee Connect List ──
+TASK_HANDLERS['P7'] = function(banner) {
+  const priorityOrder = isEntry()
+    ? `<ol style="padding-left:18px;font-size:13px;"><li>Your Buddy</li><li>1–2 analyst peers</li><li>1 senior person when you're ready</li></ol>`
+    : `<ol style="padding-left:18px;font-size:13px;"><li>A Director or senior lead</li><li>1–2 peers from different functions</li><li>An analyst peer</li></ol>`;
+  const tip = isEntry()
+    ? `💡 <em>These are low-pressure curiosity conversations. Come as you are.</em>`
+    : `💡 <em>Treat these as two-way exchanges — come prepared to share too.</em>`;
+
+  botReply(`${banner}<div class="bub-task-title">P7: Review Coffee Connect List</div>
+    <p class="bub-p">Review the <strong>Coffee Connect list</strong> (from your Buddy or CAS Team channel) and identify 2+ people you'd like to meet in Week 1.</p>
+    <div class="bub-hr"></div>
+    <p class="bub-p"><strong>Suggested priority order for ${htLabel()}:</strong></p>
+    ${priorityOrder}
+    <p class="bub-p" style="margin-top:6px;">${tip}</p>`, [
+    { label:'[A] Reviewed — I have 2+ people in mind ✅', style:'primary', action: () => completeTask('P7', '<div class="banner ok">✅ Coffee Connect list reviewed. Week 1 network plan started!</div>') },
+    { label:'[B] Reviewed — still deciding', style:'', action: () => { setTaskState('P7','IN_PROGRESS'); botReply('<p class="bub-p">No rush — come back to confirm once you\'ve picked your 2-3 people.</p>', [{ label:'Next task →', style:'primary', action: openNextTask }]); }},
+    { label:'[C] Haven\'t received the list', style:'', action: () => {
+      botReply(`<div class="banner info">ℹ️ Ask your Buddy for the <strong>Coffee Connect Person to Meet list</strong>. If you haven't met your Buddy yet, check the CAS Team channel on Teams.</div>`, [
+        { label:'Will ask Buddy — mark in progress', style:'', action: () => { setTaskState('P7','IN_PROGRESS'); openNextTask(); } },
+        { label:'Mark as BLOCKED', style:'danger', action: () => blockTask('P7') }
+      ]);
+    }},
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('P7') }
+  ]);
+};
+
+// ══════════════════════════════════════════════════
+// TASK HANDLERS — PH1
+// ══════════════════════════════════════════════════
+
+// ── D1: Meet Buddy ──
+TASK_HANDLERS['D1'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">D1: Meet Buddy</div>
+    <p class="bub-p">Your Buddy is your go-to support person in Week 1. Have you had your first meeting?</p>`, [
+    { label:'[A] Yes, we\'ve met ✅', style:'primary', action: () => {
+      S.meeting_states.D1 = 'done'; saveState();
+      botReply(`Did you align on a <strong>Week 1 plan</strong> — any key meetings or tasks to prioritise?`, [
+        { label:'Yes — plan aligned ✅', style:'primary', action: () => completeTask('D1', '<div class="banner ok">✅ Buddy meeting done and Week 1 plan aligned!</div>') },
+        { label:'Not yet — just an intro', style:'', action: () => completeTask('D1', '<div class="banner ok">✅ First Buddy meeting done!</div>') }
+      ]);
+    }},
+    { label:'[B] Meeting is scheduled', style:'', action: () => {
+      S.meeting_states.D1 = 'scheduled'; saveState();
+      botReply('<div class="banner info">ℹ️ Great — come back after your Buddy meeting to confirm.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+    }},
+    { label:'[C] Can\'t reach my Buddy', style:'', action: () => {
+      botReply(`<div class="banner warn">⚠️ If your Buddy is unreachable, escalate to your <strong>Coach</strong>. Your Coach can help connect you or temporarily fill the Buddy role.</div>`, [
+        { label:'Mark as BLOCKED', style:'danger', action: () => blockTask('D1') },
+        { label:'Will try again', style:'ghost', action: () => { setTaskState('D1','IN_PROGRESS'); openNextTask(); } }
+      ]);
+    }},
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('D1') }
+  ]);
+};
+
+// ── D2: Meet Coach ──
+TASK_HANDLERS['D2'] = function(banner) {
+  const tip = isEntry()
+    ? `💡 <em>Entry tip: Use this to ask basic questions freely — that's exactly what it's for.</em>`
+    : `💡 <em>Lateral tip: Map your prior experience to CAS expectations. Be specific about what you bring.</em>`;
+  const p5hint = S.task_states['P5'] !== 'COMPLETE' ? `<div class="banner warn" style="margin-bottom:8px;">⚠️ Your intro email (P5) isn't done yet — consider sending it before this meeting.</div>` : '';
+
+  botReply(`${banner}${p5hint}<div class="bub-task-title">D2: Meet Coach</div>
+    <p class="bub-p">Your Coach sets expectations and supports your development. Have you had your first meeting?</p>
+    <p class="bub-p">${tip}</p>`, [
+    { label:'[A] Yes, we\'ve met ✅', style:'primary', action: () => {
+      S.meeting_states.D2 = 'done'; saveState();
+      botReply(`Were your <strong>expectations confirmed</strong> and key questions answered?`, [
+        { label:'Yes — all clear ✅', style:'primary', action: () => completeTask('D2', '<div class="banner ok">✅ Coach meeting done and expectations confirmed!</div>') },
+        { label:'Meeting done, some follow-ups', style:'', action: () => completeTask('D2', '<div class="banner ok">✅ Coach first meeting complete!</div>') }
+      ]);
+    }},
+    { label:'[B] Meeting is scheduled', style:'', action: () => {
+      S.meeting_states.D2 = 'scheduled'; saveState();
+      botReply('<div class="banner info">ℹ️ Come back after your Coach meeting to confirm.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+    }},
+    { label:'[C] Not yet — guidance please', style:'', action: () => {
+      const tips = isEntry()
+        ? `<li>Ask about Day 1 priorities and who to meet first</li><li>Ask what success looks like in Week 1</li><li>Ask about the team communication norms</li>`
+        : `<li>Share your background and how it maps to CAS work</li><li>Ask about current priorities and where you can add value quickly</li><li>Align on your 30-day goals</li>`;
+      botReply(`<p class="bub-p">Here's what to prepare:</p><ul style="padding-left:18px;font-size:13px;">${tips}</ul>`, [
+        { label:'Got it — mark in progress', style:'primary', action: () => { setTaskState('D2','IN_PROGRESS'); openNextTask(); } }
+      ]);
+    }},
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('D2') }
+  ]);
+};
+
+// ── D3: Confirm System Access ──
+TASK_HANDLERS['D3'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">D3: Confirm System Access</div>
+    <p class="bub-p">This is a <strong>usability check</strong> — not credential setup. We're confirming your tools work day-to-day.</p>
+    <div class="bub-checklist">
+      <div class="bub-cl-item"><div class="cl-dot ${S.access_states.access_teams?'done':'todo'}">${S.access_states.access_teams?'✓':'○'}</div><span>Microsoft Teams — can you see channels and send messages?</span></div>
+      <div class="bub-cl-item"><div class="cl-dot ${S.access_states.access_repository?'done':'todo'}">${S.access_states.access_repository?'✓':'○'}</div><span>CAS Repository (SharePoint) — can you browse and open files?</span></div>
+      <div class="bub-cl-item"><div class="cl-dot ${S.access_states.access_onboarding_channel?'done':'todo'}">${S.access_states.access_onboarding_channel?'✓':'○'}</div><span>Onboarding Channel — can you see onboarding materials?</span></div>
+    </div>`, [
+    { label:'[A] All three working ✅', style:'primary', action: () => {
+      S.access_states = { access_teams: true, access_repository: true, access_onboarding_channel: true }; saveState();
+      completeTask('D3', '<div class="banner ok">✅ All systems confirmed working!</div>');
+    }},
+    { label:'[B] Some working, some not', style:'', action: d3_partial },
+    { label:'[C] None working', style:'', action: () => {
+      botReply(`<div class="banner err">🚫 If nothing is working, this needs IT support. Contact the IT Helpdesk (details in your welcome email) or ask your Buddy to escalate.</div>`, [
+        { label:'Mark as BLOCKED', style:'danger', action: () => blockTask('D3') },
+        { label:'Try again', style:'', action: () => openTask('D3') }
+      ]);
+    }}
+  ]);
+};
+function d3_partial() {
+  botReply(`Which tools are having issues?`, [
+    { label:'Teams issue', style:'', action: () => {
+      botReply(`For Teams: try signing out and back in, or use the desktop app. Contact IT if the issue persists.`, [
+        { label:'Fixed ✅', style:'primary', action: () => { S.access_states.access_teams = true; saveState(); d3_checkComplete(); }},
+        { label:'Still broken', style:'', action: () => { blockTask('D3'); } }
+      ]);
+    }},
+    { label:'CAS Repository issue', style:'', action: () => {
+      botReply(`The CAS Repository is a SharePoint site. Ask your Buddy or Coach to share the direct link. URL: search "NIIT CAS Repository" in Teams.`, [
+        { label:'Got access ✅', style:'primary', action: () => { S.access_states.access_repository = true; saveState(); d3_checkComplete(); }},
+        { label:'Mark as BLOCKED', style:'danger', action: () => blockTask('D3') }
+      ]);
+    }},
+    { label:'Onboarding channel missing', style:'', action: () => {
+      botReply(`The Onboarding Channel is private — your <strong>Buddy</strong> needs to add you. Contact your Buddy to request access.`, [
+        { label:'Buddy added me ✅', style:'primary', action: () => { S.access_states.access_onboarding_channel = true; saveState(); d3_checkComplete(); }},
+        { label:'Can\'t reach Buddy', style:'danger', action: () => blockTask('D3') }
+      ]);
+    }}
+  ]);
+}
+function d3_checkComplete() {
+  const a = S.access_states;
+  if (a.access_teams && a.access_repository && a.access_onboarding_channel) {
+    completeTask('D3', '<div class="banner ok">✅ All systems confirmed working!</div>');
+  } else {
+    botReply(`<div class="banner info">ℹ️ Progress saved. Come back once all three are working.</div>
+      <div class="bub-checklist">
+        <div class="bub-cl-item"><div class="cl-dot ${a.access_teams?'done':'todo'}">${a.access_teams?'✓':'○'}</div><span>Teams</span></div>
+        <div class="bub-cl-item"><div class="cl-dot ${a.access_repository?'done':'todo'}">${a.access_repository?'✓':'○'}</div><span>CAS Repository</span></div>
+        <div class="bub-cl-item"><div class="cl-dot ${a.access_onboarding_channel?'done':'todo'}">${a.access_onboarding_channel?'✓':'○'}</div><span>Onboarding Channel</span></div>
+      </div>`, [
+      { label:'Check again', style:'primary', action: () => openTask('D3') },
+      { label:'Mark as BLOCKED', style:'danger', action: () => blockTask('D3') }
+    ]);
+  }
+}
+
+// ── D4: Submit Manual of Me ──
+TASK_HANDLERS['D4'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">D4: Submit Manual of Me (MoM)</div>
+    <p class="bub-p">The Manual of Me is a short form that tells the team how to work best with you. Once submitted, send the PDF + your photo to the <strong>Repository Owner</strong>.</p>
+    <div class="banner warn">⚠️ <span>Repository Owner contact = <strong>ask your Coach or Buddy</strong> — this changes periodically.</span></div>
+    <p class="bub-p" style="margin-top:8px;">The form link is in your welcome email or Onboarding Channel.</p>`, [
+    { label:'[A] Form submitted + PDF and photo sent ✅', style:'primary', action: () => {
+      S.submission_states = { form_submitted: true, pdf_sent: true }; saveState();
+      completeTask('D4', '<div class="banner ok">✅ Manual of Me submitted and sent to Repository Owner!</div>');
+    }},
+    { label:'[B] Form submitted — PDF/photo pending', style:'', action: () => {
+      S.submission_states.form_submitted = true; saveState();
+      botReply(`<div class="banner info">ℹ️ Good start! Once you\'ve sent the PDF and photo to the Repository Owner, come back to confirm.</div>`, [
+        { label:'Done — all sent ✅', style:'primary', action: () => {
+          S.submission_states.pdf_sent = true; saveState();
+          completeTask('D4', '<div class="banner ok">✅ Manual of Me complete!</div>');
+        }},
+        { label:'Will do later', style:'ghost', action: () => { setTaskState('D4','IN_PROGRESS'); openNextTask(); } }
+      ]);
+    }},
+    { label:'[C] Haven\'t started', style:'', action: () => {
+      botReply(`<p class="bub-p">Steps:</p><ol style="padding-left:18px;font-size:13px;"><li>Find the MoM form link in your welcome email or Onboarding Channel</li><li>Fill out and submit the form</li><li>Download the PDF version</li><li>Ask your Coach or Buddy for the Repository Owner's contact</li><li>Email them the PDF + a professional headshot</li></ol>`, [
+        { label:'Got it — in progress', style:'primary', action: () => { setTaskState('D4','IN_PROGRESS'); openNextTask(); } }
+      ]);
+    }},
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('D4') }
+  ]);
+};
+
+// ══════════════════════════════════════════════════
+// TASK HANDLERS — PH2
+// ══════════════════════════════════════════════════
+
+// ── W1: Confirm Coffee Connect List ──
+TASK_HANDLERS['W1'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">W1: Confirm Coffee Connect List</div>
+    <p class="bub-p">Before selecting your connects, confirm you have a list to work from.</p>`, [
+    { label:'[A] Buddy sent me a specific list', style:'primary', action: () => { S.roster_type = 'pre_filled'; saveState(); completeTask('W1', '<div class="banner ok">✅ Coffee Connect list confirmed (Buddy\'s list)!</div>'); }},
+    { label:'[B] I only have the general org list', style:'', action: () => { S.roster_type = 'general'; saveState(); completeTask('W1', '<div class="banner ok">✅ Using general org list for connects.</div>'); }},
+    { label:'[C] I\'ll build my own list', style:'', action: () => { S.roster_type = 'self_selected'; saveState(); completeTask('W1', '<div class="banner ok">✅ Self-selected list confirmed.</div>'); }},
+    { label:'[D] Haven\'t received anything', style:'', action: () => {
+      botReply(`<div class="banner info">ℹ️ Ask your Buddy for the <strong>Onboarding New Hire Coffee Connect Person to Meet list</strong>. It should also be in the CAS Team channel on Teams.</div>`, [
+        { label:'Will ask Buddy', style:'', action: () => { setTaskState('W1','IN_PROGRESS'); openNextTask(); } },
+        { label:'Mark as BLOCKED', style:'danger', action: () => blockTask('W1') }
+      ]);
+    }}
+  ]);
+};
+
+// ── W2: Review MoM Profiles ──
+TASK_HANDLERS['W2'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">W2: Review MoM Profiles</div>
+    <p class="bub-p">Review your colleagues' Manual of Me profiles in the CAS Team channel. This helps you prepare for your coffee connects.</p>
+    <p class="bub-p">This task runs <strong>in parallel</strong> with selecting your connects (W3).</p>`, [
+    { label:'[A] Done — reviewed relevant profiles ✅', style:'primary', action: () => completeTask('W2', '<div class="banner ok">✅ MoM profiles reviewed!</div>') },
+    { label:'[B] Partially done', style:'', action: () => { setTaskState('W2','IN_PROGRESS'); openNextTask(); }},
+    { label:'[C] Haven\'t started', style:'', action: () => {
+      botReply(`<div class="banner info">ℹ️ Go to the <strong>CAS Team</strong> channel in Teams → look for the MoM page or folder. Even a quick scan of 2-3 profiles helps.</div>`, [
+        { label:'Will check it out', style:'primary', action: () => { setTaskState('W2','IN_PROGRESS'); openNextTask(); }},
+        { label:'Mark complete ✅', style:'', action: () => completeTask('W2', '<div class="banner ok">✅ MoM profiles reviewed!</div>') }
+      ]);
+    }},
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('W2') }
+  ]);
+};
+
+// ── W3: Select 3-5 People ──
+TASK_HANDLERS['W3'] = function(banner) {
+  const priorityTip = isEntry()
+    ? `Buddy → analyst peers → one senior person`
+    : `Director or senior lead → cross-functional peers → analyst peer`;
+
+  botReply(`${banner}<div class="bub-task-title">W3: Select 3–5 People for Connects</div>
+    <p class="bub-p">Choose <strong>3–5 people</strong> for your coffee connects this week.</p>
+    <p class="bub-p">💡 Suggested order (${htLabel()}): ${priorityTip}</p>`, [
+    { label:'[A] I\'ve selected my list', style:'primary', action: () => {
+      showTextInput('Enter names, one per line (e.g. Sarah Chen, Ravi Kumar…)', (val) => {
+        hideTextInput();
+        const names = val.split(/[\n,]/).map(n => n.trim()).filter(Boolean);
+        names.forEach(name => {
+          S.connect_list.push({ name, invite_sent: false, connect_done: false, added_in: 'PH2' });
+        });
+        saveState();
+        userSays(val);
+        completeTask('W3', `<div class="banner ok">✅ Connect list saved: ${names.join(', ')}!</div>`);
+      });
+    }},
+    { label:'[B] Still deciding', style:'', action: () => { setTaskState('W3','IN_PROGRESS'); openNextTask(); }},
+    { label:'[C] Skip', style:'ghost', action: () => skipTask('W3') }
+  ]);
+};
+
+// ── W4: Draft & Send Invites ──
+TASK_HANDLERS['W4'] = function(banner) {
+  const template = `Hi [Name],
+
+I'm ${S.user_name}, recently joined the CAS team. I'd love to schedule a quick 30-minute coffee connect to introduce myself and learn more about your work.
+
+Would [DATE/TIME] work for you? Happy to adjust.
+
+Looking forward to it!
+${S.user_name}`;
+
+  const listPreview = S.connect_list.length
+    ? S.connect_list.map(p => `<div class="bub-cl-item"><div class="cl-dot ${p.invite_sent?'done':'todo'}">${p.invite_sent?'✓':'○'}</div><span>${p.name}</span></div>`).join('')
+    : '<p class="bub-p" style="color:#9CA3AF;">No connect list found — complete W3 first.</p>';
+
+  botReply(`${banner}<div class="bub-task-title">W4: Draft & Send Connect Invites</div>
+    <p class="bub-p">Send a 30-minute invite to each person on your list.</p>
+    <div class="bub-checklist">${listPreview}</div>`, [
+    { label:'Show invite template', style:'ghost', action: () => {
+      botReply(`Here's your template:<div class="template-block">${template}</div>`, [
+        { label:'All invites sent ✅', style:'primary', action: w4_allSent },
+        { label:'Some sent, still going', style:'', action: () => { setTaskState('W4','IN_PROGRESS'); openNextTask(); }}
+      ]);
+    }},
+    { label:'[A] All invites sent ✅', style:'primary', action: w4_allSent },
+    { label:'[B] Some sent, still going', style:'', action: () => { setTaskState('W4','IN_PROGRESS'); openNextTask(); }},
+    { label:'[C] Skip', style:'ghost', action: () => skipTask('W4') }
+  ]);
+};
+function w4_allSent() {
+  S.connect_list.forEach(p => p.invite_sent = true);
+  saveState();
+  completeTask('W4', '<div class="banner ok">✅ All connect invites sent!</div>');
+}
+
+// ── W5: Complete First Connects ──
+TASK_HANDLERS['W5'] = function(banner) {
+  const pending = S.connect_list.filter(p => !p.connect_done);
+  const done = S.connect_list.filter(p => p.connect_done);
+  const listHTML = S.connect_list.length
+    ? S.connect_list.map(p => `<div class="bub-cl-item"><div class="cl-dot ${p.connect_done?'done':'todo'}">${p.connect_done?'✓':'○'}</div><span>${p.name}</span></div>`).join('')
+    : '';
+
+  botReply(`${banner}<div class="bub-task-title">W5: Complete First Connects</div>
+    <p class="bub-p">How are your coffee connects going? You need at least <strong>1 completed</strong> to mark this task done.</p>
+    <div class="bub-checklist">${listHTML}</div>`, [
+    { label:'[A] Completed at least one ✅', style:'primary', action: () => {
+      showTextInput('Who did you connect with? (name)', (val) => {
+        hideTextInput();
+        const match = S.connect_list.find(p => p.name.toLowerCase().includes(val.toLowerCase()));
+        if (match) match.connect_done = true;
+        else S.connect_list.push({ name: val, invite_sent: true, connect_done: true, added_in: 'PH2' });
+        saveState();
+        userSays(val);
+        completeTask('W5', `<div class="banner ok">✅ First coffee connect done with ${val}! Remaining connects will carry forward to Phase 4.</div>`);
+      });
+    }},
+    { label:'[B] Scheduled but not done yet', style:'', action: () => { setTaskState('W5','IN_PROGRESS'); openNextTask(); }},
+    { label:'[C] Invites out — waiting on responses', style:'', action: () => { setTaskState('W5','IN_PROGRESS'); botReply('<div class="banner info">ℹ️ That\'s normal — people are busy. Come back once your first connect happens!</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]); }}
+  ]);
+};
+
+
+// ═══════════════════════════════════════════════════════════════
+// PART 4 — PH3–PH5 FLOWS + SIDEBAR + ONBOARDING WIRING
+// ═══════════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════
+// TASK HANDLERS — PH3 (30-Day)
+// ══════════════════════════════════════════════════
+
+// ── M1: Weekly Connects — Buddy + Coach (LONG-RUNNING) ──
+TASK_HANDLERS['M1'] = function(banner) {
+  const phKey = S.phase; // PH3, PH4, or PH5
+  const lr = S.long_running.M1;
+  const weekNum = (lr.phase_week[phKey] || 0) + 1;
+  const tip = isEntry()
+    ? `💡 <em>Ask about one specific skill or task you're unsure about this week.</em>`
+    : `💡 <em>Flag anything that feels different from your previous org — these are calibration moments.</em>`;
+
+  // Build streak display
+  const phaseWeeks = lr.connect_streak[phKey] || {};
+  const streakHTML = [1,2,3,4].map(w => {
+    const val = phaseWeeks[`week_${w}`] || 'pending';
+    const icons = { pending:'○', done:'✓', buddy_missed:'½', coach_missed:'½', missed:'✗', scheduled:'◑' };
+    const colors = { pending:'todo', done:'done', buddy_missed:'todo', coach_missed:'todo', missed:'blk', scheduled:'todo' };
+    return `<div class="bub-cl-item"><div class="cl-dot ${colors[val]||'todo'}">${icons[val]||'○'}</div><span>Week ${w}</span></div>`;
+  }).join('');
+
+  botReply(`${banner}<div class="bub-task-title">M1/S1/T1: Weekly Connects — Buddy + Coach</div>
+    <div class="bub-phase-tag">Long-Running — resurfaces weekly</div>
+    <p class="bub-p">This week (Week ${weekNum}): Did your regular connects with your Buddy and Coach happen?</p>
+    <div class="bub-checklist">${streakHTML}</div>
+    <p class="bub-p">${tip}</p>`, [
+    { label:'✅ Both done this week', style:'primary', action: () => {
+      if (!lr.connect_streak[phKey]) lr.connect_streak[phKey] = {};
+      lr.connect_streak[phKey][`week_${weekNum}`] = 'done';
+      lr.phase_week[phKey] = weekNum;
+      saveState();
+      if (weekNum >= 4) {
+        lr.connect_consistency = 'consistent';
+        saveState();
+        completeTask('M1', '<div class="banner ok">✅ 4-week connect streak complete! Weekly connects milestone reached.</div>');
+      } else {
+        setTaskState('M1', 'IN_PROGRESS');
+        botReply(`<div class="banner ok">✅ Week ${weekNum} connects logged. Keep it up — ${4 - weekNum} week(s) to go!</div>`, [
+          { label:'Next task →', style:'primary', action: openNextTask }
+        ], '', 400);
+      }
+    }},
+    { label:'✅ Buddy done, Coach missed', style:'', action: () => {
+      if (!lr.connect_streak[phKey]) lr.connect_streak[phKey] = {};
+      lr.connect_streak[phKey][`week_${weekNum}`] = 'coach_missed';
+      lr.phase_week[phKey] = weekNum;
+      setTaskState('M1', 'IN_PROGRESS'); saveState();
+      botReply(`<div class="banner warn">⚠️ Buddy connect logged. Try to reschedule the Coach connect this week — consistency matters.</div>`, [
+        { label:'Next task →', style:'primary', action: openNextTask }
+      ], '', 400);
+    }},
+    { label:'Coach done, Buddy missed', style:'', action: () => {
+      if (!lr.connect_streak[phKey]) lr.connect_streak[phKey] = {};
+      lr.connect_streak[phKey][`week_${weekNum}`] = 'buddy_missed';
+      lr.phase_week[phKey] = weekNum;
+      setTaskState('M1', 'IN_PROGRESS'); saveState();
+      botReply(`<div class="banner warn">⚠️ Coach connect logged. Reschedule the Buddy connect soon.</div>`, [
+        { label:'Next task →', style:'primary', action: openNextTask }
+      ], '', 400);
+    }},
+    { label:'Neither happened this week', style:'', action: () => {
+      if (!lr.connect_streak[phKey]) lr.connect_streak[phKey] = {};
+      lr.connect_streak[phKey][`week_${weekNum}`] = 'missed';
+      lr.phase_week[phKey] = weekNum;
+      lr.connect_consistency = lr.connect_consistency === 'consistent' ? 'partial' : 'irregular';
+      setTaskState('M1', 'IN_PROGRESS'); saveState();
+      botReply(`<div class="banner warn">⚠️ Noted. Try to get both connects in next week — regular cadence is important in the first 90 days.</div>`, [
+        { label:'Next task →', style:'primary', action: openNextTask }
+      ], '', 400);
+    }},
+    { label:'No fixed schedule — ad hoc', style:'ghost', action: () => {
+      lr.connect_mode = 'ad_hoc'; setTaskState('M1','IN_PROGRESS'); saveState();
+      botReply(`<div class="banner info">ℹ️ Ad hoc mode noted. Just make sure both connects happen at least once a week. Come back to log each week.</div>`, [
+        { label:'Next task →', style:'primary', action: openNextTask }
+      ], '', 400);
+    }}
+  ]);
+};
+
+// S1 and T1 reuse M1's handler
+TASK_HANDLERS['S1'] = TASK_HANDLERS['M1'];
+TASK_HANDLERS['T1'] = TASK_HANDLERS['M1'];
+
+// ── M2: Symphony Setup + Walkthrough ──
+TASK_HANDLERS['M2'] = function(banner) {
+  const ss = S.symphony_states;
+  const stepsHTML = `
+    <div class="bub-checklist">
+      <div class="bub-cl-item"><div class="cl-dot ${ss.provisioned?'done':'todo'}">${ss.provisioned?'✓':'1'}</div><span>Provisioned (Prachi sends URL by email)</span></div>
+      <div class="bub-cl-item"><div class="cl-dot ${ss.walkthrough_done?'done':'todo'}">${ss.walkthrough_done?'✓':'2'}</div><span>Walkthrough session attended</span></div>
+      <div class="bub-cl-item"><div class="cl-dot ${ss.test_entry_logged?'done':'todo'}">${ss.test_entry_logged?'✓':'3'}</div><span>Test timesheet entry logged (training project code)</span></div>
+    </div>`;
+
+  botReply(`${banner}<div class="bub-task-title">M2: Symphony Setup + Walkthrough</div>
+    <p class="bub-p">Symphony is NIIT's time and project tracking system. Three steps to complete:</p>
+    ${stepsHTML}
+    <div class="banner info">ℹ️ <span>Contact Prachi to request access. She'll send you the Symphony URL and schedule the walkthrough.</span></div>
+    ${CONTACT_PRACHI}
+    <p class="bub-p" style="margin-top:8px;"><strong>Training project code:</strong> ask your Coach or Buddy.</p>`, [
+    { label:'All three done ✅', style:'primary', action: () => {
+      S.symphony_states = { provisioned: true, walkthrough_done: true, test_entry_logged: true }; saveState();
+      completeTask('M2', '<div class="banner ok">✅ Symphony fully set up — provisioned, walkthrough done, test entry logged!</div>');
+    }},
+    { label:'Provisioned, walkthrough pending', style:'', action: () => {
+      ss.provisioned = true; setTaskState('M2','IN_PROGRESS'); saveState();
+      botReply('<div class="banner info">ℹ️ Progress saved. Come back after your walkthrough to confirm.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+    }},
+    { label:'Haven\'t contacted Prachi yet', style:'', action: () => {
+      botReply(`<p class="bub-p">Email or Teams-message Prachi to get started:</p>${CONTACT_PRACHI}<p class="bub-p" style="margin-top:8px;">Say: <em>"Hi Prachi, I'm ${S.user_name}, newly joined CAS. Can you provision my Symphony access and schedule a walkthrough?"</em></p>`, [
+        { label:'Message sent — mark in progress', style:'primary', action: () => { setTaskState('M2','IN_PROGRESS'); openNextTask(); }}
+      ]);
+    }},
+    { label:'🚫 Blocked — Prachi unresponsive', style:'danger', action: () => blockTask('M2') }
+  ]);
+};
+
+// ── M3: Attend Priority Team Meeting ──
+TASK_HANDLERS['M3'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">M3: Attend 1 Priority Team Meeting</div>
+    <p class="bub-p">NIIT CAS has priority teams aligned to client areas. Attend at least one meeting to get oriented.</p>
+    <div class="res-card">
+      <div class="rc-title">📄 Resource</div>
+      <div class="rc-item">CAS Priorities and Priority Teams Overview (CAS Repository)</div>
+    </div>`, [
+    { label:'[A] Attended — team confirmed ✅', style:'primary', action: () => {
+      showTextInput('Which priority team meeting did you attend?', (val) => {
+        hideTextInput();
+        S.M3.priority_team_name = val; saveState();
+        userSays(val);
+        completeTask('M3', `<div class="banner ok">✅ Priority team meeting attended: ${val}!</div>`);
+      });
+    }},
+    { label:'[B] Meeting is scheduled', style:'', action: () => { setTaskState('M3','IN_PROGRESS'); botReply('<div class="banner info">ℹ️ Come back after the meeting to confirm.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]); }},
+    { label:'[C] Not assigned to a team yet', style:'', action: () => {
+      botReply('<div class="banner info">ℹ️ Ask your Coach which priority team you\'re aligned to. You can also check the Priority Teams Overview deck in the CAS Repository.</div>', [
+        { label:'Will ask Coach', style:'primary', action: () => { setTaskState('M3','IN_PROGRESS'); openNextTask(); }},
+        { label:'🚫 Mark as BLOCKED', style:'danger', action: () => blockTask('M3') }
+      ]);
+    }},
+    { label:'[D] Skip', style:'ghost', action: () => skipTask('M3') }
+  ]);
+};
+
+// ── M4: Review Core CAS Content (LONG-RUNNING) ──
+TASK_HANDLERS['M4'] = function(banner) {
+  const streams = S.long_running.M4.streams;
+  const streamDefs = [
+    { key: 'service_lines',              label: 'Service Lines',              res: 'CAS Onboarding Sessions 1–3 (CAS Repository)' },
+    { key: 'storefront_deep_dives',      label: 'Storefront Deep Dives',      res: 'One Consulting Deep Dives 1, 3, 4, 5 (CAS Repository)' },
+    { key: 'practice_room_recordings',   label: 'Practice Room Recordings',   res: '[PLACEHOLDER — ask Coach for links]' },
+    { key: 'core_consulting_frameworks', label: 'Core Consulting Frameworks', res: isEntry() ? 'People Analytics (Coursera), Excel (Chandoo), ATD, Kirkpatrick Bronze' : 'Trusted Advisor, Instructional Design, Telling Ain\'t Training' }
+  ];
+
+  const streakHTML = streamDefs.map(sd => {
+    const st = streams[sd.key];
+    const done = st.takeaways_confirmed;
+    const started = st.started;
+    const cls = done ? 'done' : started ? 'todo' : 'todo';
+    const icon = done ? '✓' : started ? '◑' : '○';
+    return `<div class="bub-cl-item"><div class="cl-dot ${cls}">${icon}</div><span><strong>${sd.label}</strong> — ${sd.res}</span></div>`;
+  }).join('');
+
+  const complete = S.long_running.M4.streams_complete;
+
+  botReply(`${banner}<div class="bub-task-title">M4: Review Core CAS Content</div>
+    <div class="bub-phase-tag">Long-Running — complete 2 of 4 streams</div>
+    <p class="bub-p">Progress: <strong>${complete}/4 streams</strong> complete. Need at least 2.</p>
+    <div class="bub-checklist">${streakHTML}</div>`, [
+    { label:'Log progress on a stream', style:'primary', action: m4_logStream },
+    { label:`${complete >= 2 ? '✅ Mark complete (2+ done)' : 'Not ready yet — in progress'}`, style: complete >= 2 ? 'primary' : 'ghost', action: () => {
+      if (complete >= 2) {
+        S.long_running.M4.milestone_reached = true; saveState();
+        completeTask('M4', '<div class="banner ok">✅ CAS content review milestone reached — 2+ streams complete with takeaways!</div>');
+      } else {
+        setTaskState('M4','IN_PROGRESS');
+        botReply('<div class="banner warn">⚠️ You need at least 2 streams with takeaways confirmed. Keep going!</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+      }
+    }},
+    { label:'Skip', style:'ghost', action: () => skipTask('M4') }
+  ]);
+};
+
+function m4_logStream() {
+  const streamDefs = [
+    { key: 'service_lines',              label: 'Service Lines' },
+    { key: 'storefront_deep_dives',      label: 'Storefront Deep Dives' },
+    { key: 'practice_room_recordings',   label: 'Practice Room Recordings' },
+    { key: 'core_consulting_frameworks', label: 'Core Consulting Frameworks' }
+  ];
+  const opts = streamDefs.map(sd => ({
+    label: sd.label,
+    style: S.long_running.M4.streams[sd.key].takeaways_confirmed ? 'ghost' : '',
+    action: () => m4_streamAction(sd.key, sd.label)
+  }));
+  opts.push({ label:'← Back', style:'ghost', action: () => openTask('M4') });
+  botReply('<strong>Which stream are you logging progress for?</strong>', opts);
+}
+
+function m4_streamAction(key, label) {
+  const st = S.long_running.M4.streams[key];
+  botReply(`<strong>${label}</strong> — current status: ${st.takeaways_confirmed ? 'Complete ✅' : st.started ? 'Started ◑' : 'Not started ○'}`, [
+    { label:'Started reviewing', style:'', action: () => {
+      st.started = true; saveState();
+      botReply(`<div class="banner ok">◑ ${label} marked as started. Come back once you've captured your takeaways.</div>`, [{ label:'Next task →', style:'primary', action: openNextTask }]);
+    }},
+    { label:'Done + takeaways confirmed ✅', style:'primary', action: () => {
+      st.started = true; st.takeaways_confirmed = true;
+      const lr = S.long_running.M4;
+      lr.streams_complete = Object.values(lr.streams).filter(s => s.takeaways_confirmed).length;
+      if (lr.streams_complete >= 2) lr.milestone_reached = true;
+      saveState();
+      if (lr.streams_complete >= 2) {
+        completeTask('M4', `<div class="banner ok">✅ ${label} complete! Milestone reached — 2+ streams done!</div>`);
+      } else {
+        botReply(`<div class="banner ok">✅ ${label} complete! ${lr.streams_complete}/4 streams done.</div>`, [
+          { label:'Log another stream', style:'primary', action: m4_logStream },
+          { label:'Next task →', style:'ghost', action: openNextTask }
+        ], '', 400);
+      }
+    }},
+    { label:'← Back', style:'ghost', action: m4_logStream }
+  ]);
+}
+
+// ── M5: Create One-Slider Profile ──
+TASK_HANDLERS['M5'] = function(banner) {
+  const tip = isEntry()
+    ? `💡 <em>Focus on academic background, analytical skills, and what you\'re building toward.</em>`
+    : `💡 <em>Lead with domain expertise and outcomes. Be specific — vague summaries don\'t land.</em>`;
+
+  botReply(`${banner}<div class="bub-task-title">M5: Create One-Slider Profile</div>
+    <p class="bub-p">Your One-Slider is a single-slide profile used in proposals and team introductions. It needs <strong>all 6 sections</strong>.</p>
+    <div class="bub-checklist">
+      <div class="bub-cl-item"><div class="cl-dot todo">1</div><span><strong>Name + Title</strong></span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">2</div><span><strong>Professional Summary</strong> (2–3 lines)</span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">3</div><span><strong>Core Expertise</strong> (3–5 bullet points)</span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">4</div><span><strong>Relevant Experience</strong></span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">5</div><span><strong>Education + Certifications</strong></span></div>
+      <div class="bub-cl-item"><div class="cl-dot todo">6</div><span><strong>Professional Headshot / Photo</strong></span></div>
+    </div>
+    <p class="bub-p">${tip}</p>
+    <div class="banner info">ℹ️ <span>Your Coach may have an official CAS template — ask them. The 6-section structure above works as a standalone.</span></div>`, [
+    { label:'✅ All 6 sections done — slide ready', style:'primary', action: () => completeTask('M5', '<div class="banner ok">✅ One-Slider profile complete and ready for proposals!</div>') },
+    { label:'In progress — partially done', style:'', action: () => { setTaskState('M5','IN_PROGRESS'); openNextTask(); }},
+    { label:'Haven\'t started yet', style:'', action: () => { setTaskState('M5','IN_PROGRESS'); botReply('<p class="bub-p">Start with your Name, Title, and a 2-line Summary — you can fill in the rest progressively. Come back to confirm when all 6 are done.</p>', [{ label:'Next task →', style:'primary', action: openNextTask }]); }},
+    { label:'Skip', style:'ghost', action: () => skipTask('M5') }
+  ]);
+};
+
+// ── M6: Engage with CAS Tools ──
+TASK_HANDLERS['M6'] = function(banner) {
+  const m6 = S.M6;
+  botReply(`${banner}<div class="bub-task-title">M6: Engage with CAS Tools</div>
+    <p class="bub-p">Get familiar with the two main CAS tools. Using <strong>at least one</strong> completes this task.</p>
+    <div class="bub-checklist">
+      <div class="bub-cl-item"><div class="cl-dot ${m6.casper.used?'done':'todo'}">${m6.casper.used?'✓':'1'}</div><span><strong>CASper</strong> — <em>Guide URL: ${PLACEHOLDER_MSG.includes('placeholder')?'[ask Coach]':'ask Coach'}</em></span></div>
+      <div class="bub-cl-item"><div class="cl-dot ${m6.repository.used?'done':'todo'}">${m6.repository.used?'✓':'2'}</div><span><strong>CAS Repository</strong> (SharePoint) — confirmed in D3</span></div>
+    </div>`, [
+    { label:'Used CASper ✅', style:'primary', action: () => {
+      m6.casper.used = true; m6.casper.access = true; saveState();
+      const both = m6.repository.used;
+      completeTask('M6', both
+        ? '<div class="banner ok">✅ Used both CASper and CAS Repository!</div>'
+        : '<div class="banner ok">✅ CASper used! Task complete (CAS Repository also available when ready).</div>');
+    }},
+    { label:'Used CAS Repository ✅', style:'primary', action: () => {
+      m6.repository.used = true; saveState();
+      const both = m6.casper.used;
+      completeTask('M6', both
+        ? '<div class="banner ok">✅ Both tools used!</div>'
+        : '<div class="banner ok">✅ CAS Repository used! Task complete.</div>');
+    }},
+    { label:'Used both ✅', style:'primary', action: () => {
+      m6.casper.used = true; m6.casper.access = true; m6.repository.used = true; saveState();
+      completeTask('M6', '<div class="banner ok">✅ Both CASper and CAS Repository used!</div>');
+    }},
+    { label:'Can\'t access CASper', style:'', action: () => {
+      m6.casper.requested = true; saveState();
+      botReply(`<div class="banner warn">⚠️ CASper access is a placeholder — your Coach has the guide and access link.</div>
+        <p class="bub-p">Ask your Coach: <em>"Can you share the CASper guide and access link for my onboarding?"</em></p>`, [
+        { label:'Request sent — mark in progress', style:'primary', action: () => { setTaskState('M6','IN_PROGRESS'); openNextTask(); }},
+        { label:'🚫 Mark as BLOCKED', style:'danger', action: () => blockTask('M6') }
+      ]);
+    }},
+    { label:'Skip', style:'ghost', action: () => skipTask('M6') }
+  ]);
+};
+
+// ── M7: 30-Day Survey + Check-in (MILESTONE) ──
+TASK_HANDLERS['M7'] = function(banner) {
+  const ph3Done  = completedCount('PH3');
+  const ph3Total = PHASES.find(p=>p.id==='PH3').tasks.length;
+  const blocked  = S.blocked_tasks.map(t=>`<div class="bub-cl-item"><div class="cl-dot blk">✗</div><span>${t}: ${TASKS[t].title}</span></div>`).join('');
+  const skipped  = S.skipped_tasks.map(t=>`<div class="bub-cl-item"><div class="cl-dot skip">—</div><span>${t}: ${TASKS[t].title}</span></div>`).join('');
+
+  botReply(`${banner}<div class="bub-task-title">M7: 30-Day Milestone 🎉</div>
+    <p class="bub-p">You've reached your 30-day mark. Here's your summary:</p>
+    <div class="prog-box">
+      <div class="prog-row"><span class="pr-lbl">30-Day tasks complete</span><span class="pr-val">${ph3Done}/${ph3Total}</span></div>
+      <div class="prog-row"><span class="pr-lbl">Overall progress</span><span class="pr-val">${overallProgress()}%</span></div>
+      ${S.blocked_tasks.length ? `<div class="prog-row"><span class="pr-lbl" style="color:#DC2626;">Blocked tasks</span><span class="pr-val" style="color:#DC2626;">${S.blocked_tasks.length}</span></div>` : ''}
+    </div>
+    ${blocked ? `<p class="bub-p" style="margin-top:8px;"><strong>Blocked:</strong></p><div class="bub-checklist">${blocked}</div>` : ''}
+    ${skipped ? `<p class="bub-p"><strong>Skipped:</strong></p><div class="bub-checklist">${skipped}</div>` : ''}
+    <div class="bub-hr"></div>
+    <p class="bub-p">Complete the <strong>30-Day Survey</strong> to close this phase:</p>
+    <div class="res-card"><div class="rc-title">📋 30-Day Survey</div><div class="rc-item"><a href="https://www.surveymonkey.com/r/CASOnboardingFeedback30" target="_blank">surveymonkey.com/r/CASOnboardingFeedback30</a></div></div>`, [
+    { label:'✅ Survey completed', style:'primary', action: () => {
+      S.survey_states.M7.survey_submitted = true; saveState();
+      completeTask('M7', '<div class="banner ok">✅ 30-Day survey submitted! Phase 3 complete — unlocking 60-Day phase.</div>');
+    }},
+    { label:'Do check-in call first', style:'', action: () => {
+      S.survey_states.M7.checkin_done = true; saveState();
+      botReply('<div class="banner info">ℹ️ Check-in noted. Don\'t forget to come back and complete the survey — it\'s required to unlock the next phase.</div>', [
+        { label:'Taking the survey now →', style:'primary', action: () => openTask('M7') }
+      ]);
+    }},
+    { label:'Fix a blocked task first', style:'', action: () => {
+      if (S.blocked_tasks.length === 0) {
+        botReply('<div class="banner ok">✅ No blocked tasks — you\'re clear to take the survey!</div>', [{ label:'Take survey now →', style:'primary', action: () => openTask('M7') }]);
+      } else {
+        const opts = S.blocked_tasks.map(t => ({ label: `${t}: ${TASKS[t].title}`, style:'', action: () => openTask(t) }));
+        opts.push({ label:'Back to survey', style:'ghost', action: () => openTask('M7') });
+        botReply('<strong>Which blocked task do you want to address?</strong>', opts);
+      }
+    }}
+  ]);
+};
+
+// ══════════════════════════════════════════════════
+// TASK HANDLERS — PH4 (60-Day)
+// ══════════════════════════════════════════════════
+
+// ── S2: Complete Remaining Connects ──
+TASK_HANDLERS['S2'] = function(banner) {
+  const all    = S.connect_list;
+  const done   = all.filter(p => p.connect_done);
+  const pending= all.filter(p => !p.connect_done);
+  const listHTML = all.map(p => `<div class="bub-cl-item"><div class="cl-dot ${p.connect_done?'done':'todo'}">${p.connect_done?'✓':'○'}</div><span>${p.name}</span></div>`).join('');
+
+  botReply(`${banner}<div class="bub-task-title">S2: Complete Remaining Connects</div>
+    <p class="bub-p">Complete your outstanding coffee connects. <strong>3+ total</strong> = task done.</p>
+    <div class="bub-checklist">${listHTML || '<span style="color:#9CA3AF;">No connect list — add names below.</span>'}</div>`, [
+    { label:'Mark a connect as done ✅', style:'primary', action: () => {
+      showTextInput('Who did you connect with?', (val) => {
+        hideTextInput(); userSays(val);
+        const match = S.connect_list.find(p => p.name.toLowerCase().includes(val.toLowerCase()) && !p.connect_done);
+        if (match) { match.connect_done = true; }
+        else { S.connect_list.push({ name: val, invite_sent: true, connect_done: true, added_in: 'PH4' }); }
+        saveState();
+        const totalDone = S.connect_list.filter(p => p.connect_done).length;
+        if (totalDone >= 3) {
+          completeTask('S2', `<div class="banner ok">✅ ${totalDone} connects completed — coffee connect goal achieved!</div>`);
+        } else {
+          botReply(`<div class="banner ok">◑ ${val} marked done. ${totalDone} total connects so far (need 3).</div>`, [
+            { label:'Log another connect', style:'primary', action: () => openTask('S2') },
+            { label:'Next task →', style:'ghost', action: openNextTask }
+          ], '', 400);
+        }
+      });
+    }},
+    { label:'All connects done ✅', style:'primary', action: () => {
+      S.connect_list.forEach(p => p.connect_done = true); saveState();
+      completeTask('S2', '<div class="banner ok">✅ All connects complete!</div>');
+    }},
+    { label:'3+ done — coverage confirmed ✅', style:'', action: () => {
+      completeTask('S2', '<div class="banner ok">✅ Coffee connect coverage confirmed (3+ done)!</div>');
+    }},
+    { label:'Still in progress', style:'ghost', action: () => { setTaskState('S2','IN_PROGRESS'); openNextTask(); }}
+  ]);
+};
+
+// ── S3: Storefront Presentation ──
+TASK_HANDLERS['S3'] = function(banner) {
+  const m4tip = S.task_states['M4'] !== 'COMPLETE' ? `<div class="banner warn" style="margin-bottom:8px;">⚠️ CAS Content Review (M4) isn't complete yet — it helps inform your storefront.</div>` : '';
+  botReply(`${banner}${m4tip}<div class="bub-task-title">S3: Deliver Storefront Presentation</div>
+    <p class="bub-p">Your Storefront presentation showcases your expertise to the CAS team. Built and presented to your Coach or peers.</p>
+    ${PLACEHOLDER_MSG}
+    <p class="bub-p">Resources to request from Coach:</p>
+    <ul style="padding-left:18px;font-size:13px;">
+      <li>CAS presentation template</li>
+      <li>Example storefront deck</li>
+    </ul>`, [
+    { label:'✅ Presented to Coach/peers', style:'primary', action: () => completeTask('S3', '<div class="banner ok">✅ Storefront presentation delivered!</div>') },
+    { label:'Draft ready — not presented yet', style:'', action: () => { setTaskState('S3','IN_PROGRESS'); openNextTask(); }},
+    { label:'Building it now', style:'', action: () => { setTaskState('S3','IN_PROGRESS'); botReply('<p class="bub-p">Good progress! Come back to confirm once you\'ve presented it to your Coach or peers.</p>', [{ label:'Next task →', style:'primary', action: openNextTask }]); }},
+    { label:'Haven\'t received template', style:'', action: () => {
+      botReply(`Ask your Coach: <em>"Can you share the CAS presentation template and an example storefront deck?"</em>`, [
+        { label:'Request sent — in progress', style:'primary', action: () => { setTaskState('S3','IN_PROGRESS'); openNextTask(); }},
+        { label:'🚫 Mark as BLOCKED', style:'danger', action: () => blockTask('S3') }
+      ]);
+    }},
+    { label:'Skip', style:'ghost', action: () => skipTask('S3') }
+  ]);
+};
+
+// ── S4: Join or Shadow Internal Project ──
+TASK_HANDLERS['S4'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">S4: Join or Shadow Internal Project</div>
+    <p class="bub-p">Get involved with an internal project — either <strong>joining a workstream</strong> or <strong>shadowing</strong>. Both count equally.</p>`, [
+    { label:'✅ Joined a project', style:'primary', action: () => {
+      botReply('Did you note the outcome / your contribution to your Coach?', [
+        { label:'Yes — Coach informed ✅', style:'primary', action: () => { S.carry_forward.S4_project_mode = 'join'; saveState(); completeTask('S4', '<div class="banner ok">✅ Project participation confirmed and noted to Coach!</div>'); }},
+        { label:'Not yet — will tell them', style:'', action: () => { S.carry_forward.S4_project_mode = 'join'; saveState(); completeTask('S4', '<div class="banner ok">✅ Project joined!</div>'); }}
+      ]);
+    }},
+    { label:'✅ Shadowing a project', style:'primary', action: () => {
+      botReply('Did you note your observations / learning to your Coach?', [
+        { label:'Yes ✅', style:'primary', action: () => { S.carry_forward.S4_project_mode = 'shadow'; saveState(); completeTask('S4', '<div class="banner ok">✅ Project shadow experience noted!</div>'); }},
+        { label:'Will mention it in next connect', style:'', action: () => { S.carry_forward.S4_project_mode = 'shadow'; saveState(); completeTask('S4', '<div class="banner ok">✅ Project shadowing confirmed!</div>'); }}
+      ]);
+    }},
+    { label:'Not assigned yet', style:'', action: () => {
+      botReply('<div class="banner info">ℹ️ Raise this in your next S1 connect with your Coach. They\'ll know which projects have openings or shadowing opportunities.</div>', [
+        { label:'Will raise it — in progress', style:'primary', action: () => { setTaskState('S4','IN_PROGRESS'); openNextTask(); }},
+        { label:'🚫 Mark as BLOCKED', style:'danger', action: () => blockTask('S4') }
+      ]);
+    }},
+    { label:'Skip', style:'ghost', action: () => skipTask('S4') }
+  ]);
+};
+
+// ── S5: Balanced Scorecard Discussion ──
+TASK_HANDLERS['S5'] = function(banner) {
+  botReply(`${banner}<div class="bub-task-title">S5: Balanced Scorecard Discussion</div>
+    <p class="bub-p">Have your Balanced Scorecard (BSC) discussion with your Coach and update your growth plan.</p>
+    ${PLACEHOLDER_MSG}
+    <p class="bub-p">Ask your Coach for: <strong>BSC template</strong> and <strong>growth plan document</strong>.</p>`, [
+    { label:'✅ BSC discussed + growth plan updated', style:'primary', action: () => {
+      S.carry_forward.bsc_discussed = true; S.carry_forward.growth_plan_updated = true; saveState();
+      completeTask('S5', '<div class="banner ok">✅ Balanced Scorecard discussed and growth plan updated!</div>');
+    }},
+    { label:'Discussion done — plan update pending', style:'', action: () => {
+      S.carry_forward.bsc_discussed = true; setTaskState('S5','IN_PROGRESS'); saveState();
+      botReply('<div class="banner info">ℹ️ Come back to confirm once the growth plan is updated.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+    }},
+    { label:'Need template first', style:'', action: () => {
+      botReply(`Ask your Coach: <em>"Can you share the BSC template and growth plan doc before our discussion?"</em>`, [
+        { label:'Request sent — scheduling discussion', style:'primary', action: () => { setTaskState('S5','IN_PROGRESS'); openNextTask(); }},
+        { label:'🚫 Mark as BLOCKED', style:'danger', action: () => blockTask('S5') }
+      ]);
+    }},
+    { label:'Scheduled — not done yet', style:'', action: () => { setTaskState('S5','IN_PROGRESS'); openNextTask(); }},
+    { label:'Skip', style:'ghost', action: () => skipTask('S5') }
+  ]);
+};
+
+// ── S6: 60-Day Survey + Check-in (MILESTONE) ──
+TASK_HANDLERS['S6'] = function(banner) {
+  const ph4Done  = completedCount('PH4');
+  const ph4Total = PHASES.find(p=>p.id==='PH4').tasks.length;
+
+  botReply(`${banner}<div class="bub-task-title">S6: 60-Day Milestone 🎉</div>
+    <p class="bub-p">You've reached your 60-day mark!</p>
+    <div class="prog-box">
+      <div class="prog-row"><span class="pr-lbl">60-Day tasks complete</span><span class="pr-val">${ph4Done}/${ph4Total}</span></div>
+      <div class="prog-row"><span class="pr-lbl">Overall progress</span><span class="pr-val">${overallProgress()}%</span></div>
+    </div>
+    <div class="bub-hr"></div>
+    <p class="bub-p">Complete the <strong>60-Day Survey</strong> to unlock your final phase:</p>
+    <div class="res-card"><div class="rc-title">📋 60-Day Survey</div><div class="rc-item"><a href="https://www.surveymonkey.com/r/CASOnboardingFeedback60" target="_blank">surveymonkey.com/r/CASOnboardingFeedback60</a></div></div>`, [
+    { label:'✅ Survey completed', style:'primary', action: () => {
+      S.survey_states.S6.survey_submitted = true; saveState();
+      completeTask('S6', '<div class="banner ok">✅ 60-Day survey submitted! Unlocking your 90-Day phase.</div>');
+    }},
+    { label:'Do check-in call first', style:'', action: () => {
+      S.survey_states.S6.checkin_done = true; saveState();
+      botReply('<div class="banner info">ℹ️ Check-in noted. Come back to complete the survey when done.</div>', [{ label:'Take survey now →', style:'primary', action: () => openTask('S6') }]);
+    }}
+  ]);
+};
+
+// ══════════════════════════════════════════════════
+// TASK HANDLERS — PH5 (90-Day)
+// ══════════════════════════════════════════════════
+
+// ── T2: Independent Project Role (OUTCOME+) ──
+TASK_HANDLERS['T2'] = function(banner) {
+  const t2 = S.T2;
+  const tip = isEntry()
+    ? `💡 <em>Communicating ownership can feel presumptuous. It\'s not — be that person.</em>`
+    : `💡 <em>Lean into ownership. You were hired for this. Don\'t wait for permission.</em>`;
+
+  const stageHTML = [
+    { key:'assigned',              label:'Confirmed on a project' },
+    { key:'scope_defined',         label:'Your deliverable scope is clear' },
+    { key:'ownership_confirmed',   label:'You\'re the lead owner of your workstream' },
+    { key:'deliverable_submitted', label:'Deliverable handed off' },
+    { key:'feedback_received',     label:'Feedback received (formal or informal)' }
+  ].map((st,i) => `<div class="bub-cl-item"><div class="cl-dot ${t2[st.key]?'done':'todo'}">${t2[st.key]?'✓':i+1}</div><span>${st.label}</span></div>`).join('');
+
+  const allDone = Object.values(t2).every(Boolean);
+  botReply(`${banner}<div class="bub-task-title">T2: Perform in Independent Project Role</div>
+    <div class="bub-phase-tag">Outcome+ — all 5 stages required</div>
+    <p class="bub-p">${tip}</p>
+    <div class="bub-checklist">${stageHTML}</div>`, [
+    { label:'Log a stage complete', style:'primary', action: t2_logStage },
+    { label:allDone ? '✅ All 5 stages done — complete!' : 'Not assigned yet — in progress', style: allDone ? 'primary' : 'ghost', action: () => {
+      if (allDone) {
+        completeTask('T2', '<div class="banner ok">✅ Independent project role complete — all 5 stages confirmed!</div>');
+      } else {
+        setTaskState('T2','IN_PROGRESS');
+        botReply('<div class="banner info">ℹ️ Not being assigned yet is normal — it\'s IN_PROGRESS, not BLOCKED. Keep raising it in your T1 connects.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+      }
+    }},
+    { label:'🚫 Genuinely blocked', style:'danger', action: () => blockTask('T2') }
+  ]);
+};
+function t2_logStage() {
+  const stages = [
+    { key:'assigned',              label:'Confirmed on a project' },
+    { key:'scope_defined',         label:'Deliverable scope defined' },
+    { key:'ownership_confirmed',   label:'Ownership confirmed' },
+    { key:'deliverable_submitted', label:'Deliverable submitted' },
+    { key:'feedback_received',     label:'Feedback received' }
+  ];
+  const opts = stages.map(st => ({
+    label: (S.T2[st.key] ? '✅ ' : '') + st.label,
+    style: S.T2[st.key] ? 'ghost' : 'primary',
+    action: () => {
+      S.T2[st.key] = true; saveState();
+      const allDone = Object.values(S.T2).every(Boolean);
+      if (allDone) {
+        completeTask('T2', '<div class="banner ok">✅ All 5 T2 stages confirmed — independent project role complete!</div>');
+      } else {
+        const remaining = Object.entries(S.T2).filter(([,v])=>!v).length;
+        botReply(`<div class="banner ok">✅ Stage confirmed! ${5-remaining}/5 stages done.</div>`, [
+          { label:'Log another stage', style:'primary', action: t2_logStage },
+          { label:'Next task →', style:'ghost', action: openNextTask }
+        ], '', 400);
+      }
+    }
+  }));
+  opts.push({ label:'← Back', style:'ghost', action: () => openTask('T2') });
+  botReply('<strong>Which stage are you confirming?</strong>', opts);
+}
+
+// ── T3: Priority Team Forums (LIGHT LONG-RUNNING) ──
+TASK_HANDLERS['T3'] = function(banner) {
+  const tip = isEntry()
+    ? `💡 <em>Consistency matters more than scale. Small, well-done contributions count.</em>`
+    : `💡 <em>Your contribution should reflect your expertise. Raise it with Coach if only admin tasks.</em>`;
+  const forumsAttended = S.T3.forums_attended;
+
+  botReply(`${banner}<div class="bub-task-title">T3: Priority Team Forums</div>
+    <div class="bub-phase-tag">Light Long-Running — no weekly check-ins</div>
+    <p class="bub-p">Forums attended so far: <strong>${forumsAttended}</strong> (need 2+)</p>
+    <p class="bub-p">${tip}</p>`, [
+    { label:'Attended a forum ✅', style:'primary', action: () => {
+      S.T3.forums_attended += 1; saveState();
+      if (S.T3.forums_attended >= 2) {
+        S.T3.contribution_confirmed = true; saveState();
+        completeTask('T3', '<div class="banner ok">✅ 2+ priority team forums attended — contribution confirmed!</div>');
+      } else {
+        botReply(`<div class="banner ok">◑ ${S.T3.forums_attended} forum(s) attended. One more to go!</div>`, [{ label:'Next task →', style:'primary', action: openNextTask }], '', 400);
+      }
+    }},
+    { label:'Participation confirmed (non-attendance)', style:'', action: () => {
+      S.T3.contribution_confirmed = true; saveState();
+      completeTask('T3', '<div class="banner ok">✅ Priority team participation confirmed!</div>');
+    }},
+    { label:'Still waiting for schedule', style:'', action: () => { setTaskState('T3','IN_PROGRESS'); openNextTask(); }},
+    { label:'Skip', style:'ghost', action: () => skipTask('T3') }
+  ]);
+};
+
+// ── T4: Attend Consulting Connect / Convocation (EVENT) ──
+TASK_HANDLERS['T4'] = function(banner) {
+  const tip = isEntry()
+    ? `💡 <em>Pick 2–3 people. Have real conversations. Follow up after.</em>`
+    : `💡 <em>Come with a point of view. Contribute. Signal strategic thinking.</em>`;
+
+  botReply(`${banner}<div class="bub-task-title">T4: Consulting Connect / Convocation</div>
+    <div class="bub-phase-tag">Event — binary (attended or not)</div>
+    <p class="bub-p">This event is externally scheduled. Have you attended?</p>
+    <p class="bub-p">${tip}</p>`, [
+    { label:'✅ Yes, I attended', style:'primary', action: () => {
+      S.T4.event_attended = true; saveState();
+      completeTask('T4', '<div class="banner ok">✅ Consulting Connect attended!</div>');
+    }},
+    { label:'No event in my window', style:'', action: () => {
+      S.T4.event_not_available = true; setTaskState('T4','IN_PROGRESS'); saveState();
+      botReply('<div class="banner info">ℹ️ Noted — no event available in your window. This is flagged in your progress summary.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+    }},
+    { label:'Not scheduled yet', style:'', action: () => { setTaskState('T4','IN_PROGRESS'); openNextTask(); }},
+    { label:'Skip', style:'ghost', action: () => skipTask('T4') }
+  ]);
+};
+
+// ── T5: Request + Receive Coach Feedback ──
+TASK_HANDLERS['T5'] = function(banner) {
+  const t5 = S.T5;
+  botReply(`${banner}<div class="bub-task-title">T5: Request + Receive Coach Feedback</div>
+    <p class="bub-p">Formal feedback from your Coach is an important part of your 90-day review. Both steps required.</p>
+    <div class="bub-checklist">
+      <div class="bub-cl-item"><div class="cl-dot ${t5.feedback_requested?'done':'todo'}">${t5.feedback_requested?'✓':'1'}</div><span>Feedback requested from Coach</span></div>
+      <div class="bub-cl-item"><div class="cl-dot ${t5.feedback_received?'done':'todo'}">${t5.feedback_received?'✓':'2'}</div><span>Feedback received</span></div>
+    </div>`, [
+    { label:'✅ Requested + received', style:'primary', action: () => {
+      S.T5.feedback_requested = true; S.T5.feedback_received = true; saveState();
+      completeTask('T5', '<div class="banner ok">✅ Coach feedback requested and received!</div>');
+    }},
+    { label:'Requested — waiting on Coach', style:'', action: () => {
+      S.T5.feedback_requested = true; setTaskState('T5','IN_PROGRESS'); saveState();
+      botReply('<div class="banner info">ℹ️ Request logged. Come back to confirm once you\'ve received feedback.</div>', [{ label:'Next task →', style:'primary', action: openNextTask }]);
+    }},
+    { label:'Haven\'t requested yet', style:'', action: () => {
+      botReply(`<p class="bub-p">Ask your Coach in your next T1 connect: <em>"I'd like to request formal feedback for my 90-day review — can we schedule that?"</em></p>`, [
+        { label:'Will ask in next connect', style:'primary', action: () => { setTaskState('T5','IN_PROGRESS'); openNextTask(); }}
+      ]);
+    }},
+    { label:'Coach unresponsive — BLOCKED', style:'danger', action: () => blockTask('T5') }
+  ]);
+};
+
+// ── T6: 90-Day Survey + Plan (MILESTONE) ──
+TASK_HANDLERS['T6'] = function(banner) {
+  const ph5Done  = completedCount('PH5');
+  const ph5Total = PHASES.find(p=>p.id==='PH5').tasks.length;
+  const t6       = S.survey_states.T6;
+
+  // Build full carry-forward summary
+  const cfLines = [];
+  if (S.blocked_tasks.length) cfLines.push(`<div class="prog-row"><span class="pr-lbl" style="color:#DC2626;">Blocked tasks</span><span class="pr-val" style="color:#DC2626;">${S.blocked_tasks.map(t=>t).join(', ')}</span></div>`);
+  if (S.T4.event_not_available) cfLines.push(`<div class="prog-row"><span class="pr-lbl">Consulting Connect</span><span class="pr-val">No event in window (flagged)</span></div>`);
+  if (S.long_running.M1.connect_consistency === 'irregular') cfLines.push(`<div class="prog-row"><span class="pr-lbl">Connect cadence</span><span class="pr-val">Irregular — discuss with Coach</span></div>`);
+
+  botReply(`${banner}<div class="bub-task-title">T6: 90-Day Milestone 🎓</div>
+    <p class="bub-p">You've reached your 90-day mark — the final milestone of your onboarding!</p>
+    <div class="prog-box">
+      <div class="prog-row"><span class="pr-lbl">90-Day tasks complete</span><span class="pr-val">${ph5Done}/${ph5Total}</span></div>
+      <div class="prog-row"><span class="pr-lbl">Overall progress</span><span class="pr-val">${overallProgress()}%</span></div>
+      ${cfLines.join('')}
+    </div>
+    <div class="bub-hr"></div>
+    <p class="bub-p">Two things required to close out:</p>
+    <div class="bub-checklist">
+      <div class="bub-cl-item"><div class="cl-dot ${t6.survey_submitted?'done':'todo'}">${t6.survey_submitted?'✓':'1'}</div><span>Complete the 90-Day Survey</span></div>
+      <div class="bub-cl-item"><div class="cl-dot ${t6.next_quarter_plan_defined?'done':'todo'}">${t6.next_quarter_plan_defined?'✓':'2'}</div><span>Define your next-quarter plan with Coach</span></div>
+    </div>
+    <div class="res-card"><div class="rc-title">📋 90-Day Survey</div><div class="rc-item"><a href="https://www.surveymonkey.com/r/CASOnboardingFeedback90" target="_blank">surveymonkey.com/r/CASOnboardingFeedback90</a></div></div>`, [
+    { label:'✅ Survey done', style:'primary', action: () => {
+      S.survey_states.T6.survey_submitted = true; saveState();
+      if (S.survey_states.T6.next_quarter_plan_defined) t6_complete();
+      else botReply('<div class="banner info">ℹ️ Survey done! Now confirm your next-quarter plan with your Coach.</div>', [
+        { label:'✅ Plan defined with Coach', style:'primary', action: () => { S.survey_states.T6.next_quarter_plan_defined = true; saveState(); t6_complete(); }}
+      ]);
+    }},
+    { label:'✅ Next-quarter plan defined', style:'primary', action: () => {
+      S.survey_states.T6.next_quarter_plan_defined = true; saveState();
+      if (S.survey_states.T6.survey_submitted) t6_complete();
+      else botReply('<div class="banner info">ℹ️ Plan confirmed! Now complete the survey to close out.</div>', [
+        { label:'Survey completed ✅', style:'primary', action: () => { S.survey_states.T6.survey_submitted = true; saveState(); t6_complete(); }}
+      ]);
+    }},
+    { label:'✅ Both done', style:'primary', action: () => {
+      S.survey_states.T6.survey_submitted = true; S.survey_states.T6.next_quarter_plan_defined = true; saveState(); t6_complete();
+    }},
+    { label:'Do check-in call first', style:'', action: () => {
+      S.survey_states.T6.check_in_done = true; saveState();
+      botReply('<div class="banner info">ℹ️ Check-in noted. Come back to complete the survey and define your plan — both are required.</div>', [{ label:'Back to T6', style:'primary', action: () => openTask('T6') }]);
+    }}
+  ]);
+};
+
+function t6_complete() {
+  setTaskState('T6','COMPLETE');
+  saveState(); updateSidebar();
+  const pct = overallProgress();
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addMsg('bot', `<div class="unlock-box" style="background:linear-gradient(135deg,#E8431A,#F26522);">
+      <h3>🎓 Congratulations, ${S.user_name}!</h3>
+      <p>You've completed your 90-day NIIT CAS onboarding journey.<br>
+      Overall progress: <strong>${pct}%</strong></p>
+      <p style="margin-top:8px;opacity:.9;">Your next steps will be defined by your Coach and team priorities.<br>Well done — welcome to the team!</p>
+    </div>`);
+    setOptions([
+      { label:'📋 View full summary', style:'primary', action: showChecklist },
+      { label:'🏠 Back to start', style:'ghost', action: showResume }
+    ]);
+  }, 1200);
+}
+
+// ══════════════════════════════════════════════════
+// SIDEBAR RENDERING
+// ══════════════════════════════════════════════════
+function updateSidebar() {
+  const pct = overallProgress();
+  const totalDone = Object.values(S.task_states).filter(s => s === 'COMPLETE').length;
+  const total = Object.keys(TASKS).length;
+
+  // Nav
+  document.getElementById('nav-pct-val').textContent = pct + '%';
+  document.getElementById('nav-ht-badge').textContent = isEntry() ? 'Entry' : 'Lateral';
+
+  // Sidebar bar
+  document.getElementById('sb-bar').style.width = pct + '%';
+  document.getElementById('sb-done-lbl').textContent = `${totalDone} of ${total} tasks complete`;
+  document.getElementById('sb-pct-lbl').textContent = pct + '%';
+
+  // Phase groups
+  const body = document.getElementById('sb-body');
+  body.innerHTML = '';
+
+  PHASES.forEach(ph => {
+    const locked   = !isPhaseUnlocked(ph.id);
+    const isCurrent= ph.id === S.phase;
+    const phDone   = completedCount(ph.id);
+    const phTotal  = ph.tasks.length;
+    const isAllDone= phDone === phTotal;
+
+    const group = document.createElement('div');
+    group.className = 'ph-group';
+
+    // Phase header
+    const head = document.createElement('div');
+    head.className = `ph-head${isCurrent ? ' current' : ''}${locked ? ' locked' : ''}`;
+    const badgeCls = isAllDone ? 'done' : isCurrent ? 'active' : locked ? 'locked' : '';
+    head.innerHTML = `
+      <span>${locked ? '🔒 ' : ''}${ph.name}</span>
+      <span class="ph-badge ${badgeCls}">${locked ? 'Locked' : phDone + '/' + phTotal}</span>`;
+    head.onclick = () => {
+      if (!locked) { S.phase = ph.id; saveState(); openNextTask(); }
+    };
+    group.appendChild(head);
+
+    // Task items
+    const taskWrap = document.createElement('div');
+    ph.tasks.forEach(tid => {
+      const st   = S.task_states[tid];
+      const isAct= tid === currentTask;
+      const item = document.createElement('div');
+      const stLow = st.toLowerCase();
+      item.className = `tk-item ${isAct ? 'active' : ''} ${locked ? 'locked' : stLow}`;
+      item.innerHTML = `<div class="tk-dot ${locked ? 'locked' : stLow}"></div><span>${tid}: ${TASKS[tid].title}</span>`;
+      if (!locked) item.onclick = () => openTask(tid);
+      taskWrap.appendChild(item);
+    });
+    group.appendChild(taskWrap);
+    body.appendChild(group);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// ONBOARDING WIRING
+// ══════════════════════════════════════════════════
+function confirmReset() {
+  if (confirm('Reset all progress and start over?')) {
+    clearState();
+    location.reload();
+  }
+}
+
+function selectHT(card) {
+  document.querySelectorAll('.ht-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  document.getElementById('ob-ht-start').disabled = false;
+}
+
+function showApp() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('topnav').style.display = '';
+  document.getElementById('app').style.display = '';
+  updateSidebar();
+  showResumeOrWelcome();
+}
+
+// ── Boot ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Name field enables button
+  const nameInput = document.getElementById('ob-name');
+  const nameNext  = document.getElementById('ob-name-next');
+  nameInput.addEventListener('input', () => {
+    nameNext.disabled = nameInput.value.trim().length < 2;
+  });
+
+  // Step 1 → Step 2
+  nameNext.onclick = () => {
+    const name = nameInput.value.trim();
+    if (!name) return;
+    document.getElementById('ob-step1').style.display = 'none';
+    document.getElementById('ob-step2').style.display  = '';
+    document.getElementById('obs1').classList.remove('active');
+    document.getElementById('obs1').classList.add('done');
+    document.getElementById('obs2').classList.add('active');
+    window._pendingName = name;
+  };
+
+  // Step 2 → Start
+  document.getElementById('ob-ht-start').onclick = () => {
+    const htCard = document.querySelector('.ht-card.selected');
+    if (!htCard) return;
+    const hire_type = htCard.dataset.ht;
+    S = defaultState(window._pendingName, hire_type);
+    saveState();
+    showApp();
+  };
+
+  // Check for existing session
+  const existing = loadState();
+  if (existing) {
+    S = existing;
+    showApp();
+  }
+});
+
+</script>
+
+</body>
+</html>
