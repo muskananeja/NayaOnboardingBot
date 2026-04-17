@@ -4,48 +4,79 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Naya — NIIT CAS Onboarding Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════
-   NIIT BRAND TOKENS
+   NAYA COLOUR SYSTEM — Journey Gradient
+   Blue → Teal → Green → Orange → Purple → Pink
 ═══════════════════════════════════════ */
 :root {
-  --orange:        #E8431A;
-  --orange-mid:    #F26522;
-  --orange-pale:   #FFF0EB;
-  --orange-border: rgba(232,67,26,.22);
-  --navy:          #003087;
-  --navy-dark:     #001F5B;
-  --navy-light:    #E8EDF7;
-  --navy-border:   rgba(0,48,135,.2);
-  --white:         #FFFFFF;
-  --g50:           #F9FAFB;
-  --g100:          #F3F4F6;
-  --g200:          #E5E7EB;
-  --g300:          #D1D5DB;
-  --g400:          #9CA3AF;
-  --g500:          #6B7280;
-  --g600:          #4B5563;
-  --g800:          #1F2937;
-  --green:         #059669;
-  --green-bg:      #D1FAE5;
-  --amber:         #D97706;
-  --amber-bg:      #FEF3C7;
-  --red:           #DC2626;
-  --red-bg:        #FEE2E2;
-  --radius-sm:     6px;
-  --radius-md:     10px;
-  --radius-lg:     16px;
-  --radius-xl:     20px;
-  --shadow-sm:     0 1px 3px rgba(0,0,0,.08);
-  --shadow-md:     0 4px 12px rgba(0,0,0,.1);
-  --shadow-lg:     0 12px 32px rgba(0,0,0,.15);
+  /* ── Primary action gradient (orange → pink, from image) ── */
+  --primary:        #F97316;
+  --primary-end:    #EC4899;
+  --primary-grad:   linear-gradient(135deg, #F97316 0%, #EC4899 100%);
+  --primary-pale:   #FFF5FA;
+  --primary-border: rgba(249,115,22,.2);
+
+  /* ── Legacy aliases used in JS (keep working) ── */
+  --orange:         #F97316;
+  --orange-mid:     #FB923C;
+  --orange-pale:    #FFF5FA;
+  --orange-border:  rgba(249,115,22,.2);
+
+  /* ── Teal accent ── */
+  --teal:           #2EC4B6;
+  --teal-pale:      #E8FAF9;
+
+  /* ── Navy (N logo, nav, text) ── */
+  --navy:           #1E3A5F;
+  --navy-dark:      #111827;
+  --navy-light:     #EEF4FB;
+  --navy-border:    rgba(30,58,95,.18);
+
+  /* ── Neutrals ── */
+  --white:   #FFFFFF;
+  --g50:     #F9FAFB;
+  --g100:    #F3F4F6;
+  --g200:    #E5E7EB;
+  --g300:    #D1D5DB;
+  --g400:    #9CA3AF;
+  --g500:    #6B7280;
+  --g600:    #4B5563;
+  --g800:    #1F2937;
+
+  /* ── Status ── */
+  --green:    #10B981;
+  --green-bg: #D1FAE5;
+  --amber:    #F59E0B;
+  --amber-bg: #FEF3C7;
+  --red:      #EF4444;
+  --red-bg:   #FEE2E2;
+
+  /* ── Phase accent colours (matches journey arrows in image) ── */
+  --ph0: #60A5FA;   /* blue */
+  --ph1: #2EC4B6;   /* teal */
+  --ph2: #34D399;   /* green */
+  --ph3: #F97316;   /* orange */
+  --ph4: #A78BFA;   /* purple */
+  --ph5: #EC4899;   /* pink */
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.18);
 }
 
 /* ─── RESET ─── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;}
 body{
-  font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   font-size:14px;
   color:var(--g800);
   background:var(--g100);
@@ -65,7 +96,7 @@ a:hover{text-decoration:underline;}
 ═══════════════════════════════════════ */
 #onboarding{
   position:fixed;inset:0;
-  background:var(--navy-dark);
+  background:linear-gradient(160deg,#111827 0%,#1E3A5F 60%,#2EC4B6 100%);
   display:flex;align-items:center;justify-content:center;
   z-index:9999;padding:20px;
 }
@@ -78,15 +109,17 @@ a:hover{text-decoration:underline;}
   text-align:center;
 }
 .ob-logo{
-  width:68px;height:68px;
-  background:var(--orange);
-  border-radius:14px;
+  width:72px;height:72px;
+  background:white;
+  border:3px solid var(--navy);
+  border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:26px;font-weight:900;color:white;
+  font-size:28px;font-weight:900;color:var(--navy);
   margin:0 auto 18px;
-  box-shadow:0 6px 20px rgba(232,67,26,.35);
+  box-shadow:0 6px 24px rgba(30,58,95,.25);
+  letter-spacing:-1px;
 }
-.ob-card h1{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+.ob-card h1{font-size:24px;font-weight:800;background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
 .ob-card .tagline{font-size:14px;color:var(--g500);line-height:1.6;margin-bottom:28px;}
 
 /* Step indicators */
@@ -95,8 +128,8 @@ a:hover{text-decoration:underline;}
   width:8px;height:8px;border-radius:50%;
   background:var(--g200);transition:background .2s;
 }
-.ob-step.active{background:var(--orange);width:24px;border-radius:4px;}
-.ob-step.done{background:var(--green);}
+.ob-step.active{background:var(--primary-grad);background:var(--primary);width:24px;border-radius:4px;}
+.ob-step.done{background:var(--teal);}
 
 /* Name step */
 .ob-label{
@@ -122,8 +155,8 @@ a:hover{text-decoration:underline;}
   cursor:pointer;text-align:left;
   transition:all .2s;
 }
-.ht-card:hover{border-color:var(--orange);background:var(--orange-pale);}
-.ht-card.selected{border-color:var(--orange);background:var(--orange-pale);}
+.ht-card:hover{border-color:var(--primary);background:var(--primary-pale);}
+.ht-card.selected{border-color:var(--primary);background:var(--primary-pale);box-shadow:0 0 0 3px rgba(249,115,22,.15);}
 .ht-card .ht-icon{font-size:28px;margin-bottom:8px;}
 .ht-card h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
 .ht-card p{font-size:12px;color:var(--g500);line-height:1.4;}
@@ -131,38 +164,45 @@ a:hover{text-decoration:underline;}
 /* Primary CTA */
 .ob-btn{
   width:100%;padding:13px;
-  background:var(--orange);color:white;
+  background:var(--primary-grad);color:white;
   border-radius:var(--radius-md);
   font-size:15px;font-weight:700;
-  transition:background .15s;
+  transition:opacity .15s,transform .1s;
   margin-top:4px;
+  font-family:'Poppins',sans-serif;
+  border:none;
 }
-.ob-btn:hover{background:#C73A16;}
-.ob-btn:disabled{background:var(--g300);cursor:not-allowed;}
+.ob-btn:hover{opacity:.9;transform:translateY(-1px);}
+.ob-btn:disabled{background:var(--g300);cursor:not-allowed;opacity:1;transform:none;}
 
 /* ═══════════════════════════════════════
    TOP NAV
 ═══════════════════════════════════════ */
 #topnav{
   height:56px;
-  background:var(--navy);
+  background:linear-gradient(90deg,var(--navy-dark) 0%,var(--navy) 100%);
   display:flex;align-items:center;justify-content:space-between;
   padding:0 20px;
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
+  box-shadow:0 2px 12px rgba(0,0,0,.25);
   flex-shrink:0;z-index:100;
+  border-bottom:2px solid var(--primary);
 }
 .nav-brand{display:flex;align-items:center;gap:10px;}
 .nav-icon{
-  width:32px;height:32px;
-  background:var(--orange);border-radius:8px;
+  width:34px;height:34px;
+  background:white;
+  border:2.5px solid white;
+  border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:900;color:white;
+  font-size:14px;font-weight:900;color:var(--navy);
+  letter-spacing:-0.5px;
+  font-family:'Poppins',sans-serif;
 }
 .nav-title{font-size:15px;font-weight:700;color:white;}
 .nav-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:1px;}
 .nav-right{display:flex;align-items:center;gap:14px;}
 .nav-badge{
-  background:var(--orange);color:white;
+  background:var(--primary-grad);color:white;
   padding:3px 10px;border-radius:20px;
   font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
 }
@@ -186,12 +226,13 @@ a:hover{text-decoration:underline;}
 }
 .sb-head{
   padding:14px 16px;
-  background:var(--orange-pale);
-  border-bottom:1px solid var(--orange-border);
+  background:linear-gradient(135deg,#FFF5FA,#EEF4FB);
+  border-bottom:1px solid var(--g200);
 }
 .sb-head-label{
   font-size:11px;font-weight:700;
-  color:var(--orange);text-transform:uppercase;letter-spacing:.6px;
+  background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-transform:uppercase;letter-spacing:.6px;
   margin-bottom:10px;
 }
 .sb-progress-labels{
@@ -202,7 +243,7 @@ a:hover{text-decoration:underline;}
 .sb-bar-wrap{background:var(--g200);border-radius:4px;height:6px;overflow:hidden;}
 .sb-bar{
   height:100%;
-  background:linear-gradient(90deg,var(--orange),var(--orange-mid));
+  background:linear-gradient(90deg,var(--ph0),var(--teal),var(--primary),var(--ph5));
   border-radius:4px;transition:width .4s ease;
 }
 
@@ -219,14 +260,14 @@ a:hover{text-decoration:underline;}
   transition:background .15s;
 }
 .ph-head:hover{background:var(--g50);}
-.ph-head.current{color:var(--navy);background:var(--navy-light);}
+.ph-head.current{color:var(--navy);background:linear-gradient(90deg,#EEF4FB,#FFF5FA);}
 .ph-head.locked{color:var(--g300);}
 .ph-badge{
   font-size:10px;padding:2px 7px;border-radius:10px;
   background:var(--g200);color:var(--g500);font-weight:600;
 }
 .ph-badge.done{background:var(--green-bg);color:var(--green);}
-.ph-badge.active{background:var(--orange);color:white;}
+.ph-badge.active{background:var(--primary-grad);color:white;border:none;}
 .ph-badge.locked{background:var(--g100);color:var(--g300);}
 
 /* Task items */
@@ -241,9 +282,9 @@ a:hover{text-decoration:underline;}
 }
 .tk-item:hover{background:var(--g50);}
 .tk-item.active{
-  background:var(--orange-pale);
-  color:var(--orange);
-  border-left-color:var(--orange);
+  background:var(--primary-pale);
+  color:var(--primary);
+  border-left-color:var(--primary);
   font-weight:600;
 }
 .tk-item.complete{color:var(--green);}
@@ -254,7 +295,7 @@ a:hover{text-decoration:underline;}
   width:7px;height:7px;border-radius:50%;flex-shrink:0;
 }
 .tk-dot.pending   {background:var(--g300);}
-.tk-dot.in_progress{background:var(--orange-mid);}
+.tk-dot.in_progress{background:var(--primary);}
 .tk-dot.complete  {background:var(--green);}
 .tk-dot.blocked   {background:var(--red);}
 .tk-dot.skipped   {background:var(--g300);}
@@ -299,7 +340,7 @@ a:hover{text-decoration:underline;}
   font-size:13px;font-weight:800;flex-shrink:0;
 }
 .msg.bot .msg-av{background:var(--navy);color:white;}
-.msg.user .msg-av{background:var(--orange);color:white;font-size:11px;}
+.msg.user .msg-av{background:var(--primary-grad);color:white;font-size:11px;}
 
 .msg-bub{
   padding:11px 15px;
@@ -314,7 +355,7 @@ a:hover{text-decoration:underline;}
   max-width:100%;
 }
 .msg.user .msg-bub{
-  background:var(--navy);color:white;
+  background:linear-gradient(135deg,var(--navy),#2D5A8E);color:white;
   border-top-right-radius:4px;
 }
 
@@ -327,7 +368,8 @@ a:hover{text-decoration:underline;}
   margin-bottom:7px;
 }
 .bub-task-title{
-  font-size:16px;font-weight:800;color:var(--orange);
+  font-size:16px;font-weight:800;
+  background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   margin-bottom:5px;
 }
 .bub-strong{font-weight:700;}
@@ -391,7 +433,7 @@ a:hover{text-decoration:underline;}
 
 /* Phase unlock box */
 .unlock-box{
-  background:linear-gradient(135deg,var(--navy),#0A4A9A);
+  background:linear-gradient(135deg,var(--navy),#1E6BA8,var(--teal));
   color:white;border-radius:var(--radius-md);
   padding:18px;text-align:center;margin-top:8px;
 }
@@ -446,8 +488,8 @@ a:hover{text-decoration:underline;}
   display:flex;align-items:center;gap:5px;
 }
 .opt-btn:hover{background:var(--navy);color:white;}
-.opt-btn.primary{background:var(--orange);border-color:var(--orange);color:white;}
-.opt-btn.primary:hover{background:#C73A16;border-color:#C73A16;}
+.opt-btn.primary{background:var(--primary-grad);border-color:transparent;color:white;}
+.opt-btn.primary:hover{opacity:.9;transform:translateY(-1px);}
 .opt-btn.ghost{border-color:var(--g300);color:var(--g500);}
 .opt-btn.ghost:hover{background:var(--g100);color:var(--g800);}
 .opt-btn.warn{border-color:var(--amber);color:#78350F;}
@@ -463,16 +505,35 @@ a:hover{text-decoration:underline;}
   font-size:13px;outline:none;
   transition:border-color .15s;
 }
-.txt-in:focus{border-color:var(--orange);}
+.txt-in:focus{border-color:var(--primary);}
 .txt-go{
   padding:9px 18px;
-  background:var(--orange);color:white;
+  background:var(--primary-grad);color:white;
   border-radius:24px;font-size:13px;font-weight:700;
-  transition:background .13s;
+  transition:opacity .13s;
+  border:none;
 }
-.txt-go:hover{background:#C73A16;}
+.txt-go:hover{opacity:.88;}
 
 .opts-hint{font-size:11px;color:var(--g400);text-align:center;margin-top:6px;}
+
+/* ═══════════════════════════════════════
+   PHASE COLOUR ACCENTS (journey arrow palette)
+═══════════════════════════════════════ */
+.ph-group[data-phase="PH0"] .tk-item.active{color:var(--ph0);border-left-color:var(--ph0);background:#EFF6FF;}
+.ph-group[data-phase="PH1"] .tk-item.active{color:var(--ph1);border-left-color:var(--ph1);background:#E8FAF9;}
+.ph-group[data-phase="PH2"] .tk-item.active{color:#059669;border-left-color:#059669;background:#D1FAE5;}
+.ph-group[data-phase="PH3"] .tk-item.active{color:var(--ph3);border-left-color:var(--ph3);background:var(--primary-pale);}
+.ph-group[data-phase="PH4"] .tk-item.active{color:var(--ph4);border-left-color:var(--ph4);background:#F5F3FF;}
+.ph-group[data-phase="PH5"] .tk-item.active{color:var(--ph5);border-left-color:var(--ph5);background:#FFF0F7;}
+
+/* Poppins font-weight overrides */
+.bub-task-title{font-weight:700;}
+.ob-card h1{font-weight:800;}
+strong,.bub-strong{font-weight:600;}
+
+/* Resource + contact card link colour */
+.res-card a,.contact-card a{color:var(--primary);}
 
 /* ═══════════════════════════════════════
    RESPONSIVE
@@ -2425,7 +2486,7 @@ function t6_complete() {
   showTyping();
   setTimeout(() => {
     hideTyping();
-    addMsg('bot', `<div class="unlock-box" style="background:linear-gradient(135deg,#E8431A,#F26522);">
+    addMsg('bot', `<div class="unlock-box" style="background:linear-gradient(135deg,#F97316,#EC4899,#A78BFA);">
       <h3>🎓 Congratulations, ${S.user_name}!</h3>
       <p>You've completed your 90-day NIIT CAS onboarding journey.<br>
       Overall progress: <strong>${pct}%</strong></p>
@@ -2468,6 +2529,7 @@ function updateSidebar() {
 
     const group = document.createElement('div');
     group.className = 'ph-group';
+    group.dataset.phase = ph.id;
 
     // Phase header
     const head = document.createElement('div');
