@@ -6,6 +6,7 @@ import type { PersonCard } from '../lib/people';
 import { migrateContractorRecord } from '../lib/contractorTasks';
 import { ContractorDetail } from './contractors/index';
 import { timeSince } from './contractors/index';
+import NayaHeader from '../components/NayaHeader';
 
 // ── Employee ("analyst") engine — unchanged from the pre-contractor phases.
 // Exported because lib/people.ts's analystToCard derives off these. ──
@@ -105,49 +106,50 @@ export default function Dashboard() {
   const selectedRecord = selectedId ? contractorRecords.find(r => r.contractor_id === selectedId) : null;
 
   return (
-    <div style={{ fontFamily: 'Poppins, sans-serif', background: '#F9FAFB', minHeight: '100vh' }}>
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '32px 20px' }}>
+    <div className="naya-page">
+      <NayaHeader title="NAYA" subtitle="NIIT CAS Onboarding" badge="Admin" />
+      <div className="naya-page-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-          <h1 style={{ fontSize: 22, margin: 0 }}>People</h1>
-          <button onClick={() => router.push('/contractors/new')} style={addBtnStyle}>+ Add contractor / associate</button>
+          <h1 style={{ fontSize: 22, margin: 0, color: 'var(--navy-dark)' }}>People</h1>
+          <button onClick={() => router.push('/contractors/new')} className="naya-btn naya-btn-primary">+ Add contractor / associate</button>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           {(['all', 'employee', 'contractor', 'associate'] as JourneyFilter[]).map(f => (
-            <button key={f} onClick={() => setFilter(f)} style={filter === f ? tabActiveStyle : tabStyle}>
+            <button key={f} onClick={() => setFilter(f)} className={`naya-tristate ${filter === f ? '' : ''}`} style={filterPillStyle(filter === f)}>
               {f === 'all' ? 'All' : f === 'employee' ? 'Employees' : f === 'contractor' ? 'Contractors' : 'Associates'}
             </button>
           ))}
-          <input placeholder="Search name or email" value={search} onChange={e => setSearch(e.target.value)} style={searchStyle} />
+          <input placeholder="Search name or email" value={search} onChange={e => setSearch(e.target.value)} className="naya-input" style={{ marginLeft: 'auto', maxWidth: 220 }} />
         </div>
 
-        {loading && <div style={{ color: '#9CA3AF' }}>Loading…</div>}
-        {error && <div style={{ color: '#EF4444' }}>{error}</div>}
+        {loading && <div className="naya-empty">Loading…</div>}
+        {error && <div className="naya-error">{error}</div>}
         {!loading && !error && filtered.length === 0 && (
-          <div style={{ color: '#9CA3AF', padding: 24, textAlign: 'center' }}>No one matches this filter yet.</div>
+          <div className="naya-card naya-empty">No one matches this filter yet.</div>
         )}
 
         {!loading && !error && filtered.length > 0 && (
-          <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', border: '1px solid #F3F4F6' }}>
+          <div className="naya-card" style={{ padding: 0, overflow: 'hidden' }}>
             {filtered.map(p => (
               <div key={`${p.journey_type}-${p.id}`} onClick={() => p.journey_type !== 'employee' ? setSelectedId(p.id) : router.push(`/snapshot/${p.id}`)} style={rowStyle}>
                 <div style={{ flex: 1.4, minWidth: 160 }}>
                   <div style={{ fontWeight: 700, fontSize: 13.5 }}>{p.name}</div>
-                  <div style={{ fontSize: 11.5, color: '#9CA3AF' }}>{p.journey_label}{p.email ? ` · ${p.email}` : ''}</div>
+                  <div style={{ fontSize: 11.5, color: 'var(--g400)' }}>{p.journey_label}{p.email ? ` · ${p.email}` : ''}</div>
                 </div>
-                <div style={{ flex: 1, minWidth: 140, fontSize: 12.5, color: '#4B5563' }}>{p.stage}</div>
-                <div style={{ width: 120, fontSize: 12.5 }}>{p.current_phase}</div>
-                <div style={{ width: 90 }}>
+                <div style={{ flex: 1, minWidth: 140, fontSize: 12.5, color: 'var(--g600)' }}>{p.stage}</div>
+                <div style={{ width: 130, fontSize: 12.5 }}>{p.current_phase}</div>
+                <div style={{ width: 100 }}>
                   <StatusPill bucket={p.status_bucket} label={p.status_label} />
                 </div>
-                <div style={{ width: 100, fontSize: 12.5, color: '#6B7280' }}>{p.progress_pct}%</div>
-                <div style={{ width: 140, fontSize: 12, color: '#9CA3AF' }} title={p.next_action}>{p.next_action || '—'}</div>
+                <div style={{ width: 90, fontSize: 12.5, color: 'var(--g600)' }}>{p.progress_pct}%</div>
+                <div style={{ width: 150, fontSize: 12, color: 'var(--g400)' }} title={p.next_action}>{p.next_action || '—'}</div>
                 {p.journey_type !== 'employee' && (
-                  <div style={{ width: 100, fontSize: 11.5 }}>
+                  <div style={{ width: 100 }}>
                     <InvitePill status={p.invite_status} />
                   </div>
                 )}
-                <div style={{ width: 70, fontSize: 11, color: '#C4C4C4', textAlign: 'right' }}>{timeSince(p.last_activity)}</div>
+                <div style={{ width: 70, fontSize: 11, color: 'var(--g300)', textAlign: 'right' }}>{timeSince(p.last_activity)}</div>
               </div>
             ))}
           </div>
@@ -155,9 +157,9 @@ export default function Dashboard() {
       </div>
 
       {selectedRecord && (
-        <div style={drawerOverlay} onClick={() => setSelectedId(null)}>
-          <div style={drawerStyle} onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelectedId(null)} style={{ ...addBtnStyle, background: 'white', color: '#1F2937', border: '1px solid #E5E7EB', marginBottom: 16 }}>← Back to People</button>
+        <div className="naya-drawer-overlay" onClick={() => setSelectedId(null)}>
+          <div className="naya-drawer" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelectedId(null)} className="naya-btn naya-btn-secondary" style={{ marginBottom: 16 }}>← Back to People</button>
             <ContractorDetail record={selectedRecord} onRefresh={load} />
           </div>
         </div>
@@ -166,26 +168,30 @@ export default function Dashboard() {
   );
 }
 
+function filterPillStyle(active: boolean): React.CSSProperties {
+  return {
+    padding: '7px 14px', borderRadius: 999, fontSize: 12.5, fontWeight: 600,
+    border: active ? '1.5px solid var(--primary)' : '1.5px solid var(--g200)',
+    background: active ? 'var(--primary-pale)' : 'white',
+    color: active ? 'var(--navy)' : 'var(--g600)',
+  };
+}
+
 function StatusPill({ bucket, label }: { bucket: string; label: string }) {
-  const colors: Record<string, string> = { waiting: '#F59E0B', blocked: '#EF4444', ready: '#10B981', complete: '#6B7280', active: '#3B82F6' };
-  const c = colors[bucket] || '#9CA3AF';
-  return <span style={{ fontSize: 11, fontWeight: 700, color: c, background: `${c}18`, padding: '3px 8px', borderRadius: 999 }}>{label}</span>;
+  const chipClass: Record<string, string> = {
+    waiting: 'naya-chip-orange', blocked: 'naya-chip-red', ready: 'naya-chip-teal', complete: 'naya-chip-gray', active: 'naya-chip-navy',
+  };
+  return <span className={`naya-chip ${chipClass[bucket] || 'naya-chip-gray'}`}>{label}</span>;
 }
 
 function InvitePill({ status }: { status: string }) {
-  const map: Record<string, { label: string; color: string }> = {
-    not_generated: { label: 'Not generated', color: '#9CA3AF' },
-    active: { label: 'Active', color: '#10B981' },
-    expired: { label: 'Expired', color: '#EF4444' },
+  const map: Record<string, { label: string; cls: string }> = {
+    not_generated: { label: 'Not generated', cls: 'naya-chip-gray' },
+    active: { label: 'Active', cls: 'naya-chip-teal' },
+    expired: { label: 'Expired', cls: 'naya-chip-red' },
   };
   const m = map[status] || map.not_generated;
-  return <span style={{ fontSize: 10.5, fontWeight: 700, color: m.color }}>{m.label}</span>;
+  return <span className={`naya-chip ${m.cls}`}>{m.label}</span>;
 }
 
-const addBtnStyle: React.CSSProperties = { padding: '10px 16px', borderRadius: 8, border: 'none', background: '#1E3A5F', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: 13 };
-const tabStyle: React.CSSProperties = { padding: '7px 14px', borderRadius: 999, border: '1px solid #E5E7EB', background: 'white', fontSize: 12.5, cursor: 'pointer', color: '#4B5563' };
-const tabActiveStyle: React.CSSProperties = { ...tabStyle, background: '#1E3A5F', color: 'white', border: '1px solid #1E3A5F' };
-const searchStyle: React.CSSProperties = { marginLeft: 'auto', padding: '8px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12.5, minWidth: 200 };
-const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', flexWrap: 'wrap' };
-const drawerOverlay: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(17,24,39,0.4)', display: 'flex', justifyContent: 'flex-end', zIndex: 900 };
-const drawerStyle: React.CSSProperties = { background: 'white', width: '100%', maxWidth: 560, height: '100%', overflowY: 'auto', padding: 24 };
+const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: '1px solid var(--g100)', cursor: 'pointer', flexWrap: 'wrap' };

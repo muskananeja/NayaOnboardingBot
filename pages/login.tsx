@@ -26,16 +26,25 @@ export default function Login() {
   };
 
   return (
-    <div style={{ fontFamily: 'Poppins, sans-serif', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F9FAFB' }}>
-      <form onSubmit={submit} style={{ background: 'white', padding: 32, borderRadius: 14, width: 320, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-        <h1 style={{ fontSize: 18, marginBottom: 18, textAlign: 'center' }}>NAYA Admin</h1>
+    <div className="naya-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <form onSubmit={submit} className="naya-card-entry" style={{ width: '100%', maxWidth: 360, textAlign: 'center' }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: '50%', background: 'white', border: '3px solid var(--navy)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 22,
+          color: 'var(--navy)', margin: '0 auto 16px',
+        }}>N</div>
+        <h1 style={{
+          fontSize: 22, fontWeight: 800, margin: '0 0 6px',
+          background: 'var(--primary-grad)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+        }}>NAYA Admin</h1>
+        <p style={{ fontSize: 13, color: 'var(--g500)', margin: '0 0 24px' }}>Sign in to manage onboarding journeys.</p>
+        <label className="naya-label" htmlFor="password" style={{ textAlign: 'left' }}>Password</label>
         <input
-          type="password" value={password} onChange={e => setPassword(e.target.value)}
-          placeholder="Password" autoFocus
-          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', marginBottom: 12, fontSize: 14 }}
+          id="password" type="password" value={password} onChange={e => setPassword(e.target.value)}
+          placeholder="Enter your password" autoFocus className="naya-input" style={{ marginBottom: 16 }}
         />
-        {error && <div style={{ color: '#EF4444', fontSize: 12.5, marginBottom: 10 }}>{error}</div>}
-        <button type="submit" disabled={busy} style={{ width: '100%', padding: '11px', borderRadius: 8, border: 'none', background: '#1E3A5F', color: 'white', fontWeight: 700, cursor: 'pointer' }}>
+        {error && <div className="naya-error" style={{ marginBottom: 14, textAlign: 'left' }}>{error}</div>}
+        <button type="submit" disabled={busy} className="naya-btn naya-btn-primary" style={{ width: '100%' }}>
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
       </form>

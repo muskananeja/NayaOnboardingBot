@@ -135,7 +135,7 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
   NOT_STARTED: 'Not started',
   IN_PROGRESS: 'In progress',
   WAITING_ON_CONTRACTOR: 'Waiting on contractor',
-  WAITING_ON_INTERNAL: 'Waiting on internal team',
+  WAITING_ON_INTERNAL: 'Waiting on NIIT',
   WAITING_ON_CLIENT: 'Waiting on client',
   COMPLETE: 'Complete',
   NOT_APPLICABLE: 'Not applicable',

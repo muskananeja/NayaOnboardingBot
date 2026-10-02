@@ -39,15 +39,17 @@ export const STATUS_COLOR: Record<TaskStatus, string> = {
   BLOCKED: '#EF4444',
 };
 
+// A plain glyph set (no emoji) shared with the contractor-facing view's own
+// status dots — this is a label/status marker, not decoration.
 export const STATUS_ICON: Record<TaskStatus, string> = {
   NOT_STARTED: '○',
   IN_PROGRESS: '◐',
-  WAITING_ON_CONTRACTOR: '⏳',
-  WAITING_ON_INTERNAL: '⏳',
-  WAITING_ON_CLIENT: '⏳',
+  WAITING_ON_CONTRACTOR: '○',
+  WAITING_ON_INTERNAL: '○',
+  WAITING_ON_CLIENT: '○',
   COMPLETE: '✓',
   NOT_APPLICABLE: '—',
-  BLOCKED: '⛔',
+  BLOCKED: '!',
 };
 
 function fmtDate(s: string) {
@@ -80,17 +82,17 @@ export function TaskDetailModal({ task, allTasks, onClose, onUpdate }: {
   };
 
   return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={e => e.stopPropagation()}>
+    <div className="naya-modal-backdrop" onClick={onClose}>
+      <div className="naya-modal" onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' }}>{PHASE_LABELS[task.phase]} · {CLASSIFICATION_LABELS[task.classification]}</div>
-            <h2 style={{ fontSize: 18, margin: '4px 0 0' }}>{task.title}</h2>
+            <div className="naya-label" style={{ marginBottom: 2 }}>{PHASE_LABELS[task.phase]} · {CLASSIFICATION_LABELS[task.classification]}</div>
+            <h2 style={{ fontSize: 18, margin: '4px 0 0', color: 'var(--navy-dark)' }}>{task.title}</h2>
           </div>
-          <button onClick={onClose} style={closeBtnStyle}>✕</button>
+          <button onClick={onClose} className="naya-modal-close" aria-label="Close">×</button>
         </div>
 
-        <p style={{ color: '#4B5563', fontSize: 13.5, marginTop: 12 }}>{task.why_it_matters || 'No further context recorded for this task.'}</p>
+        <p style={{ color: 'var(--g600)', fontSize: 13.5, marginTop: 12 }}>{task.why_it_matters || 'No further context recorded for this task.'}</p>
 
         <div style={gridStyle}>
           <Field label="Owner" value={OWNER_LABELS[task.owner]} />
@@ -100,54 +102,55 @@ export function TaskDetailModal({ task, allTasks, onClose, onUpdate }: {
         </div>
 
         <div style={{ marginTop: 12 }}>
-          <div style={labelStyle}>Resource / training link</div>
+          <div className="naya-label">Resource / training link</div>
           {task.resource
-            ? <a href={task.resource.url} target="_blank" rel="noreferrer" style={{ color: '#2563EB', fontSize: 13.5 }}>{task.resource.label} ↗</a>
-            : <span style={{ color: '#9CA3AF', fontSize: 13.5, fontStyle: 'italic' }}>Resource to be confirmed</span>}
+            ? <a href={task.resource.url} target="_blank" rel="noreferrer" style={{ fontSize: 13.5 }}>{task.resource.label} ↗</a>
+            : <span style={{ color: 'var(--g400)', fontSize: 13.5, fontStyle: 'italic' }}>Resource to be confirmed</span>}
         </div>
 
         {task.depends_on.length > 0 && (
           <div style={{ marginTop: 12 }}>
-            <div style={labelStyle}>Depends on</div>
+            <div className="naya-label">Depends on</div>
             <div style={{ fontSize: 13.5 }}>
               {task.depends_on.map(id => {
                 const dep = allTasks.find(t => t.id === id);
                 if (!dep) return null;
-                return <div key={id} style={{ color: dep.status === 'COMPLETE' || dep.status === 'NOT_APPLICABLE' ? '#10B981' : '#F59E0B' }}>{STATUS_ICON[dep.status]} {dep.title}</div>;
+                const cleared = dep.status === 'COMPLETE' || dep.status === 'NOT_APPLICABLE';
+                return <div key={id} style={{ color: cleared ? 'var(--teal)' : 'var(--primary)', display: 'flex', alignItems: 'center', gap: 6 }}><span className="naya-task-dot" style={{ background: cleared ? 'var(--teal)' : 'var(--primary)' }} />{dep.title}</div>;
               })}
             </div>
           </div>
         )}
 
         {task.blocked_reason && (
-          <div style={{ marginTop: 12, background: '#FEF2F2', padding: 10, borderRadius: 8, fontSize: 13 }}>
+          <div style={{ marginTop: 12, background: 'var(--red-pale)', padding: 10, borderRadius: 8, fontSize: 13 }}>
             <strong>Blocked:</strong> {task.blocked_reason}
           </div>
         )}
 
         <div style={{ marginTop: 16 }}>
-          <div style={labelStyle}>Update status</div>
-          <select value={status} onChange={e => setStatus(e.target.value as TaskStatus)} style={selectStyle}>
+          <div className="naya-label">Update status</div>
+          <select value={status} onChange={e => setStatus(e.target.value as TaskStatus)} className="naya-input">
             {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
         </div>
 
         <div style={{ marginTop: 10 }}>
-          <div style={labelStyle}>Notes {needsReason ? '(required)' : '(optional)'}</div>
-          <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} style={textareaStyle}
+          <div className="naya-label">Notes {needsReason ? '(required)' : '(optional)'}</div>
+          <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} className="naya-input"
             placeholder={needsReason ? 'Why is this blocked / not applicable?' : 'Completion evidence, blockers, or any other notes'} />
         </div>
 
         {blockers.length > 0 && status === 'COMPLETE' && (
-          <div style={{ marginTop: 10, color: '#F59E0B', fontSize: 12.5 }}>
+          <div style={{ marginTop: 10, color: 'var(--primary)', fontSize: 12.5 }}>
             Waiting on: {blockers.map(b => b.title).join(', ')}
           </div>
         )}
-        {error && <div style={{ marginTop: 10, color: '#EF4444', fontSize: 12.5 }}>{error}</div>}
+        {error && <div className="naya-error" style={{ marginTop: 10, fontSize: 12.5 }}>{error}</div>}
 
         <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-          <button onClick={onClose} style={secondaryBtnStyle}>Cancel</button>
-          <button onClick={save} disabled={saving} style={primaryBtnStyle}>{saving ? 'Saving…' : 'Save'}</button>
+          <button onClick={onClose} className="naya-btn naya-btn-secondary">Cancel</button>
+          <button onClick={save} disabled={saving} className="naya-btn naya-btn-primary" style={{ flex: 1 }}>{saving ? 'Saving…' : 'Save'}</button>
         </div>
       </div>
     </div>
@@ -155,7 +158,7 @@ export function TaskDetailModal({ task, allTasks, onClose, onUpdate }: {
 }
 
 function Field({ label, value }: { label: string; value: string }) {
-  return <div><div style={labelStyle}>{label}</div><div style={{ fontSize: 13.5 }}>{value}</div></div>;
+  return <div><div className="naya-label">{label}</div><div style={{ fontSize: 13.5 }}>{value}</div></div>;
 }
 
 // Full admin view of one contractor/associate record: header, readiness
@@ -209,14 +212,14 @@ export function ContractorDetail({ record, onRefresh }: { record: ContractorReco
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 20 }}>{record.contractor_name}</h2>
-          <div style={{ color: '#6B7280', fontSize: 13.5 }}>
+          <h2 style={{ margin: 0, fontSize: 20, color: 'var(--navy-dark)' }}>{record.contractor_name}</h2>
+          <div style={{ color: 'var(--g600)', fontSize: 13.5 }}>
             {record.engagement_type === 'associate' ? 'Associate' : 'Contractor'} · {record.project_name}{record.client ? ` · ${record.client}` : ''}
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 12, color: '#9CA3AF' }}>Ready to start</div>
-          <div style={{ fontWeight: 800, color: ready ? '#10B981' : '#9CA3AF' }}>{ready ? 'Yes' : 'Not yet'}</div>
+          <div className="naya-label" style={{ marginBottom: 2 }}>Ready to start</div>
+          <span className={`naya-chip ${ready ? 'naya-chip-teal' : 'naya-chip-gray'}`}>{ready ? 'Yes' : 'Not yet'}</span>
         </div>
       </div>
 
@@ -227,39 +230,39 @@ export function ContractorDetail({ record, onRefresh }: { record: ContractorReco
         <MetaItem label="Progress" value={`${progress.done}/${progress.total} tasks (${progress.pct}%)`} />
       </div>
 
-      <div style={{ marginTop: 16, background: '#F9FAFB', borderRadius: 10, padding: 14 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Invitation</div>
-        {!hasInvite && <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 8 }}>No invitation has been generated yet.</div>}
-        {hasInvite && !expired && <div style={{ fontSize: 13, color: '#10B981', marginBottom: 8 }}>Active — expires {record.invite_expires_at ? fmtDate(new Date(record.invite_expires_at).toISOString().slice(0, 10)) : ''}</div>}
-        {hasInvite && expired && <div style={{ fontSize: 13, color: '#EF4444', marginBottom: 8 }}>Expired — generate a new one to invite this person.</div>}
+      <div className="naya-card" style={{ marginTop: 16, background: 'var(--g50)' }}>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: 'var(--navy-dark)' }}>Invitation</div>
+        {!hasInvite && <div style={{ fontSize: 13, color: 'var(--g600)', marginBottom: 8 }}>No invitation has been generated yet.</div>}
+        {hasInvite && !expired && <div style={{ fontSize: 13, color: '#047857', marginBottom: 8 }}>Active — expires {record.invite_expires_at ? fmtDate(new Date(record.invite_expires_at).toISOString().slice(0, 10)) : ''}</div>}
+        {hasInvite && expired && <div className="naya-error" style={{ marginBottom: 8 }}>Expired — generate a new one to invite this person.</div>}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button onClick={generateOrReplace} disabled={busy} style={secondaryBtnStyle}>
+          <button onClick={generateOrReplace} disabled={busy} className="naya-btn naya-btn-secondary">
             {busy ? 'Working…' : hasInvite ? 'Replace invitation link' : 'Generate invitation link'}
           </button>
-          <button onClick={() => setPreviewOpen(true)} style={secondaryBtnStyle}>Preview journey</button>
+          <button onClick={() => setPreviewOpen(true)} className="naya-btn naya-btn-secondary">Preview journey</button>
         </div>
-        {inviteMsg && <div style={{ fontSize: 12.5, color: '#4B5563', marginTop: 8 }}>{inviteMsg}</div>}
+        {inviteMsg && <div style={{ fontSize: 12.5, color: 'var(--g600)', marginTop: 8 }}>{inviteMsg}</div>}
         {inviteLink && (
           <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <input readOnly value={inviteLink} style={{ ...selectStyle, flex: 1, minWidth: 220, fontFamily: 'monospace', fontSize: 12 }} onFocus={e => e.currentTarget.select()} />
-            <button onClick={copyLink} style={secondaryBtnStyle}>Copy</button>
-            <a href={inviteLink} target="_blank" rel="noreferrer" style={secondaryBtnStyle}>Open</a>
+            <input readOnly value={inviteLink} className="naya-input" style={{ flex: 1, minWidth: 220, fontFamily: 'monospace', fontSize: 12 }} onFocus={e => e.currentTarget.select()} />
+            <button onClick={copyLink} className="naya-btn naya-btn-secondary">Copy</button>
+            <a href={inviteLink} target="_blank" rel="noreferrer" className="naya-btn naya-btn-secondary">Open</a>
           </div>
         )}
-        {hasInvite && !expired && <div style={{ fontSize: 11.5, color: '#9CA3AF', marginTop: 6 }}>Previously issued links aren't stored or retrievable — replace if the original was lost.</div>}
+        {hasInvite && !expired && <div style={{ fontSize: 11.5, color: 'var(--g400)', marginTop: 6 }}>Previously issued links aren't stored or retrievable — replace if the original was lost.</div>}
       </div>
 
       {PHASE_ORDER.map(phase => (
         <div key={phase} style={{ marginTop: 18 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontWeight: 700, fontSize: 14 }}>{PHASE_LABELS[phase]}</div>
-            <div style={{ fontSize: 11.5, color: gates[phase] ? '#10B981' : '#9CA3AF' }}>{gates[phase] ? 'Cleared' : 'In progress'}</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy-dark)' }}>{PHASE_LABELS[phase]}</div>
+            <span className={`naya-chip ${gates[phase] ? 'naya-chip-teal' : 'naya-chip-gray'}`}>{gates[phase] ? 'Cleared' : 'In progress'}</span>
           </div>
           {record.tasks.filter(t => t.phase === phase).map(t => (
-            <div key={t.id} onClick={() => setActiveTask(t)} style={taskRowStyle}>
-              <span style={{ color: STATUS_COLOR[t.status] }}>{STATUS_ICON[t.status]}</span>
-              <span style={{ flex: 1, fontSize: 13.5, opacity: t.status === 'NOT_APPLICABLE' ? 0.5 : 1 }}>{t.title}</span>
-              <span style={{ fontSize: 11.5, color: '#9CA3AF' }}>{OWNER_LABELS[t.owner]}</span>
+            <div key={t.id} onClick={() => setActiveTask(t)} className="naya-task-row">
+              <span className="naya-task-dot" style={{ background: STATUS_COLOR[t.status] }} />
+              <span className="naya-task-title" style={{ opacity: t.status === 'NOT_APPLICABLE' ? 0.5 : 1 }}>{t.title}</span>
+              <span className="naya-task-owner">{OWNER_LABELS[t.owner]}</span>
             </div>
           ))}
         </div>
@@ -285,22 +288,24 @@ function PreviewModal({ contractorId, onClose }: { contractorId: string; onClose
   }, [contractorId]);
 
   return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={e => e.stopPropagation()}>
+    <div className="naya-modal-backdrop" onClick={onClose}>
+      <div className="naya-modal" onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <h2 style={{ fontSize: 16, margin: 0 }}>Contractor journey preview</h2>
-          <button onClick={onClose} style={closeBtnStyle}>✕</button>
+          <h2 style={{ fontSize: 16, margin: 0, color: 'var(--navy-dark)' }}>Contractor journey preview</h2>
+          <button onClick={onClose} className="naya-modal-close" aria-label="Close">×</button>
         </div>
-        <div style={{ fontSize: 11.5, color: '#9CA3AF', margin: '6px 0 12px' }}>Read-only — this does not generate or affect any real invitation.</div>
-        {error && <div style={{ color: '#EF4444', fontSize: 13 }}>{error}</div>}
-        {!data && !error && <div style={{ fontSize: 13, color: '#9CA3AF' }}>Loading…</div>}
+        <div style={{ fontSize: 11.5, color: 'var(--g400)', margin: '6px 0 12px' }}>Read-only — this does not generate or affect any real invitation.</div>
+        {error && <div className="naya-error">{error}</div>}
+        {!data && !error && <div style={{ fontSize: 13, color: 'var(--g400)' }}>Loading…</div>}
         {data && (
           <div>
-            <div style={{ fontWeight: 700 }}>{data.contractor_name}</div>
-            <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 10 }}>{data.project_name}{data.client ? ` · ${data.client}` : ''} · {data.ready_to_start ? 'Ready to start' : 'Not yet ready'}</div>
+            <div style={{ fontWeight: 700, color: 'var(--navy-dark)' }}>{data.contractor_name}</div>
+            <div style={{ fontSize: 13, color: 'var(--g600)', marginBottom: 10 }}>{data.project_name}{data.client ? ` · ${data.client}` : ''} · {data.ready_to_start ? 'Ready to start' : 'Not yet ready'}</div>
             {data.tasks.map((t: any) => (
-              <div key={t.id} style={{ padding: '6px 0', borderBottom: '1px solid #F3F4F6', fontSize: 13 }}>
-                {t.title} <span style={{ color: '#9CA3AF', fontSize: 11.5 }}>· {t.status}</span>
+              <div key={t.id} className="naya-task-row" style={{ cursor: 'default' }}>
+                <span className="naya-task-dot" style={{ background: STATUS_COLOR[t.status as TaskStatus] }} />
+                <span className="naya-task-title">{t.title}</span>
+                <span className="naya-task-owner">{STATUS_LABELS[t.status as TaskStatus] || t.status}</span>
               </div>
             ))}
           </div>
@@ -311,16 +316,7 @@ function PreviewModal({ contractorId, onClose }: { contractorId: string; onClose
 }
 
 function MetaItem({ label, value }: { label: string; value: string }) {
-  return <div><div style={{ fontSize: 11, color: '#9CA3AF', textTransform: 'uppercase' }}>{label}</div><div style={{ fontSize: 13.5, fontWeight: 600 }}>{value}</div></div>;
+  return <div><div className="naya-label">{label}</div><div style={{ fontSize: 13.5, fontWeight: 600 }}>{value}</div></div>;
 }
 
-const overlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(17,24,39,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 };
-const modalStyle: React.CSSProperties = { background: 'white', borderRadius: 14, padding: 22, width: '100%', maxWidth: 520, maxHeight: '85vh', overflowY: 'auto' };
-const closeBtnStyle: React.CSSProperties = { border: 'none', background: 'none', fontSize: 16, cursor: 'pointer', color: '#9CA3AF' };
 const gridStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 14 };
-const labelStyle: React.CSSProperties = { fontSize: 11, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 };
-const selectStyle: React.CSSProperties = { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13.5 };
-const textareaStyle: React.CSSProperties = { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13.5, fontFamily: 'inherit' };
-const primaryBtnStyle: React.CSSProperties = { flex: 1, padding: '10px 16px', borderRadius: 8, border: 'none', background: '#1E3A5F', color: 'white', fontWeight: 700, cursor: 'pointer' };
-const secondaryBtnStyle: React.CSSProperties = { padding: '9px 14px', borderRadius: 8, border: '1px solid #E5E7EB', background: 'white', color: '#1F2937', fontWeight: 600, cursor: 'pointer', fontSize: 13, textDecoration: 'none', display: 'inline-block' };
-const taskRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px', cursor: 'pointer', borderBottom: '1px solid #F3F4F6' };
