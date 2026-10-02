@@ -1,0 +1,35 @@
+{
+  "_comment": "Key contacts for coffee connects. Edit freely — add/remove people, fix emails and roles. 'slot' entries (buddy/coach) are auto-filled from the user's setup. Emails follow firstname.lastname@niitmts.com; correct them if needed.",
+  "contacts": [
+    {
+      "id": "buddy",
+      "slot": "buddy",
+      "name": "",
+      "role": "Your Buddy",
+      "why": "Your day-to-day guide — ask them anything, and for your coffee-connect list.",
+      "email": ""
+    },
+    {
+      "id": "coach",
+      "slot": "coach",
+      "name": "",
+      "role": "Your Coach",
+      "why": "Owns your growth plan, role expectations and evaluations. Your key relationship.",
+      "email": ""
+    },
+    {
+      "id": "samriddhi",
+      "name": "Samriddhi Goel",
+      "role": "People / Onboarding",
+      "why": "Notify her once you've submitted your Manual of Me form.",
+      "email": "samriddhi.goel@niitmts.com"
+    },
+    {
+      "id": "prachi",
+      "name": "Prachi Nautiyal",
+      "role": "Symphony Access",
+      "why": "Request her to grant your Symphony access.",
+      "email": "prachi.nautiyal@niitmts.com"
+    }
+  ]
+}

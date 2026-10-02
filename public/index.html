@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIIT Naya Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   NAYA COLOUR SYSTEM — Journey Gradient
+   Blue → Teal → Green → Orange → Purple → Pink
+═══════════════════════════════════════ */
+:root {
+  /* ── Primary action gradient (orange → pink, from image) ── */
+  --primary:        #F97316;
+  --primary-end:    #EC4899;
+  --primary-grad:   linear-gradient(135deg, #F97316 0%, #EC4899 100%);
+  --primary-pale:   #FFF5FA;
+  --primary-border: rgba(249,115,22,.2);
+
+  /* ── Legacy aliases used in JS (keep working) ── */
+  --orange:         #F97316;
+  --orange-mid:     #FB923C;
+  --orange-pale:    #FFF5FA;
+  --orange-border:  rgba(249,115,22,.2);
+
+  /* ── Teal accent ── */
+  --teal:           #2EC4B6;
+  --teal-pale:      #E8FAF9;
+
+  /* ── Navy (N logo, nav, text) ── */
+  --navy:           #1E3A5F;
+  --navy-dark:      #111827;
+  --navy-light:     #EEF4FB;
+  --navy-border:    rgba(30,58,95,.18);
+
+  /* ── Neutrals ── */
+  --white:   #FFFFFF;
+  --g50:     #F9FAFB;
+  --g100:    #F3F4F6;
+  --g200:    #E5E7EB;
+  --g300:    #D1D5DB;
+  --g400:    #9CA3AF;
+  --g500:    #6B7280;
+  --g600:    #4B5563;
+  --g800:    #1F2937;
+
+  /* ── Status ── */
+  --green:    #10B981;
+  --green-bg: #D1FAE5;
+  --amber:    #F59E0B;
+  --amber-bg: #FEF3C7;
+  --red:      #EF4444;
+  --red-bg:   #FEE2E2;
+
+  /* ── Phase accent colours (matches journey arrows in image) ── */
+  --ph0: #60A5FA;   /* blue */
+  --ph1: #2EC4B6;   /* teal */
+  --ph2: #34D399;   /* green */
+  --ph3: #F97316;   /* orange */
+  --ph4: #A78BFA;   /* purple */
+  --ph5: #EC4899;   /* pink */
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.18);
+}
+
+/* ─── RESET ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  font-size:14px;
+  color:var(--g800);
+  background:var(--g100);
+  display:flex;
+  flex-direction:column;
+}
+button{cursor:pointer;font-family:inherit;border:none;background:none;}
+input{font-family:inherit;}
+a{color:var(--orange);text-decoration:none;}
+a:hover{text-decoration:underline;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--g300);border-radius:4px;}
+
+/* ═══════════════════════════════════════
+   ONBOARDING OVERLAY
+═══════════════════════════════════════ */
+#onboarding{
+  position:fixed;inset:0;
+  background:linear-gradient(160deg,#111827 0%,#1E3A5F 60%,#2EC4B6 100%);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;padding:20px;
+}
+.ob-card{
+  background:var(--white);
+  border-radius:var(--radius-xl);
+  padding:40px 36px;
+  width:100%;max-width:500px;
+  box-shadow:var(--shadow-lg);
+  text-align:center;
+}
+.ob-logo{
+  width:72px;height:72px;
+  background:white;
+  border:3px solid var(--navy);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:900;color:var(--navy);
+  margin:0 auto 18px;
+  box-shadow:0 6px 24px rgba(30,58,95,.25);
+  letter-spacing:-1px;
+}
+.ob-card h1{font-size:24px;font-weight:800;background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.ob-card .tagline{font-size:14px;color:var(--g500);line-height:1.6;margin-bottom:28px;}
+
+/* Step indicators */
+.ob-steps{display:flex;gap:6px;justify-content:center;margin-bottom:28px;}
+.ob-step{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--g200);transition:background .2s;
+}
+.ob-step.active{background:var(--primary-grad);background:var(--primary);width:24px;border-radius:4px;}
+.ob-step.done{background:var(--teal);}
+
+/* Name step */
+.ob-label{
+  display:block;text-align:left;
+  font-size:12px;font-weight:700;
+  color:var(--g500);text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:6px;
+}
+.ob-input{
+  width:100%;padding:12px 14px;
+  border:2px solid var(--g200);border-radius:var(--radius-md);
+  font-size:15px;outline:none;
+  transition:border-color .15s;
+  margin-bottom:20px;
+}
+.ob-input:focus{border-color:var(--orange);}
+
+/* Hire-type cards */
+.ht-grid{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 24px;}
+.ht-card{
+  flex:1 1 140px;padding:18px 14px;
+  border:2px solid var(--g200);border-radius:var(--radius-md);
+  cursor:pointer;text-align:left;
+  transition:all .2s;
+  background:white;font-family:Poppins,sans-serif;width:100%;display:block;
+}
+.ht-card:hover{border-color:var(--primary);background:var(--primary-pale);}
+.ht-card.selected{border-color:var(--primary);background:var(--primary-pale);box-shadow:0 0 0 3px rgba(249,115,22,.15);}
+.ht-card .ht-icon{font-size:28px;margin-bottom:8px;}
+.ht-card h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.ht-card p{font-size:12px;color:var(--g500);line-height:1.4;}
+
+/* Primary CTA */
+.ob-btn{
+  width:100%;padding:13px;
+  background:var(--primary-grad);color:white;
+  border-radius:var(--radius-md);
+  font-size:15px;font-weight:700;
+  transition:opacity .15s,transform .1s;
+  margin-top:4px;
+  font-family:'Poppins',sans-serif;
+  border:none;
+}
+.ob-btn:hover{opacity:.9;transform:translateY(-1px);}
+.ob-btn:disabled{background:var(--g300);cursor:not-allowed;opacity:1;transform:none;}
+.resume-card{border:1.5px solid var(--g200);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:10px;text-align:left;}
+.resume-card .rs-name{font-weight:700;font-size:14px;color:var(--navy);}
+.resume-card .rs-meta{font-size:12px;color:var(--g500);margin-top:2px;}
+
+/* ═══════════════════════════════════════
+   TOP NAV
+═══════════════════════════════════════ */
+#topnav,#cs-topnav{
+  height:56px;
+  background:linear-gradient(90deg,var(--navy-dark) 0%,var(--navy) 100%);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  box-shadow:0 2px 12px rgba(0,0,0,.25);
+  flex-shrink:0;z-index:100;
+  border-bottom:2px solid var(--primary);
+}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-icon{
+  width:34px;height:34px;
+  background:white;
+  border:2.5px solid white;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;color:var(--navy);
+  letter-spacing:-0.5px;
+  font-family:'Poppins',sans-serif;
+}
+.nav-title{font-size:15px;font-weight:700;color:white;}
+.nav-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:1px;}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-badge{
+  background:var(--primary-grad);color:white;
+  padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+}
+.nav-pct{font-size:12px;color:rgba(255,255,255,.65);}
+.nav-pct strong{color:white;}
+
+/* ═══════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════ */
+#app{display:flex;flex:1;overflow:hidden;}
+#contractor-self{flex:1;overflow:hidden;}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+#sidebar,#cs-sidebar{
+  width:272px;flex-shrink:0;
+  background:white;
+  border-right:1px solid var(--g200);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sb-head{
+  padding:14px 16px;
+  background:linear-gradient(135deg,#FFF5FA,#EEF4FB);
+  border-bottom:1px solid var(--g200);
+}
+.sb-head-label{
+  font-size:11px;font-weight:700;
+  background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:10px;
+}
+.sb-progress-labels{
+  display:flex;justify-content:space-between;
+  font-size:11px;color:var(--g500);margin-bottom:5px;
+}
+.sb-progress-labels strong{color:var(--navy);}
+.sb-bar-wrap{background:var(--g200);border-radius:4px;height:6px;overflow:hidden;}
+.sb-snap-link{font-size:11.5px;font-weight:700;color:var(--orange);cursor:pointer;margin-top:9px;text-align:center;}
+.sb-snap-link:hover{text-decoration:underline;}
+.sb-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--ph0),var(--teal),var(--primary),var(--ph5));
+  border-radius:4px;transition:width .4s ease;
+}
+
+.sb-body{flex:1;overflow-y:auto;padding:6px 0;}
+
+/* Phase groups */
+.ph-group{margin-bottom:2px;}
+.ph-head{
+  padding:7px 14px;
+  font-size:11px;font-weight:700;
+  color:var(--g400);text-transform:uppercase;letter-spacing:.7px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.ph-head:hover{background:var(--g50);}
+.ph-head.current{color:var(--navy);background:linear-gradient(90deg,#EEF4FB,#FFF5FA);}
+.ph-head.locked{color:var(--g300);}
+.ph-badge{
+  font-size:10px;padding:2px 7px;border-radius:10px;
+  background:var(--g200);color:var(--g500);font-weight:600;
+}
+.ph-badge.done{background:var(--green-bg);color:var(--green);}
+.ph-badge.active{background:var(--primary-grad);color:white;border:none;}
+.ph-badge.locked{background:var(--g100);color:var(--g300);}
+
+/* Task items */
+.tk-item{
+  padding:6px 14px 6px 28px;
+  font-size:12px;
+  display:flex;align-items:center;gap:7px;
+  cursor:pointer;
+  color:var(--g600);
+  border-left:3px solid transparent;
+  transition:all .12s;
+}
+.tk-item:hover{background:var(--g50);}
+.tk-item.active{
+  background:var(--primary-pale);
+  color:var(--primary);
+  border-left-color:var(--primary);
+  font-weight:600;
+}
+.tk-item.complete{color:var(--green);}
+.tk-item.blocked{color:var(--red);}
+.tk-item.skipped{color:var(--g400);text-decoration:line-through;}
+.tk-item.locked{color:var(--g300);cursor:default;}
+.tk-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+}
+.tk-dot.pending   {background:var(--g300);}
+.tk-dot.in_progress{background:var(--primary);}
+.tk-dot.complete  {background:var(--green);}
+.tk-dot.blocked   {background:var(--red);}
+.tk-dot.skipped   {background:var(--g300);}
+.tk-dot.locked    {background:var(--g200);}
+
+.sb-foot{
+  padding:10px 14px;
+  border-top:1px solid var(--g200);
+  font-size:11px;color:var(--g400);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.sb-reset{
+  font-size:11px;color:var(--g400);
+  text-decoration:underline;cursor:pointer;
+}
+.sb-reset:hover{color:var(--red);}
+
+/* ═══════════════════════════════════════
+   CHAT AREA
+═══════════════════════════════════════ */
+#chat-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+#chat-msgs{
+  flex:1;overflow-y:auto;
+  padding:22px 24px;
+  display:flex;flex-direction:column;gap:14px;
+}
+
+/* Message row */
+.msg{
+  display:flex;gap:10px;
+  max-width:82%;
+  animation:fadeUp .2s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.msg.bot{align-self:flex-start;}
+.msg.user{align-self:flex-end;flex-direction:row-reverse;}
+
+.msg-av{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;flex-shrink:0;
+}
+.msg.bot .msg-av{background:var(--navy);color:white;}
+.msg.user .msg-av{background:var(--primary-grad);color:white;font-size:11px;}
+
+.msg-bub{
+  padding:11px 15px;
+  border-radius:var(--radius-lg);
+  font-size:14px;line-height:1.55;
+}
+.msg.bot .msg-bub{
+  background:white;color:var(--g800);
+  border:1px solid var(--g200);
+  border-top-left-radius:4px;
+  box-shadow:var(--shadow-sm);
+  max-width:100%;
+}
+.msg.user .msg-bub{
+  background:linear-gradient(135deg,var(--navy),#2D5A8E);color:white;
+  border-top-right-radius:4px;
+}
+
+/* Rich content inside bubbles */
+.bub-phase-tag{
+  display:inline-block;
+  background:var(--navy-light);color:var(--navy);
+  padding:2px 8px;border-radius:10px;
+  font-size:11px;font-weight:700;
+  margin-bottom:7px;
+}
+.bub-task-title{
+  font-size:16px;font-weight:800;
+  background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:5px;
+}
+.bub-strong{font-weight:700;}
+.bub-p{margin-bottom:7px;}
+.bub-p:last-child{margin-bottom:0;}
+
+/* Banners inside bubbles */
+.banner{
+  border-radius:var(--radius-sm);padding:9px 12px;
+  margin-bottom:9px;font-size:13px;
+  display:flex;gap:8px;align-items:flex-start;
+}
+.banner.warn {background:var(--amber-bg);border-left:3px solid var(--amber);color:#78350F;}
+.banner.info {background:var(--navy-light);border-left:3px solid var(--navy);color:var(--navy);}
+.banner.ok   {background:var(--green-bg);border-left:3px solid var(--green);color:#065F46;}
+.banner.err  {background:var(--red-bg);border-left:3px solid var(--red);color:#7F1D1D;}
+
+/* Contact card */
+.contact-card{
+  background:var(--navy-light);border:1px solid var(--navy-border);
+  border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;
+}
+.contact-card .cc-name{font-weight:700;color:var(--navy);font-size:13px;}
+.contact-card .cc-row{font-size:12px;color:var(--g600);margin-top:3px;}
+
+/* Resource card */
+.res-card{
+  background:var(--orange-pale);border:1px solid var(--orange-border);
+  border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;
+}
+.res-card .rc-title{font-weight:700;color:var(--orange);font-size:13px;margin-bottom:4px;}
+.res-card .rc-item{font-size:12px;color:var(--g600);padding:2px 0;}
+
+/* Checklist */
+.bub-checklist{margin:8px 0;}
+.bub-cl-item{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 0;font-size:13px;
+}
+.cl-dot{
+  width:16px;height:16px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;flex-shrink:0;
+}
+.cl-dot.done{background:var(--green);color:white;}
+.cl-dot.todo{background:var(--g200);color:var(--g400);}
+.cl-dot.blk {background:var(--red);color:white;}
+.cl-dot.skip{background:var(--g300);color:white;}
+
+/* Progress summary box */
+.prog-box{
+  background:var(--g50);border:1px solid var(--g200);
+  border-radius:var(--radius-sm);padding:12px;margin-top:8px;
+}
+.prog-row{
+  display:flex;justify-content:space-between;
+  font-size:12px;padding:3px 0;
+}
+.prog-row .pr-lbl{color:var(--g500);}
+.prog-row .pr-val{font-weight:700;color:var(--g800);}
+
+/* Phase unlock box */
+.unlock-box{
+  background:linear-gradient(135deg,var(--navy),#1E6BA8,var(--teal));
+  color:white;border-radius:var(--radius-md);
+  padding:18px;text-align:center;margin-top:8px;
+}
+.unlock-box h3{font-size:17px;font-weight:800;margin-bottom:5px;}
+.unlock-box p{font-size:13px;opacity:.82;line-height:1.5;}
+
+/* Divider */
+.bub-hr{height:1px;background:var(--g200);margin:9px 0;}
+
+/* Inline template block */
+.template-block{
+  background:var(--g50);border:1px solid var(--g200);
+  border-radius:var(--radius-sm);padding:12px;margin-top:8px;
+  font-size:12px;color:var(--g600);line-height:1.6;
+  white-space:pre-wrap;font-style:italic;
+}
+
+/* ── TYPING INDICATOR ── */
+.typing-wrap{display:flex;gap:10px;align-items:flex-end;}
+.typing-bub{
+  background:white;border:1px solid var(--g200);
+  border-radius:var(--radius-lg);border-top-left-radius:4px;
+  padding:13px 16px;display:flex;gap:4px;
+  box-shadow:var(--shadow-sm);
+}
+.t-dot{
+  width:6px;height:6px;background:var(--g400);border-radius:50%;
+  animation:tdot 1.2s infinite;
+}
+.t-dot:nth-child(2){animation-delay:.2s;}
+.t-dot:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+
+/* ═══════════════════════════════════════
+   OPTIONS PANEL
+═══════════════════════════════════════ */
+#opts-panel{
+  padding:14px 20px 16px;
+  background:white;
+  border-top:1px solid var(--g200);
+  flex-shrink:0;
+}
+.opts-grid{display:flex;flex-wrap:wrap;gap:8px;}
+
+.opt-btn{
+  padding:9px 17px;
+  border-radius:24px;
+  font-size:13px;font-weight:600;
+  transition:all .13s;
+  border:2px solid var(--navy);
+  color:var(--navy);background:white;
+  display:flex;align-items:center;gap:5px;
+}
+.opt-btn:hover{background:var(--navy);color:white;}
+.opt-btn.primary{background:var(--primary-grad);border-color:transparent;color:white;}
+.opt-btn.primary:hover{opacity:.9;transform:translateY(-1px);}
+.opt-btn.ghost{border-color:var(--g300);color:var(--g500);}
+.opt-btn.ghost:hover{background:var(--g100);color:var(--g800);}
+.opt-btn.warn{border-color:var(--amber);color:#78350F;}
+.opt-btn.warn:hover{background:var(--amber-bg);}
+.opt-btn.danger{border-color:var(--red);color:var(--red);}
+.opt-btn.danger:hover{background:var(--red-bg);}
+
+/* Free-text input row */
+.txt-row{display:flex;gap:8px;margin-top:8px;}
+.txt-in{
+  flex:1;padding:9px 14px;
+  border:2px solid var(--g200);border-radius:24px;
+  font-size:13px;outline:none;
+  transition:border-color .15s;
+}
+.txt-in:focus{border-color:var(--primary);}
+.txt-go{
+  padding:9px 18px;
+  background:var(--primary-grad);color:white;
+  border-radius:24px;font-size:13px;font-weight:700;
+  transition:opacity .13s;
+  border:none;
+}
+.txt-go:hover{opacity:.88;}
+
+.opts-hint{font-size:11px;color:var(--g400);text-align:center;margin-top:6px;}
+
+/* ═══════════════════════════════════════
+   PHASE COLOUR ACCENTS (journey arrow palette)
+═══════════════════════════════════════ */
+.ph-group[data-phase="PH0"] .tk-item.active{color:var(--ph0);border-left-color:var(--ph0);background:#EFF6FF;}
+.ph-group[data-phase="PH1"] .tk-item.active{color:var(--ph1);border-left-color:var(--ph1);background:#E8FAF9;}
+.ph-group[data-phase="PH2"] .tk-item.active{color:#059669;border-left-color:#059669;background:#D1FAE5;}
+.ph-group[data-phase="PH3"] .tk-item.active{color:var(--ph3);border-left-color:var(--ph3);background:var(--primary-pale);}
+.ph-group[data-phase="PH4"] .tk-item.active{color:var(--ph4);border-left-color:var(--ph4);background:#F5F3FF;}
+.ph-group[data-phase="PH5"] .tk-item.active{color:var(--ph5);border-left-color:var(--ph5);background:#FFF0F7;}
+
+/* Poppins font-weight overrides */
+.bub-task-title{font-weight:700;}
+.ob-card h1{font-weight:800;}
+strong,.bub-strong{font-weight:600;}
+
+/* Resource + contact card link colour */
+.res-card a,.contact-card a{color:var(--primary);}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+.mobile-menu-btn{display:none;background:rgba(255,255,255,.14);border:none;color:white;border-radius:8px;width:34px;height:34px;font-size:16px;cursor:pointer;margin-right:8px;}
+.sidebar-backdrop{display:none;}
+@media(max-width:720px){
+  .mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;}
+  #sidebar,#cs-sidebar{
+    display:none;position:fixed;top:0;bottom:0;left:0;width:84vw;max-width:300px;
+    z-index:210;box-shadow:2px 0 24px rgba(0,0,0,.25);
+  }
+  #sidebar.mobile-open,#cs-sidebar.mobile-open{display:flex;}
+  .cs-main{padding:18px 16px 60px;}
+  .sidebar-backdrop.show{display:block;position:fixed;inset:0;background:rgba(17,24,39,.4);z-index:200;}
+  .msg{max-width:96%;}
+  .ct-actions{flex-wrap:wrap;}
+}
+
+/* Contractor self-serve view — reuses the employee shell's classes
+   (topnav/sidebar/ph-*/tk-*) so it looks like the same product rather than
+   a bolted-on separate page. */
+.cs-main{flex:1;overflow-y:auto;padding:24px 28px 60px;}
+.cs-next{background:linear-gradient(135deg,var(--orange-pale),var(--navy-light));border:1.5px solid var(--orange-border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
+.cs-next-label{font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.cs-next-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.cs-next .cs-task-action{padding:8px 16px;font-size:12.5px;}
+.cs-allset{font-size:13.5px;color:var(--g600);}
+.cs-readiness{background:white;border:1px solid var(--g200);border-radius:12px;padding:14px 18px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.cs-readiness.ready{background:var(--teal-pale);border-color:var(--teal);}
+.cs-r-label{font-size:13.5px;font-weight:700;color:var(--g600);margin-bottom:10px;}
+.cs-readiness.ready .cs-r-label{color:#047857;}
+.cs-r-gates{display:flex;gap:12px;flex-wrap:wrap;}
+.cs-r-gate{font-size:11.5px;font-weight:600;color:var(--g400);}
+.cs-r-gate.on{color:var(--teal);}
+.cs-section{background:white;border:1px solid var(--g200);border-radius:12px;padding:14px 18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.cs-section h3{font-size:11.5px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
+.cs-empty{font-size:12.5px;color:var(--g500);line-height:1.5;}
+.cs-task-list{display:flex;flex-direction:column;}
+.cs-task-action{font-size:10.5px;font-weight:700;color:white;background:var(--orange);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;flex-shrink:0;font-family:Poppins,sans-serif;}
+.cs-task-action:disabled{opacity:.6;cursor:default;}
+.cs-contacts{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--g800);}
+.cs-phase-jump{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.cs-phase-chip{font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:20px;background:white;border:1.5px solid var(--g200);color:var(--g600);cursor:pointer;}
+.cs-phase-chip.on{background:var(--primary-grad);border-color:transparent;color:white;}
+.cd-backdrop{position:fixed;inset:0;background:rgba(17,24,39,.5);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;}
+.cd-modal{background:white;border-radius:14px;padding:26px 28px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.cd-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.cd-phase{font-size:10.5px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
+.cd-title{font-size:16px;font-weight:800;color:var(--navy);}
+.cd-close{background:none;border:none;font-size:22px;color:var(--g400);cursor:pointer;line-height:1;}
+.cd-row{font-size:12.5px;color:var(--g600);margin-bottom:8px;line-height:1.5;}
+.cd-row b{color:var(--g800);}
+.cd-warn{background:#FEF3C7;color:#92400E;border-radius:8px;padding:10px 12px;font-size:12px;margin:10px 0;}
+
+/* ── Task badges ── */
+.bub-badges{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+.tk-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px;}
+.tk-badge.req{background:#EEF2FF;color:#4F46E5;}
+.tk-badge.self{background:#E8FAF9;color:#0D9488;}
+.tk-badge.rec{background:#FEF3C7;color:#B45309;}
+.rc-sub{font-size:11px;color:var(--g500);margin-top:1px;}
+.rc-count{font-size:11px;font-weight:600;color:var(--teal);margin-left:8px;}
+.rc-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.rc-item.rc-done{opacity:.65;}
+.rc-item.rc-done a{text-decoration:line-through;}
+.rc-check{flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--g300);background:var(--white);color:transparent;font-size:13px;font-weight:800;cursor:pointer;line-height:1;padding:0;}
+.rc-check.on{background:var(--green);border-color:var(--green);color:white;}
+.rc-check:hover{border-color:var(--teal);}
+
+/* ── Key Contacts ── */
+.ct-list{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.ct-card{border:1px solid var(--g200);border-radius:12px;padding:12px 14px;background:var(--white);transition:border-color .15s;}
+.ct-card.ct-done{border-color:var(--green);background:#F0FDF9;}
+.ct-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.ct-name{font-size:14px;font-weight:700;color:var(--navy);}
+.ct-role{font-size:11px;font-weight:600;color:var(--g500);}
+.ct-why{font-size:12px;color:var(--g600);margin:6px 0 10px;line-height:1.4;}
+.ct-actions{display:flex;gap:8px;align-items:center;}
+.ct-btn{display:inline-block;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;background:var(--navy-light);color:var(--navy);border:1px solid var(--navy-border);}
+.ct-btn:hover{background:var(--primary-pale);text-decoration:none;}
+.ct-btn.ct-mail{background:var(--primary-grad);color:#fff;border:none;}
+.ct-noemail{font-size:11px;color:var(--g400);font-style:italic;}
+.ct-btn.ct-help{background:var(--teal-pale);color:var(--teal);border:1px solid rgba(46,196,182,.3);}
+.ct-btn.ct-help:hover{background:#D3F5F2;text-decoration:none;}
+
+/* ── Compose helper panel ── */
+.cx-panel{margin-top:10px;padding:12px;border-radius:10px;background:var(--teal-pale);border:1px solid rgba(46,196,182,.25);}
+.cx-head{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.cx-chips{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.cx-chip{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--white);border:1px solid var(--g200);color:var(--g600);cursor:pointer;}
+.cx-chip.on{background:var(--navy);color:white;border-color:var(--navy);}
+.cx-mention,.cx-subject{width:100%;padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;margin-bottom:7px;}
+.cx-mention:focus,.cx-subject:focus,.cx-body:focus{border-color:var(--teal);}
+.cx-body{width:100%;padding:9px 11px;border:1.5px solid var(--g200);border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;outline:none;resize:vertical;line-height:1.5;margin-bottom:9px;}
+.cx-send-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ct-met{font-size:12px;font-weight:600;padding:5px 11px;border-radius:20px;border:1.5px solid var(--g300);background:var(--white);color:var(--g500);cursor:pointer;white-space:nowrap;}
+.ct-met.on{background:var(--green-bg);color:var(--green);border-color:var(--green);}
+
+/* ── Progress Snapshot (in-bot) ── */
+.snap-hero{background:linear-gradient(135deg,#111827 0%,#1E3A5F 55%,#2EC4B6 100%);border-radius:16px;padding:18px 20px;color:white;margin-bottom:14px;}
+.snap-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:30px;padding:5px 13px;font-size:12.5px;font-weight:700;margin-bottom:10px;}
+.snap-badge .em{font-size:17px;}
+.snap-line{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.5;}
+.snap-bars{margin:16px 0;}
+.snap-bar-row{margin-bottom:12px;}
+.snap-bar-row:last-child{margin-bottom:0;}
+.snap-bar-lbl{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:var(--g600);margin-bottom:5px;}
+.snap-bar-lbl .n{color:var(--navy);font-size:13px;}
+.snap-bar-track{height:10px;background:var(--g100);border-radius:6px;overflow:hidden;}
+.snap-bar-fill{height:100%;border-radius:6px;}
+.snap-bar-fill.req{background:linear-gradient(90deg,#F97316,#EC4899);}
+.snap-bar-fill.self{background:linear-gradient(90deg,#2EC4B6,#60A5FA);}
+.snap-roadmap{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 10px;margin-bottom:6px;}
+.snap-node{flex:0 0 auto;width:96px;background:var(--white);border:1.5px solid var(--g200);border-radius:11px;padding:9px 8px;text-align:center;}
+.snap-node.current{border-color:#F97316;box-shadow:0 0 0 3px rgba(249,115,22,.15);}
+.snap-node.done{border-color:var(--green);}
+.snap-node.locked{opacity:.5;}
+.snap-node-tag{display:inline-block;font-size:8.5px;font-weight:800;color:white;padding:2px 7px;border-radius:20px;letter-spacing:.3px;text-transform:uppercase;margin-bottom:5px;}
+.snap-node-title{font-size:10px;font-weight:700;color:var(--g800);line-height:1.25;margin-bottom:3px;}
+.snap-node-frac{font-size:9px;font-weight:700;}
+.snap-next{background:linear-gradient(135deg,#FFF7ED,#FDF2F8);border:1.5px solid #FED7AA;border-radius:12px;padding:14px 16px;margin-top:6px;}
+.snap-next-h{font-size:10.5px;font-weight:800;color:#C2410C;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.snap-next-title{font-size:15px;font-weight:800;color:var(--g800);margin-bottom:3px;}
+.snap-next-hint{font-size:12px;color:var(--g500);line-height:1.4;}
+
+/* ── Practice Room upcoming sessions strip (shared: snapshot + M9) ── */
+.pr-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;margin-top:8px;}
+.pr-chip{flex:0 0 auto;width:118px;background:var(--g50);border:1px solid var(--g200);border-radius:9px;padding:8px 9px;}
+.pr-bar{height:3px;border-radius:2px;margin-bottom:6px;}
+.pr-date{font-size:9.5px;font-weight:700;color:var(--g500);}
+.pr-topic{font-size:11px;font-weight:700;color:var(--g800);margin-top:2px;line-height:1.25;}
+.pr-sub{font-size:9.5px;color:var(--g400);margin-top:2px;font-style:italic;line-height:1.25;}
+
+/* Contractor self-serve view */
+#contractor-self{position:fixed;inset:0;background:var(--g50,#F9FAFB);overflow-y:auto;z-index:40;}
+.cs-task{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--g800);padding:6px 4px;cursor:pointer;border-radius:6px;}
+.cs-task:hover{background:var(--g50);}
+.cs-task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cs-task-title{flex:1;}
+.cs-task-owner{font-size:10.5px;color:var(--g400);font-weight:600;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- ══ ONBOARDING OVERLAY ══ -->
+<div id="onboarding">
+  <div class="ob-card">
+    <div class="ob-logo">N</div>
+    <h1>NIIT Naya Onboarding</h1>
+    <p class="tagline">Your NIIT CAS onboarding guide, step by step.</p>
+    <div id="ob-step-indicator" style="text-align:center;font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;">Step 1 — Journey</div>
+
+    <!-- Step: Journey type — always first. Real buttons, not divs, so this
+         works with keyboard/screen readers without extra ARIA plumbing. -->
+    <div id="ob-step-journey">
+      <label class="ob-label" id="ob-journey-label">How are you joining NIIT CAS?</label>
+      <div class="ht-grid" role="group" aria-labelledby="ob-journey-label">
+        <button type="button" class="ht-card" id="ob-journey-employee" onclick="chooseJourney('employee')">
+          <div class="ht-icon">🎓</div>
+          <h3>Employee</h3>
+          <p>Entry or Lateral Analyst joining CAS</p>
+        </button>
+        <button type="button" class="ht-card" id="ob-journey-contractor" onclick="chooseJourney('contractor')">
+          <div class="ht-icon">🧑‍💻</div>
+          <h3>Contractor</h3>
+          <p>Engaged for a project through a Resourcing Lead</p>
+        </button>
+      </div>
+      <p style="text-align:center;font-size:12.5px;color:var(--g500);margin-top:14px;">
+        Already started onboarding on another device?
+        <a href="#" id="ob-resume-link" style="color:var(--g500);font-weight:600;">Cross-device recovery (temporarily unavailable) →</a>
+      </p>
+    </div>
+
+    <!-- Step R: Resume on another device -->
+    <div id="ob-resume-step" style="display:none;">
+      <label class="ob-label" for="ob-resume-name">Your first name</label>
+      <input class="ob-input" id="ob-resume-name" type="text" placeholder="Type the name you used before" maxlength="40"/>
+      <button class="ob-btn" id="ob-resume-search">Find my progress</button>
+      <div id="ob-resume-results" style="margin-top:16px;"></div>
+      <p style="text-align:center;margin-top:14px;"><a href="#" id="ob-resume-back" style="color:var(--g500);font-size:12.5px;">← Back to start fresh</a></p>
+    </div>
+
+    <!-- Step: hire_type (employee only) -->
+    <div id="ob-step-hiretype" style="display:none;">
+      <label class="ob-label" id="ob-hiretype-label">Entry Analyst or Lateral Analyst?</label>
+      <div class="ht-grid" role="group" aria-labelledby="ob-hiretype-label">
+        <button type="button" class="ht-card" data-ht="entry" onclick="selectHT(this)">
+          <div class="ht-icon">🎓</div>
+          <h3>Entry Analyst</h3>
+          <p>Recent graduate or early-career joiner</p>
+        </button>
+        <button type="button" class="ht-card" data-ht="lateral" onclick="selectHT(this)">
+          <div class="ht-icon">💼</div>
+          <h3>Lateral Analyst</h3>
+          <p>Experienced professional switching into CAS</p>
+        </button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
+        <a href="#" id="ob-hiretype-back" style="color:var(--g500);font-size:12.5px;font-weight:600;">← Back</a>
+        <button class="ob-btn" id="ob-ht-next" disabled style="width:auto;padding:12px 24px;">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step: Contractors never configure their own onboarding — they can
+         only view it via the secure link their Resourcing Lead sends. No
+         name/email input here: that would just be a smaller enumeration hole. -->
+    <div id="ob-contractor-step" style="display:none;">
+      <label class="ob-label">You're onboarding as a contractor</label>
+      <p style="font-size:12.5px;color:var(--g500);margin:-6px 0 14px;">Your Resourcing Lead will send you a secure invitation link to access your onboarding.</p>
+      <p style="text-align:center;margin-top:14px;"><a href="#" id="ob-contractor-back" style="color:var(--g500);font-size:12.5px;">← Back</a></p>
+    </div>
+
+    <!-- Step: name + email (employee only) -->
+    <div id="ob-step-about" style="display:none;">
+      <label class="ob-label" for="ob-name">Your first name</label>
+      <input class="ob-input" id="ob-name" type="text" placeholder="e.g. Priya" maxlength="40"/>
+      <label class="ob-label" for="ob-email">Your email <span style="color:var(--g400);font-weight:400;">(optional — for progress updates)</span></label>
+      <input class="ob-input" id="ob-email" type="email" placeholder="e.g. priya.singh@niitmts.com" maxlength="100"/>
+      <div id="ob-email-error" style="font-size:11.5px;color:#DC2626;margin:-10px 0 8px;display:none;">Enter a valid email, or leave it blank.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+        <a href="#" id="ob-about-back" style="color:var(--g500);font-size:12.5px;font-weight:600;">← Back</a>
+        <button class="ob-btn" id="ob-about-next" disabled style="width:auto;padding:12px 24px;">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step: buddy & coach (optional, employee only) -->
+    <div id="ob-step-contacts" style="display:none;">
+      <label class="ob-label" for="ob-buddy">Your Buddy's name <span style="color:var(--g400);font-weight:400;">(optional)</span></label>
+      <input class="ob-input" id="ob-buddy" type="text" placeholder="e.g. Rahul Mehta" maxlength="60"/>
+      <a href="#" class="ob-skip" onclick="skipField('ob-buddy');return false;" style="font-size:11.5px;color:var(--g400);display:inline-block;margin:-10px 0 14px;">I don't know yet</a>
+      <label class="ob-label" for="ob-coach">Your Coach's name <span style="color:var(--g400);font-weight:400;">(optional)</span></label>
+      <input class="ob-input" id="ob-coach" type="text" placeholder="e.g. Anita Sharma" maxlength="60"/>
+      <a href="#" class="ob-skip" onclick="skipField('ob-coach');return false;" style="font-size:11.5px;color:var(--g400);display:inline-block;margin:-10px 0 14px;">I don't know yet</a>
+      <p style="font-size:12px;color:var(--g500);margin:-4px 0 16px;">You can add or change these anytime from your Key Contacts.</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <a href="#" id="ob-step3-back" style="color:var(--g500);font-size:12.5px;font-weight:600;">← Back</a>
+        <button class="ob-btn" id="ob-start" style="width:auto;padding:12px 24px;">Start Onboarding →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTRACTOR SELF-SERVE VIEW ══ -->
+<!-- Reuses the employee shell's own header/sidebar classes (nav-*, sb-*,
+     ph-*, tk-*) rather than a separate visual identity — same product, a
+     different journey. Read-only except for a contractor's own
+     WAITING_ON_CONTRACTOR tasks: every task is internally owned
+     (Resourcing Lead / Project Lead / Delivery Manager) otherwise. -->
+<div id="contractor-self" style="display:none;">
+  <nav id="cs-topnav">
+    <div class="nav-brand">
+      <button type="button" class="mobile-menu-btn" id="cs-mobile-menu-btn" aria-label="Open phase menu">☰</button>
+      <div class="nav-icon">N</div>
+      <div>
+        <div class="nav-title">NIIT Naya Onboarding</div>
+        <div class="nav-sub" id="cs-nav-sub">Contractor</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge">Contractor</span>
+      <span class="nav-pct" id="cs-nav-status"></span>
+    </div>
+  </nav>
+
+  <div id="cs-body-layout" style="display:flex;flex:1;overflow:hidden;">
+    <div class="sidebar-backdrop" id="cs-sidebar-backdrop"></div>
+    <aside id="cs-sidebar">
+      <div class="sb-head">
+        <div class="sb-head-label">Your Onboarding</div>
+        <div class="sb-progress-labels"><span id="cs-sb-done-lbl">0 tasks complete</span><strong id="cs-sb-pct-lbl">0%</strong></div>
+        <div class="sb-bar-wrap"><div class="sb-bar" id="cs-sb-bar" style="width:0%"></div></div>
+      </div>
+      <div class="sb-body" id="cs-sb-body"><!-- phase nav injected by JS --></div>
+      <div class="sb-foot"><span>NIIT Naya v1.0</span></div>
+    </aside>
+
+    <div class="cs-main" id="cs-main">
+      <h1 id="cs-name" style="font-size:20px;color:var(--navy);font-weight:800;margin-bottom:2px;"></h1>
+      <p id="cs-project" style="color:var(--g500);font-size:13px;margin-bottom:18px;"></p>
+
+      <div class="cs-readiness" id="cs-readiness"></div>
+
+      <div id="cs-home-view">
+        <div class="cs-next" id="cs-next"><!-- single prioritized next action, injected by JS --></div>
+
+        <div class="cs-section"><h3>NIIT actions</h3><div id="cs-niit" class="cs-task-list"></div></div>
+        <div class="cs-section"><h3>Waiting on client</h3><div id="cs-client" class="cs-task-list"></div></div>
+        <div class="cs-section"><h3>Blocked</h3><div id="cs-blocked" class="cs-task-list"></div></div>
+        <div class="cs-section"><h3>Upcoming</h3><div id="cs-upcoming" class="cs-task-list"></div></div>
+        <div class="cs-section"><h3>Completed</h3><div id="cs-done" class="cs-task-list"></div></div>
+        <div class="cs-section"><h3>Key contacts</h3><div id="cs-contacts" class="cs-contacts"></div></div>
+      </div>
+
+      <div id="cs-phase-view" style="display:none;">
+        <div id="cs-phase-title" style="font-size:11.5px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;"></div>
+        <div class="cs-section"><div id="cs-phase-tasks" class="cs-task-list"></div></div>
+      </div>
+
+      <p style="text-align:center;margin-top:10px;"><a href="#" id="cs-back" style="color:var(--g500);font-size:12.5px;">← Back to journey selection</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Task detail — shared markup for both home and per-phase task clicks -->
+<div class="cd-backdrop" id="cs-detail-backdrop" style="display:none;">
+  <div class="cd-modal" role="dialog" aria-modal="true" aria-labelledby="cd-title">
+    <div class="cd-h">
+      <div>
+        <div class="cd-phase" id="cd-phase"></div>
+        <div class="cd-title" id="cd-title"></div>
+      </div>
+      <button type="button" class="cd-close" id="cd-close" aria-label="Close">×</button>
+    </div>
+    <div class="cd-row" id="cd-why"></div>
+    <div class="cd-row"><b>Owner:</b> <span id="cd-owner"></span></div>
+    <div class="cd-row"><b>Status:</b> <span id="cd-status"></span></div>
+    <div class="cd-row" id="cd-due" style="display:none;"><b>Due:</b> <span id="cd-due-val"></span></div>
+    <div class="cd-row" id="cd-deps" style="display:none;"></div>
+    <div class="cd-row" id="cd-resource"></div>
+    <div class="cd-row" id="cd-contact" style="display:none;"></div>
+    <div class="cd-warn" id="cd-blocked" style="display:none;"></div>
+    <div class="cd-row" id="cd-notes" style="display:none;"></div>
+    <div id="cd-action" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<!-- ══ TOP NAV ══ -->
+<nav id="topnav" style="display:none;">
+  <div class="nav-brand">
+    <button type="button" class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open phase menu">☰</button>
+    <div class="nav-icon">N</div>
+    <div>
+      <div class="nav-title">NIIT Naya Onboarding</div>
+      <div class="nav-sub">NIIT CAS</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-badge" id="nav-ht-badge">Entry</span>
+    <span class="nav-pct">Overall: <strong id="nav-pct-val">0%</strong></span>
+  </div>
+</nav>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside id="sidebar">
+    <div class="sb-head">
+      <div class="sb-head-label">Your Progress</div>
+      <div class="sb-progress-labels">
+        <span id="sb-done-lbl">0 tasks complete</span>
+        <strong id="sb-pct-lbl">0%</strong>
+      </div>
+      <div class="sb-bar-wrap"><div class="sb-bar" id="sb-bar" style="width:0%"></div></div>
+      <div class="sb-snap-link" onclick="showSnapshot()">📸 View Progress Snapshot</div>
+    </div>
+    <div class="sb-body" id="sb-body">
+      <!-- Phase groups injected by JS -->
+    </div>
+    <div class="sb-foot">
+      <span>NIIT Naya v1.0</span>
+      <span class="sb-reset" onclick="confirmReset()">↺ Reset</span>
+    </div>
+  </aside>
+
+  <!-- CHAT -->
+  <div id="chat-wrap">
+    <div id="chat-msgs"></div>
+    <div id="opts-panel">
+      <div class="opts-grid" id="opts-grid"></div>
+      <div class="txt-row" id="txt-row" style="display:none;">
+        <input class="txt-in" id="txt-in" placeholder="Type here…" />
+        <button class="txt-go" id="txt-go">Send</button>
+      </div>
+      <div class="opts-hint" id="opts-hint"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ PLACEHOLDER FOR JS (Parts 2, 3, 4 injected here) ══ -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// NIIT NAYA — DATA-DRIVEN ONBOARDING ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+const LINKS = {
+  manualsOfMe: 'https://niit.sharepoint.com/sites/NIIT-ConsultingWarehouse/SitePages/CAS-Team.aspx?CT=1759147322516&amp;OR=OWA-NT-Mail&amp;CID=14e07677-e43d-3b75-5960-dd3b9db8661d',
+  momForm: 'https://forms.office.com/Pages/ResponsePage.aspx?id=v5iBDK3otEOhrp7LnXKt_StWncECcItDtTKSRF6zbXJUOUw4VEhZV1NUSEZVQ0VDQzRSVUpZMVZRSC4u',
+  chandoo: 'https://www.youtube.com/watch?v=7QNgqq154gE',
+  ovHere1: 'https://niit.sharepoint.com/:p:/r/sites/NIIT-PracticeManagementProjects/_layouts/15/Doc.aspx?sourcedoc=%7B2A990A26-3FA0-4905-818C-BF1DB8478885%7D&amp;file=2024_Our%20MTS%20Offerings.pptx&amp;action=edit&amp;mobileredirect=true',
+  ovHere2: 'https://niit.sharepoint.com/:p:/r/sites/NIIT-PracticeManagementProjects/Shared%20Documents/People%20Cluster-Rec.%20and%20On,%20Capability%20Dev,%20Talent/02-%20Onboarding%20of%20New%20Talent/03)%20CAS%20Onboarding%20Journey/2024_General_Organization%20chart%20and%20Management%20team.pptx?d=w6e06e0a15eef41668f06c138f9d13873&amp;csf=1&amp;web=1&amp;e=uaqb5P',
+  ovHere3: 'https://niit.sharepoint.com/:p:/r/sites/NIIT-PracticeManagementProjects/_layouts/15/Doc.aspx?sourcedoc=%7BE965B990-839B-4997-83B9-85CB9B5EC904%7D&amp;file=2024_Our%20Leadership%20in%20the%20%20Learning%20Marketplace.pptx&amp;action=edit&amp;mobileredirect=true',
+  symphonyGuide: 'https://niit-my.sharepoint.com/:w:/p/aditya_pasricha_in/EXCifthNvxRMhi-gcKXFro8B4_pYKWozO4QC2eWZZ0BByA?e=17K8ge&amp;wdLOR=cD6913AF6-9EFB-49AF-B9C3-38E45B5594E2',
+  cas1: 'https://niit.sharepoint.com/sites/NIIT-PracticeManagementProjects/_layouts/15/stream.aspx?id=%2Fsites%2FNIIT%2DPracticeManagementProjects%2FShared%20Documents%2FPeople%20Cluster%2F02%2D%20Onboarding%20of%20New%20Talent%2F03%29%20CAS%20Onboarding%20Guide%20Resources%2FCAS%20Onboarding%20Session%201%5F%20Welcome%20to%20NIIT%20CAS%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2Ef255cacb%2D7b2b%2D45ac%2D8047%2D5a0059f50c53',
+  cas2: 'https://niit.sharepoint.com/sites/NIIT-PracticeManagementProjects/_layouts/15/stream.aspx?id=%2Fsites%2FNIIT%2DPracticeManagementProjects%2FShared%20Documents%2FPeople%20Cluster%2F02%2D%20Onboarding%20of%20New%20Talent%2F03%29%20CAS%20Onboarding%20Guide%20Resources%2FCAS%20Onboarding%20Session%202%5F%20NIIT%20CAS%20Deep%20Dive%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2Ee35e794a%2D76b7%2D4350%2Da6a1%2D79d495a839f4',
+  cas3: 'https://niit.sharepoint.com/sites/NIIT-PracticeManagementProjects/_layouts/15/stream.aspx?id=%2Fsites%2FNIIT%2DPracticeManagementProjects%2FShared%20Documents%2FPeople%20Cluster%2F02%2D%20Onboarding%20of%20New%20Talent%2F03%29%20CAS%20Onboarding%20Guide%20Resources%2FCAS%20Onboarding%20Session%203%2E%20Intro%20to%20the%20wider%20NIIT%20business%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E3733491f%2Ddf70%2D4a8d%2Db587%2Da9016bbe1836',
+  dd1: 'https://niit.sharepoint.com/sites/NIIT-OneConsultingResources/_layouts/15/stream.aspx?id=%2Fsites%2FNIIT%2DOneConsultingResources%2FShared%20Documents%2FGeneral%2F1%2E%20Deep%20Dives%2FDD%201%2D%2DLearning%20Transformation%2FOne%20Consulting%20Deep%20Dive%201%5FLearning%20Transformation%2D20230928%5F150611%2DMeeting%20Recording%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E1239c104%2D8dd0%2D4a0f%2Db100%2Db0e9c5dcfb4c',
+  dd3: 'https://niit.sharepoint.com/sites/NIIT-OneConsultingResources/_layouts/15/stream.aspx?id=%2Fsites%2FNIIT%2DOneConsultingResources%2FShared%20Documents%2FGeneral%2F1%2E%20Deep%20Dives%2FDD%203%2D%2DWorkforce%20Skilling%2FOn%20Consulting%20Deep%20Dive%203%5FWorkforce%20Skilling%2D20230930%2DMeeting%20Recording%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2Eb8dc3b8c%2Da9fe%2D4b29%2Daca1%2D9e163c082fb5',
+  dd4: 'https://niit.sharepoint.com/sites/NIIT-OneConsultingResources/_layouts/15/stream.aspx?id=%2Fsites%2FNIIT%2DOneConsultingResources%2FShared%20Documents%2FGeneral%2F1%2E%20Deep%20Dives%2FDD%204%2D%2D%20Learning%20and%20Talent%20Technology%2FOne%20Consulting%20Deep%20Dive%20%5F4%20%2D%20Learning%20%26%20Talent%20Technologies%2D20231017%5F100552%2DMeeting%20Recording%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E57f46a14%2D8633%2D459f%2Da40a%2D74257559f206',
+  dd5: 'https://niit.sharepoint.com/sites/NIIT-OneConsultingResources/_layouts/15/stream.aspx?id=%2Fsites%2FNIIT%2DOneConsultingResources%2FShared%20Documents%2FGeneral%2F1%2E%20Deep%20Dives%2FDD%205%2D%2DLearning%20and%20Talent%20Intelligence%2FOne%20Consulting%20Deep%20Dive%205%5FLearning%20and%20Talent%20Intelligence%2D20231012%5F100406%2DMeeting%20Recording%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E560731c0%2D60bd%2D4443%2D80dd%2De165bdb8d924',
+  learningHub: 'https://niit.sharepoint.com/sites/NIIT-ConsultingWarehouse/SitePages/LearningHub11.aspx',
+  operatingModel: 'https://niit.sharepoint.com/:p:/r/sites/ConsultingProjects-AnalystDevelopment/Shared%20Documents/Analyst%20Development/The%20Learning%20Operating%20Model%20-%20Explained.pptx?d=w907d2f97183e4e85baac6d56823fe5e6&amp;csf=1&amp;web=1&amp;e=ZGjFtF',
+  chOnboarding: 'https://teams.microsoft.com/l/channel/19%3Ac812cbb4aef944e68fb5eea3fd5c67dd%40thread.tacv2/Onboarding?groupId=b2728670-03cc-480e-bb9f-2c45ff19dbdd&amp;ngc=true',
+  chConsultingProjects: 'https://teams.microsoft.com/l/team/19%3AmA_mPVuuFgtrKUpbwR1QH7dTPE046vQbgvGKSKKY85g1%40thread.tacv2/conversations?groupId=b2728670-03cc-480e-bb9f-2c45ff19dbdd&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd',
+  chPracticeMgmt: 'https://teams.microsoft.com/l/team/19%3Az5HpMg38IJ5Ixgm1MTN4nRV7oAkt0EKZYzvPApOd2sA1%40thread.tacv2/conversations?groupId=fc2a5c74-8437-4d3c-b66a-84dd774806e2&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd',
+  chOneConsulting: 'https://teams.microsoft.com/l/team/19%3AmRS7u74JXYgVJIfXrZv65PjeWkZB--cDgS2e81Tx4hU1%40thread.tacv2/conversations?groupId=d1485447-aa67-4dee-8a46-e2d3902d3c1c&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd',
+  chEmergingTech: 'https://teams.microsoft.com/l/channel/19%3A_1UzWRvO7tWepJP9JBc6uDFU_8686r_NnTx80TWVA501%40thread.tacv2/General?groupId=480527af-e172-4a4c-9d51-bdd14311ab85&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd',
+  chConsultingConnect: 'https://teams.microsoft.com/l/team/19%3ALz5q8p-btocwfBRQbbjbqINhro1h-L6e8HH2xhSIZww1%40thread.tacv2/conversations?groupId=4efdd9d5-4610-45c8-aa21-140a2eb4436c&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd',
+  casHub: 'https://niit.sharepoint.com/sites/NIIT-ConsultingWarehouse/SitePages/SiteHomepage.aspx?OR=Teams-HL&amp;CT=1725446640727&amp;clickparams=eyJBcHBOYW1lIjoiVGVhbXMtRGVza3RvcCIsIkFwcFZlcnNpb24iOiI0OS8yNDA4MTcwMDQxMSIsIkhhc0ZlZGVyYXRlZFVzZXIiOmZhbHNlfQ%3D%3D',
+  // Analyst Development — Practice Room sessions (added post-onboarding, self-paced only)
+  prSession6: 'https://niit.sharepoint.com/sites/ConsultingProjects-AnalystDevelopment/Shared%20Documents/Analyst%20Development/The%20Practice%20Room/Session%206%20Rio%20Tinto%20Iron%20Ore%20Portfolio%20Optimisation/Practice%20Room%20Session%206%20%20RTIO%20Portfolio%20Optimisation-20251212_150718-Meeting%20Recording.mp4',
+  prSession5Recap: 'https://teams.microsoft.com/l/meetingrecap?driveId=b%21DWOR6OL0l06qNqW4huF_tT_ZxK4IquBAp9FaYTDGl24FIBKxVD0_Qpe7MSptBca9&amp;driveItemId=01D3PXLOWRNOPEPNIOQ5CJDGFVYN4EGLRS&amp;sitePath=https%3A%2F%2Fniit-my.sharepoint.com%2F%3Av%3A%2Fp%2Fkhushi_tak_in%2FEdFrnke1DodEkZi1w3hDLjIBaChEZfoGYkNj4vaFpCvotw&amp;fileUrl=https%3A%2F%2Fniit-my.sharepoint.com%2F%3Av%3A%2Fp%2Fkhushi_tak_in%2FEdFrnke1DodEkZi1w3hDLjIBaChEZfoGYkNj4vaFpCvotw&amp;iCalUid=040000008200E00074C5B7101A82E008000000007BA257FB724DDC01000000000000000010000000A981485E3E080D4CA6319A1E1B2B727B&amp;threadId=19%3Ameeting_YWRiNWY0N2UtYTkxNi00MWY3LTk2NTEtYTY2YmY4Njg2OGZj%40thread.v2&amp;organizerId=06be106d-234a-4153-bd58-c6bd1490f6f7&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd&amp;callId=30a99121-5088-4eb1-933b-3149150bd2d9&amp;threadType=Meeting&amp;meetingType=Scheduled&amp;subType=RecapSharingLink_RecapChiclet',
+  prSession1Recap: 'https://teams.microsoft.com/l/meetingrecap?driveId=b%21DWOR6OL0l06qNqW4huF_tT_ZxK4IquBAp9FaYTDGl24FIBKxVD0_Qpe7MSptBca9&amp;driveItemId=01D3PXLOREHS32AL47ZZF2WQT2GNYALESC&amp;sitePath=https%3A%2F%2Fniit-my.sharepoint.com%2F%3Av%3A%2Fp%2Fkhushi_tak_in%2FESQ8t6Avn85Lq0J6M3AFkkIBEavkj2vl5jzqpI4bhSEgxA&amp;fileUrl=https%3A%2F%2Fniit-my.sharepoint.com%2F%3Av%3A%2Fp%2Fkhushi_tak_in%2FESQ8t6Avn85Lq0J6M3AFkkIBEavkj2vl5jzqpI4bhSEgxA&amp;iCalUid=040000008200E00074C5B7101A82E008000000009CC1FD801927DC01000000000000000010000000461A51E9E7676340AA610628F163A16F&amp;threadId=19%3Ameeting_Zjk1NmYzZWYtMDQ0MS00ZTU3LWE2MzEtZWNmN2FhMjFlODI4%40thread.v2&amp;organizerId=06be106d-234a-4153-bd58-c6bd1490f6f7&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd&amp;callId=848e79e6-0f98-4bad-80be-06d8ce72c783&amp;threadType=Meeting&amp;meetingType=Scheduled&amp;subType=RecapSharingLink_RecapChiclet',
+  prSession4Recap: 'https://teams.microsoft.com/l/meetingrecap?driveId=b%21mMP4csByc0qlWD2D9nc8_TRAuzDDDl1Ooxg5c6I3ZAnXRwsFlme7TKwgfBzYuzuZ&amp;driveItemId=01B3VGETAR2KRCAB3WOVCLLXFHQ3GIWSQM&amp;sitePath=https%3A%2F%2Fniit-my.sharepoint.com%2F%3Av%3A%2Fp%2Finayat_beri_in%2FERHSoiAHdnVEtdynhsyLSgwBLZ8Fv4jRLh0D6hcmjD0AxA&amp;fileUrl=https%3A%2F%2Fniit-my.sharepoint.com%2Fpersonal%2Finayat_beri_in_niit_com%2FDocuments%2FRecordings%2FPractice+Room+Session+4++Rio+Tinto+OC+Controllers-20251017_144345-Meeting+Recording.mp4%3Fweb%3D1&amp;iCalUid=040000008200E00074C5B7101A82E00800000000049FC61FAA3DDC010000000000000000100000009279F0172A4D7D42A94F545D4983B127&amp;threadId=19%3Ameeting_OTQxZTIzY2UtMTlkOS00M2E4LWE1NTktZTBkNzcwNjA2YWQw%40thread.v2&amp;organizerId=648ce0c0-eef0-46c2-9a04-e33f4aa97b9a&amp;tenantId=0c8198bf-e8ad-43b4-a1ae-9ecb9d72adfd&amp;callId=a3e5bc44-3273-4a62-9ac7-b521cac73dfb&amp;threadType=Meeting&amp;meetingType=Scheduled&amp;subType=RecapSharingLink_RecapCore',
+  prSession8Transformation: 'https://niit.sharepoint.com/sites/ConsultingProjects-AnalystDevelopment/_layouts/15/stream.aspx?id=%2Fsites%2FConsultingProjects%2DAnalystDevelopment%2FShared%20Documents%2FAnalyst%20Development%2FThe%20Practice%20Room%2FSession%208%20Learning%20Op%20Model%2F1%2E%20Learning%20Transformation%2FDeep%20Skilling%20Session%201%20%2D%20Learning%20Transformation%2D20240513%5F153600%2DMeeting%20Recording%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E6768dcf9%2Dc160%2D4092%2Dafde%2D9a613d6ce0f8',
+  prSession8DeepDive: 'https://niit.sharepoint.com/sites/ConsultingProjects-AnalystDevelopment/_layouts/15/stream.aspx?id=%2Fsites%2FConsultingProjects%2DAnalystDevelopment%2FShared%20Documents%2FAnalyst%20Development%2FThe%20Practice%20Room%2FSession%208%20Learning%20Op%20Model%2FDD%201%2D%2DLearning%20Transformation%2FOne%20Consulting%20Deep%20Dive%201%5FLearning%20Transformation%2D20230928%5F150611%2DMeeting%20Recording%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2Ee369cd1d%2Da969%2D4d9c%2D9c0e%2D5013f8b6f6c2',
+};
+
+
+const STORAGE_KEY = 'naya_state_v3';
+
+// ── Phases ──
+const PHASES = [
+  { id:'PH0', name:'Day 1' },
+  { id:'PH1', name:'Week 1' },
+  { id:'PH2', name:'Week 2' },
+  { id:'PH3', name:'Month 1 · 30 Days' },
+  { id:'PH4', name:'Month 2 · 60 Days' },
+  { id:'PH5', name:'Month 3 · 90 Days' },
+];
+const PHASE_ORDER = PHASES.map(p => p.id);
+
+// ── Teams channels (doc table) ──
+const CHANNELS = [
+  { name:'Onboarding Channel',        url:LINKS.chOnboarding,         desc:'Private channel — you need to be added as a member.' },
+  { name:'Consulting Projects',       url:LINKS.chConsultingProjects, desc:'Main Consulting Projects team.' },
+  { name:'NIIT Practice Management',  url:LINKS.chPracticeMgmt,       desc:'Public channel; new hires may need cluster access.' },
+  { name:'NIIT One Consulting',       url:LINKS.chOneConsulting,      desc:'Storefront intro & deep-dive sessions (St. Charles team).' },
+  { name:'Emerging Technologies CoP', url:LINKS.chEmergingTech,       desc:'AI & emerging technologies in L&D.' },
+  { name:'Consulting Connect',        url:LINKS.chConsultingConnect,  desc:'General Consulting Connect channel.' },
+  { name:'CAS Hub',                   url:LINKS.casHub,               desc:'Central repository for Consulting & Advisory knowledge.' },
+];
+
+// ── Task registry (kind: required|selfpaced · cadence: once|recurring) ──
+const TASKS_ARR = [
+  // Day 1
+  { id:'DA1', phase:'PH0', title:'Meet Buddy & Coach', kind:'required', cadence:'once',
+    desc:"Get introduced to your Buddy and Coach — they'll set up your first meeting with you and orient you to CAS and your role." },
+  { id:'DA2', phase:'PH0', title:'Start This Checklist', kind:'required', cadence:'once',
+    desc:"You can take a printout or download it to your laptop. This bot mirrors the checklist and tracks your progress digitally." },
+  { id:'DA3', phase:'PH0', title:'Intro Email to CAS Team', kind:'required', cadence:'once',
+    desc:"Write a brief about yourself — personal/professional, likes/dislikes — and send it to your Coach with a photo. Your Coach shares it with the CAS team to introduce you." },
+  // Week 1
+  { id:'W1', phase:'PH1', title:'Verify Teams & SharePoint Access', kind:'required', cadence:'once',
+    desc:"Make sure you have access to the CAS Teams Channels + the CAS Hub, and explore them. Join the channels below.", channels:true },
+  { id:'W2', phase:'PH1', title:'Start Coffee-Connects', kind:'selfpaced', cadence:'recurring', special:'contacts',
+    desc:"Set up 30-min intros to meet the team. Skim colleagues' Manuals of Me before you meet them. Use the Key Contacts below — one tap emails or schedules with each person.",
+    resources:[{label:'Manuals of Me',url:LINKS.manualsOfMe}] },
+  { id:'W3', phase:'PH1', title:'Create Your Manual of Me', kind:'required', cadence:'once',
+    desc:"Fill in the form and inform Samriddhi Goel once you've submitted it.",
+    resources:[{label:'Open the Manual of Me form',url:LINKS.momForm}] },
+  // Week 2
+  { id:'X1', phase:'PH2', title:'Role Deep-Dive with Coach', kind:'required', cadence:'once',
+    desc:"Virtual meet with your Coach — discuss NIIT's ways of working and what's expected from you." },
+  { id:'X2', phase:'PH2', title:'Complete Mandatory / Compliance Trainings', kind:'required', cadence:'once',
+    desc:"Follow the HR mails and complete all necessary trainings you see on iNIITian." },
+  { id:'X3', phase:'PH2', title:'Brush Up Your Excel Skills', kind:'selfpaced', cadence:'once',
+    desc:"Work through the Chandoo Excel tutorial — it'll be very useful when you start on projects.",
+    resources:[{label:'Excel Tutorial: Chandoo',url:LINKS.chandoo}] },
+  // Month 1
+  { id:'M1', phase:'PH3', title:'Weekly Connects with Buddy & Coach', kind:'required', cadence:'recurring',
+    desc:"Set up a recurring weekly virtual meet with your Buddy and Coach. The one-time action is getting the recurring invite in place — the meetings then continue each week." },
+  { id:'M2', phase:'PH3', title:'Company Overview', kind:'selfpaced', cadence:'once',
+    desc:"Understand the company — its history and legacy.",
+    resources:[{label:'Overview deck 1',url:LINKS.ovHere1},{label:'Overview deck 2',url:LINKS.ovHere2},{label:'Overview deck 3',url:LINKS.ovHere3}] },
+  { id:'M3', phase:'PH3', title:'Coach Connects + Skill Ramp', kind:'selfpaced', cadence:'recurring',
+    desc:"Alongside your weekly Coach connects, master Excel, PowerPoint and M365 through self-study." },
+  { id:'M4', phase:'PH3', title:'Symphony Access', kind:'required', cadence:'once',
+    desc:"Request Prachi Nautiyal to grant your Symphony access, then read the usage guide to understand how CAS uses Symphony.",
+    resources:[{label:'Symphony Usage Guide',url:LINKS.symphonyGuide}] },
+  { id:'M5', phase:'PH3', title:'NIIT Service Lines & Storefront Recordings', kind:'selfpaced', cadence:'once',
+    desc:"The most important part of onboarding — understanding what CAS does. Watch these recordings and bring questions to your Coach.",
+    resources:[
+      {label:'CAS Session 1: Welcome to NIIT CAS',url:LINKS.cas1},
+      {label:'CAS Session 2: NIIT CAS Deep Dive',url:LINKS.cas2},
+      {label:'CAS Session 3: Intro to the wider NIIT business',url:LINKS.cas3},
+      {label:'Deep Dive 1: Learning Transformation',url:LINKS.dd1},
+      {label:'Deep Dive 3: Workforce Skilling',url:LINKS.dd3},
+      {label:'Deep Dive 4: Learning & Talent Technologies',url:LINKS.dd4},
+      {label:'Deep Dive 5: Learning & Talent Intelligence',url:LINKS.dd5},
+    ] },
+  { id:'M6', phase:'PH3', title:'Read: The Pyramid Principle', kind:'selfpaced', cadence:'once',
+    desc:"Barbara Minto's classic — a very useful book to help you structure your deliverables." },
+  { id:'M7', phase:'PH3', title:'Explore the Learning Hub', kind:'selfpaced', cadence:'once',
+    desc:"Watch recordings from the People Development team on writing proposals and working with data.",
+    resources:[{label:'Learning Hub recordings',url:LINKS.learningHub}] },
+  { id:'M8', phase:'PH3', title:'Understand the Operating Model', kind:'selfpaced', cadence:'once',
+    desc:"Read this deck explaining what an Operating Model is.",
+    resources:[{label:'The Learning Operating Model — Explained',url:LINKS.operatingModel}] },
+  { id:'M9', phase:'PH3', title:'Analyst Development: Practice Room Sessions', kind:'selfpaced', cadence:'once',
+    desc:"Watch how the frameworks and service lines you're learning about get applied on real client engagements. These are recordings of actual Practice Room sessions — self-paced, optional context to deepen your understanding. This does not affect your required progress or phase unlocks.",
+    resources:[
+      {label:'Session 4: Rio Tinto OC Controllers', url:LINKS.prSession4Recap,
+        desc:"Building skills frameworks and development guides for a technical, safety-critical operational role from existing performance/observation standards — translating 'what good looks like' into structured development pathways."},
+      {label:'Session 5: UCB LCDF', url:LINKS.prSession5Recap,
+        desc:"Designing a Learning Content Development Framework for a large pharma organization moving from scattered, SME-led content creation to a structured, tiered service model — process design and content governance, not learner-facing training."},
+      {label:'Session 6: RTIO Portfolio Optimisation', url:LINKS.prSession6,
+        desc:"A learning portfolio rationalization project supporting a system migration, assessing a large course catalogue and reducing it based on relevance and effectiveness — data-driven decisions to retain, refresh, or retire content."},
+      {label:'Session 8: Learning Transformation (Deep Skilling 1)', url:LINKS.prSession8Transformation,
+        desc:"Introduces learning and talent transformation as an engagement type — what it is, how it serves clients, and the shift toward skills-based (vs. role-based) talent management."},
+      {label:'Session 8: One Consulting Deep Dive 1 — Learning Transformation', url:LINKS.prSession8DeepDive,
+        desc:"An interactive deep-dive into how learning transformation engagements are scoped and built — from client drivers through services, deliverables, and a real client case on learning reviews and operating model redesign."},
+    ] },
+  // Month 2
+  { id:'S1', phase:'PH4', title:'Weekly Connects (Continued)', kind:'selfpaced', cadence:'recurring',
+    desc:"Keep your recurring weekly meets with your Buddy and Coach going." },
+  { id:'S2', phase:'PH4', title:'Join Internal Project or Shadow', kind:'required', cadence:'once',
+    desc:"Your Coach will assign you to a project, place you in an internal team, or give you assignments." },
+  { id:'S3', phase:'PH4', title:'Keep Casual Connects', kind:'selfpaced', cadence:'recurring', special:'contacts',
+    desc:"Continue meeting members of the team to learn what they do at CAS." },
+  { id:'S4', phase:'PH4', title:'Balanced Scorecard Discussion', kind:'required', cadence:'once',
+    desc:"Set this up with your Coach to understand how you'll be evaluated throughout the year." },
+  // Month 3
+  { id:'T1', phase:'PH5', title:'Weekly Connects (Continued)', kind:'selfpaced', cadence:'recurring',
+    desc:"Keep your recurring weekly meets going through your final onboarding month." },
+  { id:'T2', phase:'PH5', title:'Request Performance Feedback', kind:'required', cadence:'once',
+    desc:"90 days done! Set up a 30-min feedback session with your Coach to capture strengths, opportunities and next steps." },
+];
+const TASKS = Object.fromEntries(TASKS_ARR.map(t => [t.id, t]));
+const TASK_ORDER = TASKS_ARR.map(t => t.id);
+function phaseTasks(phId){ return TASKS_ARR.filter(t => t.phase === phId).map(t => t.id); }
+
+// ── Classification helpers ──
+function isRequired(id){ return TASKS[id].kind === 'required'; }
+function isSelfPaced(id){ return TASKS[id].kind === 'selfpaced'; }
+function isRecurring(id){ return TASKS[id].cadence === 'recurring'; }
+
+// ── Progress: OVERALL % is driven by REQUIRED tasks only ──
+function requiredIds(){ return TASK_ORDER.filter(isRequired); }
+function selfPacedIds(){ return TASK_ORDER.filter(isSelfPaced); }
+function overallProgress(){
+  const req = requiredIds();
+  const done = req.filter(id => S.task_states[id] === 'COMPLETE').length;
+  return Math.round((done / req.length) * 100);
+}
+function selfPacedProgress(){
+  const sp = selfPacedIds();
+  const done = sp.filter(id => S.task_states[id] === 'COMPLETE').length;
+  return Math.round((done / sp.length) * 100);
+}
+function phaseRequiredComplete(phId){
+  return phaseTasks(phId).filter(isRequired).every(id => S.task_states[id] === 'COMPLETE');
+}
+function phaseProgress(phId){
+  const ids = phaseTasks(phId).filter(isRequired);
+  if(!ids.length) return 100; // self-paced-only phase never blocks
+  const done = ids.filter(id => S.task_states[id] === 'COMPLETE').length;
+  return Math.round((done / ids.length) * 100);
+}
+function completedCount(phId){ return phaseTasks(phId).filter(id => S.task_states[id] === 'COMPLETE').length; }
+
+// ── Phase unlock: prev phase's REQUIRED tasks all complete ──
+function isPhaseUnlocked(phId){
+  const idx = PHASE_ORDER.indexOf(phId);
+  if(idx === 0) return true;
+  return phaseRequiredComplete(PHASE_ORDER[idx-1]);
+}
+function phaseIndex(phId){ return PHASE_ORDER.indexOf(phId); }
+function highestUnlockedPhase(){
+  for(let i=PHASE_ORDER.length-1;i>=0;i--){ if(isPhaseUnlocked(PHASE_ORDER[i])) return PHASE_ORDER[i]; }
+  return 'PH0';
+}
+function advancePhaseIfNeeded(){
+  const h = highestUnlockedPhase();
+  if(phaseIndex(h) > phaseIndex(S.phase)){ S.phase = h; saveState(); return true; }
+  return false;
+}
+
+// ── State ──
+function generateId(){
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c/4).toString(16));
+}
+function defaultState(name, hire_type, buddy, coach, email){
+  const task_states = {};
+  TASK_ORDER.forEach(id => task_states[id] = 'PENDING');
+  return {
+    schema:'v3', user_id:generateId(), user_name:name, hire_type,
+    buddy_name:buddy||'', coach_name:coach||'', user_email:email||'',
+    phase:'PH0', task_states,
+    recurring:{}, contacts_met:{}, contacts_custom:[], resource_done:{},
+    blocked_tasks:[], skipped_tasks:[], is_new:true,
+  };
+}
+const JOURNEY_TOKEN_KEY = 'naya_journey_token';
+function getJourneyToken(){ try{ return localStorage.getItem(JOURNEY_TOKEN_KEY); }catch(e){ return null; } }
+function setJourneyToken(t){ try{ if(t) localStorage.setItem(JOURNEY_TOKEN_KEY, t); }catch(e){} }
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+  if(S && S.user_id){
+    const token = getJourneyToken();
+    const headers = {'Content-Type':'application/json'};
+    if(token) headers['Authorization'] = 'Bearer '+token;
+    fetch('/api/state',{method:'POST',headers,
+      body:JSON.stringify({...S, last_saved:Date.now()})})
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{ if(d && d.journey_token) setJourneyToken(d.journey_token); })
+      .catch(()=>{});
+  }
+}
+function loadState(){
+  try{ const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; }catch(e){ return null; }
+}
+function clearState(){ localStorage.removeItem(STORAGE_KEY); }
+
+// Brings an older/foreign state object up to date with the current task
+// registry — used both for a returning local session and for a state pulled
+// down via "resume on another device". Never touches existing progress values.
+function migrateState(state){
+  if(!state.recurring) state.recurring={};
+  if(!state.contacts_met) state.contacts_met={};
+  if(!state.contacts_custom) state.contacts_custom=[];
+  if(!state.resource_done) state.resource_done={};
+  if(!state.task_states) state.task_states={};
+  TASK_ORDER.forEach(id => { if(!(id in state.task_states)) state.task_states[id]='PENDING'; });
+  return state;
+}
+let S = null;
+let currentTask = null;
+
+function htLabel(){ return S.hire_type === 'entry' ? 'Entry Analyst' : 'Lateral Analyst'; }
+function isEntry(){ return S.hire_type === 'entry'; }
+
+function setTaskState(id, st){
+  if(S.task_states[id] === 'COMPLETE' && st !== 'COMPLETE') return;
+  S.task_states[id] = st;
+  S.blocked_tasks = TASK_ORDER.filter(t => S.task_states[t] === 'BLOCKED');
+  S.skipped_tasks = TASK_ORDER.filter(t => S.task_states[t] === 'SKIPPED');
+  saveState();
+}
+
+// ═══ CONTACTS ═══
+let CONTACTS_FILE = [];
+async function loadContacts(){
+  try{ const r = await fetch('/contacts.json'); const d = await r.json(); CONTACTS_FILE = d.contacts || []; }
+  catch(e){ CONTACTS_FILE = []; }
+}
+function allContacts(){
+  // merge file contacts (buddy/coach slots filled from state) + user-added
+  const merged = CONTACTS_FILE.map(c => {
+    if(c.slot === 'buddy') return {...c, name:S.buddy_name||c.name, role:'Your Buddy'};
+    if(c.slot === 'coach') return {...c, name:S.coach_name||c.name, role:'Your Coach'};
+    return {...c};
+  });
+  return merged.concat(S.contacts_custom || []);
+}
+function mailto(email, subj, body){ return `mailto:${email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`; }
+function outlookMail(email, subj, body){ return `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(email)}&subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`; }
+function outlookMeet(email, subj, body){ return `https://outlook.office.com/calendar/deeplink/compose?to=${encodeURIComponent(email)}&subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`; }
+let contactsTaskId = null;
+// Updates the contacts list/composer in place — avoids appending a new chat
+// bubble (and duplicate DOM ids) every time a checkbox/tone/note changes.
+function refreshContactsPanel(){
+  const wrap = document.getElementById('ct-list-wrap');
+  if(wrap) wrap.innerHTML = contactsHtml();
+  const cnt = document.getElementById('ct-met-count');
+  if(cnt) cnt.textContent = metCount();
+}
+function toggleMet(id){
+  S.contacts_met[id] = !S.contacts_met[id];
+  saveState();
+  refreshContactsPanel();
+}
+function metCount(){ return Object.values(S.contacts_met).filter(Boolean).length; }
+
+// ═══ COMPOSE HELPER — personalized draft per contact, tone & role-aware ═══
+let composerOpen = {};   // contact id -> tone currently shown
+let composerNote = {};   // contact id -> free-text "what to mention"
+
+function firstName(c){ return (c.name||'').trim().split(' ')[0] || (c.role||'there'); }
+
+// Scenario-specific bodies keyed by contact id; falls back to generic coffee-connect.
+function scenarioFor(c){
+  if(c.id === 'samriddhi') return 'manualOfMe';
+  if(c.id === 'prachi') return 'symphony';
+  if(c.slot === 'buddy') return 'buddy';
+  if(c.slot === 'coach') return 'coach';
+  return 'connect';
+}
+
+const TONES = [
+  { key:'friendly', label:'😊 Friendly' },
+  { key:'professional', label:'🎩 Professional' },
+  { key:'brief', label:'⚡ Brief' },
+];
+
+function composeDraft(c, tone, note){
+  const me = S.user_name, role = htLabel();
+  const name = firstName(c);
+  const scenario = scenarioFor(c);
+  const mention = note && note.trim() ? note.trim() : '';
+  const mentionLine = { friendly:`\n\nAlso — ${mention}`, professional:`\n\nSeparately, I wanted to raise: ${mention}`, brief:` (${mention})` };
+  const addMention = mention ? (mentionLine[tone]||`\n\n${mention}`) : '';
+
+  const templates = {
+    connect: {
+      friendly: { subj:`Coffee connect – ${me}`,
+        body:`Hi ${name},\n\nI'm ${me}, a new ${role} at NIIT CAS getting to know the team. Would love to grab a quick 30-min coffee connect if you're up for it — no agenda, just want to say hi and hear about what you work on!${addMention}\n\nThanks,\n${me}` },
+      professional: { subj:`Introduction & coffee connect – ${me}`,
+        body:`Hi ${name},\n\nMy name is ${me}, and I recently joined NIIT CAS as a ${role}. I'd appreciate the opportunity to connect for 30 minutes to introduce myself and learn more about your work.${addMention}\n\nPlease let me know a time that works for you.\n\nBest regards,\n${me}` },
+      brief: { subj:`30-min coffee connect?`,
+        body:`Hi ${name} — I'm ${me}, new ${role} at CAS. Free for a quick 30-min chat sometime this week${addMention}?\n\n${me}` },
+    },
+    buddy: {
+      friendly: { subj:`Excited to connect – ${me}`,
+        body:`Hi ${name},\n\nI'm ${me}, your new onboarding buddy-pair! Really looking forward to getting to know you and leaning on you for the ropes as I settle in. Could we set up a quick call this week?${addMention}\n\nThanks so much,\n${me}` },
+      professional: { subj:`Introduction – ${me} (your new buddy assignment)`,
+        body:`Hi ${name},\n\nI'm ${me}, recently onboarded as a ${role} at NIIT CAS. I understand you've been assigned as my Buddy — I'd like to schedule a short call to introduce myself and align on next steps.${addMention}\n\nBest,\n${me}` },
+      brief: { subj:`Hi from your new buddy-pair`,
+        body:`Hi ${name} — I'm ${me}, new ${role}. Excited to connect — got 20 min this week${addMention}?\n\n${me}` },
+    },
+    coach: {
+      friendly: { subj:`Looking forward to working together – ${me}`,
+        body:`Hi ${name},\n\nI'm ${me}, joining NIIT CAS as a ${role}, and I understand you're my Coach. I'd love to set up our first meeting to talk through how we'll work together and what's expected of me.${addMention}\n\nThanks,\n${me}` },
+      professional: { subj:`Introductory meeting request – ${me}`,
+        body:`Hi ${name},\n\nI'm ${me}, recently joined as a ${role} at NIIT CAS. I understand you are my Coach, and I would like to schedule an introductory meeting to align on expectations and ways of working.${addMention}\n\nKind regards,\n${me}` },
+      brief: { subj:`Intro meeting – ${me}`,
+        body:`Hi ${name} — I'm ${me}, your new ${role}. Could we grab 30 min this week to kick things off${addMention}?\n\n${me}` },
+    },
+    manualOfMe: {
+      friendly: { subj:`Manual of Me — submitted! 🙌`,
+        body:`Hi ${name},\n\nJust wanted to let you know I've filled in and submitted my Manual of Me form!${addMention}\n\nThanks,\n${me}` },
+      professional: { subj:`Manual of Me submission confirmation – ${me}`,
+        body:`Hi ${name},\n\nThis is to confirm that I have completed and submitted my Manual of Me form as part of onboarding.${addMention}\n\nBest regards,\n${me}` },
+      brief: { subj:`Manual of Me — done`,
+        body:`Hi ${name} — submitted my Manual of Me.${addMention}\n\n${me}` },
+    },
+    symphony: {
+      friendly: { subj:`Symphony access request – ${me}`,
+        body:`Hi ${name},\n\nI'm ${me}, a new ${role} at NIIT CAS. Could you help set up my Symphony access when you get a chance?${addMention}\n\nThanks so much!\n${me}` },
+      professional: { subj:`Request for Symphony access – ${me}`,
+        body:`Hi ${name},\n\nI'm ${me}, recently joined as a ${role} at NIIT CAS. Could you please grant me access to Symphony at your earliest convenience?${addMention}\n\nThank you,\n${me}` },
+      brief: { subj:`Symphony access – ${me}`,
+        body:`Hi ${name} — could you set up my Symphony access${addMention}?\n\n${me}` },
+    },
+  };
+  return (templates[scenario] || templates.connect)[tone] || (templates[scenario] || templates.connect).friendly;
+}
+
+function toggleComposer(id){
+  composerOpen[id] = composerOpen[id] ? null : 'friendly';
+  refreshContactsPanel();
+}
+function setComposerTone(id, tone){
+  composerOpen[id] = tone;
+  refreshContactsPanel();
+}
+function noteComposer(id, val){
+  composerNote[id] = val;
+  // Regenerate the draft text in place (no full re-render, so focus/cursor stay put).
+  const tone = composerOpen[id]; if(!tone) return;
+  const c = allContacts().find(x => x.id === id); if(!c) return;
+  const draft = composeDraft(c, tone, val);
+  const subjEl = document.getElementById('cx-subj-'+id);
+  const bodyEl = document.getElementById('cx-body-'+id);
+  if(subjEl) subjEl.value = draft.subj;
+  if(bodyEl) bodyEl.value = draft.body;
+}
+function sendComposed(id, email, kind){
+  const ta = document.getElementById('cx-body-'+id);
+  const subjEl = document.getElementById('cx-subj-'+id);
+  const body = ta ? ta.value : '';
+  const subj = subjEl ? subjEl.value : '';
+  const url = kind === 'meet' ? outlookMeet(email, subj, body) : mailto(email, subj, body);
+  window.open(url, '_blank');
+}
+
+function composerHtml(c){
+  const tone = composerOpen[c.id];
+  if(!tone) return '';
+  const draft = composeDraft(c, tone, composerNote[c.id]);
+  const email = c.email || '';
+  const toneChips = TONES.map(t => `<span class="cx-chip ${tone===t.key?'on':''}" onclick="setComposerTone('${c.id}','${t.key}')">${t.label}</span>`).join('');
+  return `<div class="cx-panel">
+    <div class="cx-head">✨ Draft for you — pick a tone, tweak, then send</div>
+    <div class="cx-chips">${toneChips}</div>
+    <input class="cx-mention" placeholder="Anything specific to mention? (optional)" value="${(composerNote[c.id]||'').replace(/"/g,'&quot;')}" oninput="noteComposer('${c.id}', this.value)" />
+    <input class="cx-subject" id="cx-subj-${c.id}" value="${draft.subj.replace(/"/g,'&quot;')}" />
+    <textarea class="cx-body" id="cx-body-${c.id}" rows="6">${draft.body}</textarea>
+    <div class="cx-send-row">
+      ${email ? `<button class="ct-btn ct-mail" onclick="sendComposed('${c.id}','${email}','mail')">✉ Send this email</button>
+      <button class="ct-btn" onclick="sendComposed('${c.id}','${email}','meet')">📅 Turn into invite</button>`
+      : `<span class="ct-noemail">Add an email to send directly — you can still copy this text.</span>`}
+    </div>
+  </div>`;
+}
+
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function contactsHtml(){
+  const list = allContacts();
+  return list.map(c => {
+    const met = !!S.contacts_met[c.id];
+    const hasName = !!(c.name && c.name.trim());
+    const subj = `Coffee connect – ${S.user_name}`;
+    const body = `Hi ${hasName ? c.name.split(' ')[0] : 'there'},%0D%0A%0D%0AI'm ${S.user_name}, ${htLabel()} — just joined NIIT CAS and getting to know the team. Could we grab a quick 30-min coffee connect?%0D%0A%0D%0AThanks!%0D%0A${S.user_name}`;
+    const email = c.email || '';
+    const safeName = escapeHtml(hasName ? c.name : (c.role||'—'));
+    const safeRole = escapeHtml(c.role||'');
+    const safeWhy = escapeHtml(c.why||'');
+    const actions = email
+      ? `<a class="ct-btn ct-mail" href="${mailto(email,subj,body)}" target="_blank">✉ Quick email</a>
+         <a class="ct-btn" href="${outlookMeet(email,subj,body)}" target="_blank">📅 Schedule 30m</a>
+         <button class="ct-btn ct-help" onclick="toggleComposer('${c.id}')">✨ ${composerOpen[c.id]?'Hide draft':"Help me write this"}</button>`
+      : `<span class="ct-noemail">Add an email in contacts to enable one-tap invite${c.slot?' (or set your '+safeRole+' name in setup)':''}</span>
+         <button class="ct-btn ct-help" onclick="toggleComposer('${c.id}')">✨ ${composerOpen[c.id]?'Hide draft':'Help me write this'}</button>`;
+    return `<div class="ct-card ${met?'ct-done':''}">
+      <div class="ct-top">
+        <div><div class="ct-name">${safeName}</div>
+        <div class="ct-role">${safeRole}</div></div>
+        <button class="ct-met ${met?'on':''}" onclick="toggleMet('${c.id}')">${met?'✓ Met':'☐ Met'}</button>
+      </div>
+      <div class="ct-why">${safeWhy}</div>
+      <div class="ct-actions">${actions}</div>
+      ${composerHtml(c)}
+    </div>`;
+  }).join('');
+}
+
+// ═══ UI HELPERS ═══
+function scrollBottom(){ const el=document.getElementById('chat-msgs'); el.scrollTop=el.scrollHeight; }
+function addMsg(role, html){
+  const msgs=document.getElementById('chat-msgs');
+  const wrap=document.createElement('div'); wrap.className=`msg ${role}`;
+  const av = role==='bot' ? 'N' : (S ? S.user_name.charAt(0).toUpperCase() : 'U');
+  wrap.innerHTML=`<div class="msg-av">${av}</div><div class="msg-bub">${html}</div>`;
+  msgs.appendChild(wrap); scrollBottom();
+}
+function showTyping(){
+  const msgs=document.getElementById('chat-msgs');
+  const w=document.createElement('div'); w.className='msg bot'; w.id='typing-indicator';
+  w.innerHTML=`<div class="msg-av">N</div><div class="typing-bub"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`;
+  msgs.appendChild(w); scrollBottom();
+}
+function hideTyping(){ const el=document.getElementById('typing-indicator'); if(el) el.remove(); }
+function setOptions(opts, hint){
+  const grid=document.getElementById('opts-grid'); const txtRow=document.getElementById('txt-row'); const hintEl=document.getElementById('opts-hint');
+  grid.innerHTML=''; txtRow.style.display='none'; hintEl.textContent=hint||'';
+  (opts||[]).forEach(opt => {
+    const b=document.createElement('button'); b.className=`opt-btn ${opt.style||''}`; b.innerHTML=opt.label;
+    b.onclick=()=>handleOption(opt); grid.appendChild(b);
+  });
+}
+function showTextInput(placeholder, onSubmit){
+  const row=document.getElementById('txt-row'); const inp=document.getElementById('txt-in'); const go=document.getElementById('txt-go');
+  inp.placeholder=placeholder||'Type here…'; inp.value=''; row.style.display='flex';
+  go.onclick=()=>{ if(inp.value.trim()) onSubmit(inp.value.trim()); };
+  inp.onkeydown=(e)=>{ if(e.key==='Enter'&&inp.value.trim()) onSubmit(inp.value.trim()); };
+  inp.focus();
+}
+function hideTextInput(){ document.getElementById('txt-row').style.display='none'; }
+function botReply(html, opts, hint, delay){
+  const d = delay!==undefined ? delay : 650;
+  showTyping();
+  setTimeout(()=>{ hideTyping(); addMsg('bot', html); setOptions(opts||[], hint); }, d);
+}
+function userSays(t){ addMsg('user', t); }
+function handleOption(opt){
+  userSays(opt.label.replace(/<[^>]+>/g,'').trim());
+  setOptions([], ''); hideTextInput();
+  if(opt.action) opt.action();
+}
+
+// ═══ RESOURCES ═══
+// ═══ Per-resource checkmarks (recordings, decks, channels) ═══
+function resKey(taskId, kind, i){ return `${taskId}:${kind}${i}`; }
+function isResDone(key){ return !!S.resource_done[key]; }
+function toggleResource(taskId, key){
+  S.resource_done[key] = !S.resource_done[key];
+  saveState();
+  const chanWrap = document.getElementById('chan-wrap-'+taskId);
+  if(chanWrap) chanWrap.innerHTML = channelsInner(taskId);
+  const resWrap = document.getElementById('res-wrap-'+taskId);
+  if(resWrap) resWrap.innerHTML = resourcesInner(TASKS[taskId], taskId);
+}
+function channelsInner(taskId){
+  const done = CHANNELS.filter((c,i)=>isResDone(resKey(taskId,'ch',i))).length;
+  return `<div class="rc-title">📺 Channels to join <span class="rc-count">${done}/${CHANNELS.length} joined</span></div>` +
+    CHANNELS.map((c,i)=>{
+      const key=resKey(taskId,'ch',i); const done=isResDone(key);
+      return `<div class="rc-item ${done?'rc-done':''}">
+        <div class="rc-row">
+          <a href="${c.url}" target="_blank">${c.name} →</a>
+          <button class="rc-check ${done?'on':''}" onclick="toggleResource('${taskId}','${key}')" title="${done?'Mark not joined':'Mark joined'}">${done?'✓':''}</button>
+        </div>
+        <div class="rc-sub">${c.desc}</div>
+      </div>`;
+    }).join('');
+}
+function resourcesInner(t, taskId){
+  const done = t.resources.filter((r,i)=>isResDone(resKey(taskId,'r',i))).length;
+  return `<div class="rc-title">🔗 Resources <span class="rc-count">${done}/${t.resources.length} done</span></div>` +
+    t.resources.map((r,i)=>{
+      const key=resKey(taskId,'r',i); const done=isResDone(key);
+      return `<div class="rc-item ${done?'rc-done':''}">
+        <div class="rc-row">
+          <a href="${r.url}" target="_blank">${r.label} →</a>
+          <button class="rc-check ${done?'on':''}" onclick="toggleResource('${taskId}','${key}')" title="${done?'Mark not done':'Mark done'}">${done?'✓':''}</button>
+        </div>
+        ${r.desc ? `<div class="rc-sub">${r.desc}</div>` : ''}
+      </div>`;
+    }).join('');
+}
+function resourcesHtml(t, taskId){
+  let html='';
+  if(t.channels) html += `<div class="res-card" id="chan-wrap-${taskId}">${channelsInner(taskId)}</div>`;
+  if(t.resources && t.resources.length) html += `<div class="res-card" id="res-wrap-${taskId}">${resourcesInner(t, taskId)}</div>`;
+  return html;
+}
+function badgeHtml(id){
+  const req = isRequired(id);
+  const rec = isRecurring(id);
+  return `<span class="tk-badge ${req?'req':'self'}">${req?'Required':'Self-paced'}</span>` +
+    (rec?`<span class="tk-badge rec">↻ Recurring</span>`:'');
+}
+
+// ═══ TASK RENDER ═══
+// Re-opening a task (via sidebar, "Take me there", etc.) creates a brand-new
+// chat bubble each time. If that bubble reuses a fixed id (checkbox panels,
+// composer boxes) while an OLDER copy of the same id is still sitting higher
+// up in the chat history, getElementById() finds the stale one first — so
+// clicking the checkbox you can actually see silently updates an invisible
+// copy instead. Strip the id off any old copies right before rendering a
+// fresh one, so the new bubble is always the one that gets found and updated.
+function freeUiIds(ids){
+  ids.forEach(id => {
+    document.querySelectorAll('[id="'+id+'"]').forEach(el => el.removeAttribute('id'));
+  });
+}
+
+function openTask(taskId){
+  const t = TASKS[taskId]; if(!t) return;
+  if(!isPhaseUnlocked(t.phase)){
+    const prev = PHASES[phaseIndex(t.phase)-1];
+    const pend = phaseTasks(prev.id).filter(isRequired).filter(x => S.task_states[x]!=='COMPLETE');
+    botReply(`<div class="banner warn">🔒 <span><strong>${PHASES.find(p=>p.id===t.phase).name}</strong> unlocks once the required tasks in <strong>${prev.name}</strong> are done: <strong>${pend.map(x=>TASKS[x].title).join(', ')}</strong>. Self-paced tasks don't need finishing.</span></div>`,
+      [{label:'Take me there →',style:'primary',action:()=>openTask(pend[0])},{label:'← Back',style:'ghost',action:showResumeOrWelcome}]);
+    return;
+  }
+  currentTask = taskId;
+  if(S.task_states[taskId] === 'PENDING') setTaskState(taskId,'IN_PROGRESS');
+  updateSidebar();
+
+  // Every branch below can render resource/channel checkboxes for this task,
+  // and the contacts branch also reuses shared ids across whichever contacts
+  // task was last opened — free all of them before creating the new bubble.
+  freeUiIds(['chan-wrap-'+taskId, 'res-wrap-'+taskId]);
+  if(t.special === 'contacts'){
+    freeUiIds(['ct-list-wrap', 'ct-met-count']);
+    allContacts().forEach(c => freeUiIds(['cx-body-'+c.id, 'cx-subj-'+c.id]));
+  }
+
+  const header = `<div class="bub-badges">${badgeHtml(taskId)}</div><div class="bub-task-title">${t.title}</div><p class="bub-p">${t.desc}</p>`;
+
+  // Contacts task (coffee / casual connects)
+  if(t.special === 'contacts'){
+    contactsTaskId = taskId;
+    botReply(`${header}${resourcesHtml(t, taskId)}
+      <p class="bub-p" style="margin-top:6px;"><strong>Key Contacts</strong> — you've met <strong id="ct-met-count">${metCount()}</strong> so far. One tap emails or schedules with each person.</p>
+      <div class="ct-list" id="ct-list-wrap">${contactsHtml()}</div>`, [
+      { label:'＋ Add someone to my list', style:'', action: addContactFlow },
+      { label:'Done for now →', style:'primary', action: () => { if(S.task_states[taskId]!=='COMPLETE') setTaskState(taskId,'IN_PROGRESS'); openNextTask(); } },
+      { label:'✅ Mark this task done', style:'ghost', action: () => completeTask(taskId, `<div class="banner ok">✅ <span>Coffee connects underway — keep meeting people at your own pace!</span></div>`) },
+      { label:'📋 Checklist', style:'ghost', action: showChecklist },
+    ]);
+    return;
+  }
+
+  // Recurring task
+  if(isRecurring(taskId)){
+    const count = S.recurring[taskId] || 0;
+    const setUp = S.task_states[taskId] === 'COMPLETE';
+    const cadence = `<div class="banner info">↻ <span><strong>Recurring.</strong> ${setUp?'Invite is set up':'Set up the recurring invite once'} — meetings then continue weekly. Sessions logged: <strong>${count}</strong>. Logging never blocks your progress.</span></div>`;
+    const opts = [];
+    if(!setUp && isRequired(taskId)) opts.push({ label:'✅ Recurring invite is set up', style:'primary', action: () => completeTask(taskId, `<div class="banner ok">✅ <span>Recurring invite in place — you're all set.</span></div>`) });
+    if(!setUp && !isRequired(taskId)) opts.push({ label:'✅ Mark as set up', style:'primary', action: () => completeTask(taskId, `<div class="banner ok">✅ <span>Nice — keeping the cadence going.</span></div>`) });
+    opts.push({ label:'＋ Log a session', style:'', action: () => logRecurring(taskId) });
+    opts.push({ label:'Next →', style:'ghost', action: openNextTask });
+    if(!isRequired(taskId)) opts.push({ label:'⏭ Skip', style:'ghost', action: () => skipTask(taskId) });
+    botReply(`${header}${resourcesHtml(t, taskId)}${cadence}`, opts);
+    return;
+  }
+
+  // Standard once task
+  const opts = [
+    { label:'✅ Mark complete', style:'primary', action: () => completeTask(taskId) },
+    { label:'🔄 In progress', style:'', action: () => { setTaskState(taskId,'IN_PROGRESS'); openNextTask(); } },
+    { label:'🚫 Blocked', style:'danger', action: () => blockTask(taskId) },
+  ];
+  if(taskId==='M9') opts.push({ label:'View upcoming sessions', style:'ghost', action: showPracticeRoomSessions });
+  if(isSelfPaced(taskId)) opts.push({ label:'⏭ Skip (self-paced)', style:'ghost', action: () => skipTask(taskId) });
+  opts.push({ label:'📋 Checklist', style:'ghost', action: showChecklist });
+  botReply(`${header}${resourcesHtml(t, taskId)}`, opts);
+}
+
+function addContactFlow(){
+  showTextInput('Name of the person you want to connect with', (name) => {
+    hideTextInput(); userSays(name);
+    showTextInput('Their email (optional — enables one-tap invite)', (email) => {
+      hideTextInput();
+      const id = 'c_'+Date.now();
+      S.contacts_custom.push({ id, name, role:'Colleague', why:'Coffee connect', email: email==='-'?'':email });
+      saveState();
+      refreshContactsPanel();
+      setOptions([
+        { label:'＋ Add someone to my list', style:'', action: addContactFlow },
+        { label:'Done for now →', style:'primary', action: () => { if(S.task_states[contactsTaskId]!=='COMPLETE') setTaskState(contactsTaskId,'IN_PROGRESS'); openNextTask(); } },
+        { label:'📋 Checklist', style:'ghost', action: showChecklist },
+      ]);
+    });
+  });
+}
+
+function logRecurring(id){
+  S.recurring[id] = (S.recurring[id] || 0) + 1;
+  if(S.task_states[id] === 'PENDING') setTaskState(id,'IN_PROGRESS');
+  saveState(); updateSidebar();
+  botReply(`<div class="banner ok">✅ <span>Session #${S.recurring[id]} logged for <strong>${TASKS[id].title}</strong>. Keep the cadence going!</span></div>`,
+    [{label:'Log another',style:'',action:()=>openTask(id)},{label:'Next →',style:'primary',action:openNextTask}], '', 350);
+}
+
+function openNextTask(){
+  const phs = PHASES.filter(p => isPhaseUnlocked(p.id));
+  // Pass 1: first PENDING task in natural phase order — required or self-paced.
+  // (Do NOT prioritize required tasks here: that would skip self-paced tasks
+  // like coffee-connects whenever a later required task is also pending.)
+  for(const ph of phs) for(const id of phaseTasks(ph.id)) if(S.task_states[id]==='PENDING'){ openTask(id); return; }
+  // Pass 2: nothing left pending — resume anything parked IN_PROGRESS/BLOCKED
+  // (covers recurring tasks like weekly connects that stay "in progress" indefinitely).
+  for(const ph of phs) for(const id of phaseTasks(ph.id)){ const st=S.task_states[id]; if(st==='IN_PROGRESS'||st==='BLOCKED'){ openTask(id); return; } }
+  const pct = overallProgress();
+  botReply(`<div class="banner ok">🎉 <span>${pct===100?'All required tasks complete — congratulations, you\'ve finished your onboarding!':'You\'re all caught up on available tasks.'}</span></div>`,
+    [{label:'📋 View checklist',style:'ghost',action:showChecklist}]);
+}
+
+function completeTask(id, msg){
+  setTaskState(id,'COMPLETE'); updateSidebar();
+  const unlocked = advancePhaseIfNeeded();
+  const fin = msg || `<div class="banner ok">✅ <span><strong>${TASKS[id].title}</strong> marked complete!</span></div>`;
+  if(unlocked){
+    const nph = PHASES.find(p=>p.id===S.phase);
+    const carry = PHASES.filter(p=>phaseIndex(p.id)<phaseIndex(nph.id)).flatMap(p=>phaseTasks(p.id))
+      .filter(x=>isSelfPaced(x)&&S.task_states[x]!=='COMPLETE');
+    const note = carry.length ? `<p style="margin-top:6px;font-size:12px;opacity:.85;">↻ Self-paced tasks (${carry.map(x=>TASKS[x].title).join(', ')}) stay open — keep chipping away.</p>`:'';
+    botReply(fin + `<div class="unlock-box"><h3>🔓 ${nph.name} Unlocked!</h3><p>Required tasks cleared. Ready to continue?</p>${note}</div>`,
+      [{label:`Start ${nph.name} →`,style:'primary',action:openNextTask},{label:'📋 Checklist',style:'ghost',action:showChecklist}], '', 500);
+  } else {
+    botReply(fin, [{label:'Next task →',style:'primary',action:openNextTask},{label:'📋 Checklist',style:'ghost',action:showChecklist}], '', 450);
+  }
+}
+function blockTask(id){
+  setTaskState(id,'BLOCKED'); updateSidebar();
+  botReply(`<div class="banner err">🚫 <span><strong>${TASKS[id].title}</strong> marked blocked. It'll stay in your summary until resolved.</span></div>`,
+    [{label:'Next task →',style:'primary',action:openNextTask},{label:'← Back',style:'ghost',action:showResumeOrWelcome}]);
+}
+function skipTask(id){
+  if(isRequired(id)){
+    botReply(`<div class="banner warn">⚠️ <span><strong>${TASKS[id].title}</strong> is required and can't be skipped. If you're stuck, mark it blocked instead.</span></div>`,
+      [{label:'Back to task',style:'primary',action:()=>openTask(id)},{label:'🚫 Mark blocked',style:'danger',action:()=>blockTask(id)}]);
+    return;
+  }
+  setTaskState(id,'SKIPPED'); updateSidebar();
+  botReply(`<div class="banner warn">⏭️ <span><strong>${TASKS[id].title}</strong> skipped — it's self-paced, so this won't hold up your progress. Pick it back up anytime.</span></div>`,
+    [{label:'Next task →',style:'primary',action:openNextTask},{label:'📋 Checklist',style:'ghost',action:showChecklist}]);
+}
+
+// ═══ SIDEBAR / CHECKLIST / RESUME ═══
+function updateSidebar(){
+  const pct = overallProgress();
+  const reqDone = requiredIds().filter(id=>S.task_states[id]==='COMPLETE').length;
+  document.getElementById('nav-pct-val').textContent = pct+'%';
+  document.getElementById('nav-ht-badge').textContent = isEntry()?'Entry':'Lateral';
+  document.getElementById('sb-bar').style.width = pct+'%';
+  document.getElementById('sb-done-lbl').textContent = `${reqDone}/${requiredIds().length} required · ${selfPacedProgress()}% self-paced`;
+  document.getElementById('sb-pct-lbl').textContent = pct+'%';
+  const body = document.getElementById('sb-body'); body.innerHTML='';
+  PHASES.forEach(ph => {
+    const locked = !isPhaseUnlocked(ph.id);
+    const isCur = ph.id === S.phase;
+    const ids = phaseTasks(ph.id);
+    const reqIds = ids.filter(isRequired);
+    const done = reqIds.filter(id=>S.task_states[id]==='COMPLETE').length;
+    const group=document.createElement('div'); group.className='ph-group';
+    const head=document.createElement('div'); head.className=`ph-head${isCur?' current':''}${locked?' locked':''}`;
+    const badge = locked?'Locked':(reqIds.length?`${done}/${reqIds.length}`:'✓');
+    head.innerHTML=`<span>${locked?'🔒 ':''}${ph.name}</span><span class="ph-badge ${done===reqIds.length&&reqIds.length?'done':isCur?'active':locked?'locked':''}">${badge}</span>`;
+    head.onclick=()=>{ if(!locked){ S.phase=ph.id; saveState(); openNextTask(); } };
+    group.appendChild(head);
+    const wrap=document.createElement('div');
+    ids.forEach(id=>{
+      const st=S.task_states[id]||'PENDING'; const isAct=id===currentTask;
+      const item=document.createElement('div'); item.className=`tk-item ${isAct?'active':''} ${locked?'locked':st.toLowerCase()}`;
+      const tag = isSelfPaced(id)?' <span style="font-size:10px;color:#2EC4B6;" title="Self-paced">↻</span>':'';
+      const rec = isRecurring(id)&&S.recurring[id]?` <span style="font-size:10px;color:#9CA3AF;">(${S.recurring[id]})</span>`:'';
+      item.innerHTML=`<div class="tk-dot ${locked?'locked':st.toLowerCase()}"></div><span>${TASKS[id].title}${tag}${rec}</span>`;
+      if(!locked) item.onclick=()=>openTask(id);
+      wrap.appendChild(item);
+    });
+    group.appendChild(wrap); body.appendChild(group);
+  });
+}
+function showChecklist(){
+  let html='<strong>📋 Your Onboarding Checklist</strong><div class="bub-hr"></div>';
+  PHASES.forEach(ph=>{
+    const locked=!isPhaseUnlocked(ph.id);
+    html+=`<p class="bub-p" style="margin-bottom:4px;font-weight:700;color:${locked?'#9CA3AF':'#003087'};">${ph.name}${locked?' 🔒':''}</p><div class="bub-checklist">`;
+    phaseTasks(ph.id).forEach(id=>{
+      const st=S.task_states[id]; const ic={PENDING:'○',IN_PROGRESS:'◑',COMPLETE:'✓',BLOCKED:'✗',SKIPPED:'—'};
+      const cl={PENDING:'todo',IN_PROGRESS:'todo',COMPLETE:'done',BLOCKED:'blk',SKIPPED:'skip'};
+      const tag=isSelfPaced(id)?' <span style="font-size:11px;color:#2EC4B6;font-weight:600;">↻ self-paced</span>':' <span style="font-size:11px;color:#4F46E5;font-weight:600;">req</span>';
+      html+=`<div class="bub-cl-item"><div class="cl-dot ${cl[st]||'todo'}">${ic[st]||'○'}</div><span>${TASKS[id].title}${tag}</span></div>`;
+    });
+    html+='</div>';
+  });
+  botReply(html,[{label:'▶ Resume next task',style:'primary',action:openNextTask},{label:'👥 Key Contacts',style:'ghost',action:()=>openTask('W2')}]);
+}
+// Live Practice Room session calendar — update dates/topics here as sessions are scheduled.
+const PRACTICE_ROOM_EVENTS = [
+  { session:1, date:'31 Jul 2026', title:'Excel assignment walkthrough', sub:'', color:'#2EC4B6' },
+  { session:2, date:'7 Aug 2026', title:'Basics of an Operating Model', sub:'Value chain & governance', color:'#60A5FA' },
+  { session:3, date:'14 Aug 2026', title:'Walkthrough: Pfizer', sub:'Live project, start to end', color:'#F59E0B' },
+  { session:4, date:'28 Aug 2026', title:'Stakeholder Management Basics', sub:'Client & NIIT stakeholders', color:'#A855F7' },
+  { session:5, date:'11 Sep 2026', title:'Walkthrough: ServiceNow', sub:'Portfolio optimization & AI', color:'#EC4899' },
+  { session:6, date:'18 Sep 2026', title:'Introduction to Mural', sub:'Board setup & facilitation', color:'#2EC4B6' },
+  { session:7, date:'30 Sep 2026', title:'Project War Stories', sub:'Consultant perspectives', color:'#6366F1' },
+];
+function practiceRoomStripHtml(){
+  return `<div class="pr-strip">` + PRACTICE_ROOM_EVENTS.map(ev=>`
+    <div class="pr-chip">
+      <div class="pr-bar" style="background:${ev.color}"></div>
+      <div class="pr-date">${ev.date}</div>
+      <div class="pr-topic">${ev.title}</div>
+      ${ev.sub?`<div class="pr-sub">${ev.sub}</div>`:''}
+    </div>`).join('') + `</div>`;
+}
+function showPracticeRoomSessions(){
+  botReply(`<strong>Upcoming Practice Room Sessions</strong>
+    <p class="bub-p" style="margin-top:4px;">Live sessions scheduled through the Practice Room programme.</p>
+    ${practiceRoomStripHtml()}`,
+    [{label:'Back to task',style:'primary',action:()=>openTask('M9')},{label:'📋 Checklist',style:'ghost',action:showChecklist}]);
+}
+
+// ═══ PROGRESS SNAPSHOT — show, don't tell ═══
+const PHASE_COLORS = { PH0:'#60A5FA', PH1:'#2EC4B6', PH2:'#059669', PH3:'#F97316', PH4:'#A78BFA', PH5:'#EC4899' };
+const PHASE_BLURB = {
+  PH0:'Meet your Buddy & Coach', PH1:'Access, Manual of Me, Coffee Connects',
+  PH2:'Role deep-dive & compliance', PH3:'Symphony, service lines, Practice Room',
+  PH4:'Live project & Scorecard', PH5:'Feedback & wrap-up',
+};
+function motivator(pct, complete){
+  if(complete) return { emoji:'🎉', title:'Onboarding Complete!', line:"You've made it through all 90 days — welcome to the team, for real this time." };
+  if(pct>=75) return { emoji:'🏆', title:'Almost There', line:"The finish line is in sight. A few required steps left and you're done." };
+  if(pct>=50) return { emoji:'⭐', title:'Halfway Champion', line:'Past the halfway mark — momentum like this is how onboarding gets done early.' };
+  if(pct>=25) return { emoji:'🔥', title:'On a Roll', line:'Solid progress. Keep the streak going.' };
+  if(pct>0) return { emoji:'🚀', title:'Building Momentum', line:"You're in motion — the first steps are always the ones that matter most." };
+  return { emoji:'🌱', title:'Just Getting Started', line:"Everyone starts here. Let's get your first task ticked off." };
+}
+// Pure lookup — mirrors openNextTask's search order without mutating state.
+function findNextTask(){
+  const phs = PHASES.filter(p => isPhaseUnlocked(p.id));
+  for(const ph of phs) for(const id of phaseTasks(ph.id)) if(S.task_states[id]==='PENDING') return id;
+  for(const ph of phs) for(const id of phaseTasks(ph.id)){ const st=S.task_states[id]; if(st==='IN_PROGRESS'||st==='BLOCKED') return id; }
+  return null;
+}
+function showSnapshot(){
+  const reqPct = overallProgress(), selfPct = selfPacedProgress();
+  const complete = S.phase==='PH5' && reqPct===100;
+  const mv = motivator(reqPct, complete);
+  const nextId = findNextTask();
+  const nextT = nextId ? TASKS[nextId] : null;
+
+  const roadmap = PHASES.map(ph=>{
+    const locked = !isPhaseUnlocked(ph.id);
+    const reqInPhase = phaseTasks(ph.id).filter(isRequired);
+    const doneInPhase = reqInPhase.filter(id=>S.task_states[id]==='COMPLETE').length;
+    const isCurrent = ph.id===S.phase && !locked;
+    const isDone = !locked && reqInPhase.length>0 && doneInPhase===reqInPhase.length && ph.id!==S.phase;
+    const cls = isCurrent?'current':isDone?'done':locked?'locked':'';
+    return `<div class="snap-node ${cls}">
+      <span class="snap-node-tag" style="background:${PHASE_COLORS[ph.id]}">${ph.name.split(' ')[0]}</span>
+      <div class="snap-node-title">${PHASE_BLURB[ph.id]}</div>
+      ${reqInPhase.length ? `<div class="snap-node-frac" style="color:${PHASE_COLORS[ph.id]}">${doneInPhase}/${reqInPhase.length}</div>` : (locked?'<div class="snap-node-frac" style="color:var(--g400);">🔒</div>':'')}
+    </div>`;
+  }).join('');
+
+  const nextHtml = nextT
+    ? `<div class="snap-next"><div class="snap-next-h">↗ Up next</div><div class="snap-next-title">${nextT.title}</div>${nextT.desc?`<div class="snap-next-hint">${nextT.desc}</div>`:''}</div>`
+    : `<div class="snap-next"><div class="snap-next-h">✓ All required tasks done</div><div class="snap-next-title">Nothing left blocking your progress</div><div class="snap-next-hint">Explore the self-paced content whenever you like — no rush.</div></div>`;
+
+  botReply(`<div class="snap-hero">
+      <div class="snap-badge"><span class="em">${mv.emoji}</span> ${mv.title}</div>
+      <div class="snap-line">${mv.line}</div>
+    </div>
+    <div class="snap-bars">
+      <div class="snap-bar-row"><div class="snap-bar-lbl"><span>Required progress</span><span class="n">${reqPct}%</span></div><div class="snap-bar-track"><div class="snap-bar-fill req" style="width:${reqPct}%"></div></div></div>
+      <div class="snap-bar-row"><div class="snap-bar-lbl"><span>Self-paced learning</span><span class="n">${selfPct}%</span></div><div class="snap-bar-track"><div class="snap-bar-fill self" style="width:${selfPct}%"></div></div></div>
+    </div>
+    <strong style="font-size:13px;">Your 90-Day Roadmap</strong>
+    <div class="snap-roadmap">${roadmap}</div>
+    ${nextHtml}
+    <strong style="font-size:13px;display:block;margin-top:16px;">Upcoming Practice Room Sessions</strong>
+    ${practiceRoomStripHtml()}`,
+    nextId
+      ? [{label:'Take me there →',style:'primary',action:()=>openTask(nextId)},{label:'📋 Full checklist',style:'ghost',action:showChecklist}]
+      : [{label:'📋 Full checklist',style:'primary',action:showChecklist}]
+  );
+}
+
+function showResumeOrWelcome(){
+  updateSidebar();
+  if(S.is_new){ S.is_new=false; saveState(); showWelcome(); } else showResume();
+}
+function showWelcome(){
+  botReply(`<div class="bub-phase-tag">Day 1</div>
+    <div class="bub-task-title">Hi ${S.user_name}! 👋 Welcome to NIIT CAS.</div>
+    <p class="bub-p">I'm <strong>Naya</strong>, your onboarding guide. I'll walk you through your first 90 days — one step at a time, with every resource and contact a tap away.</p>
+    <p class="bub-p">You're joining as a <strong>${htLabel()}</strong>. Your journey has <strong>${PHASES.length} phases</strong> and <strong>${TASK_ORDER.length} tasks</strong> — <strong>${requiredIds().length} required</strong> (these drive your progress) and <strong>${selfPacedIds().length} self-paced</strong> (learn at your own speed).</p>
+    <p class="bub-p">Let's start with meeting your Buddy and Coach.</p>`,
+    [{label:"Let's go! →",style:'primary',action:()=>openTask('DA1')},{label:'📋 View all phases',style:'ghost',action:showChecklist}]);
+}
+function showResume(){
+  const ph=PHASES.find(p=>p.id===S.phase);
+  const blocked=S.blocked_tasks.map(t=>`<li>🚫 ${TASKS[t].title}</li>`).join('');
+  const blockedSec = blocked?`<div class="bub-hr"></div><p class="bub-p"><strong>Blocked:</strong></p><ul style="padding-left:16px;font-size:13px;color:#DC2626;">${blocked}</ul>`:'';
+  botReply(`<strong>Welcome back, ${S.user_name}! 👋</strong>
+    <div class="prog-box" style="margin-top:8px;">
+      <div class="prog-row"><span class="pr-lbl">Current phase</span><span class="pr-val">${ph.name}</span></div>
+      <div class="prog-row"><span class="pr-lbl">Required progress</span><span class="pr-val">${overallProgress()}%</span></div>
+      <div class="prog-row"><span class="pr-lbl">Self-paced</span><span class="pr-val">${selfPacedProgress()}%</span></div>
+      <div class="prog-row"><span class="pr-lbl">Coffee connects</span><span class="pr-val">${metCount()} met</span></div>
+    </div>${blockedSec}`,
+    [{label:'▶ Resume next task',style:'primary',action:openNextTask},{label:'📸 Progress Snapshot',style:'ghost',action:showSnapshot},{label:'📋 Full checklist',style:'ghost',action:showChecklist},{label:'👥 Key Contacts',style:'ghost',action:()=>openTask('W2')}]);
+}
+
+// ═══ ONBOARDING WIRING ═══
+function updateSidebarSafe(){ try{ updateSidebar(); }catch(e){} }
+
+// Mobile phase menu — the sidebar is hidden by default under 720px, so
+// instead of losing phase navigation entirely, a hamburger button slides it
+// in as an overlay panel. Reuses the exact same sidebar markup/behavior,
+// just toggled visible rather than duplicated as a separate mobile widget.
+function wireMobileSidebar(btnId, sidebarId, backdropId){
+  const btn=document.getElementById(btnId), sidebar=document.getElementById(sidebarId), backdrop=document.getElementById(backdropId);
+  if(!btn || !sidebar) return;
+  const open=()=>{ sidebar.classList.add('mobile-open'); backdrop?.classList.add('show'); };
+  const close=()=>{ sidebar.classList.remove('mobile-open'); backdrop?.classList.remove('show'); };
+  btn.onclick=open;
+  backdrop && (backdrop.onclick=close);
+  sidebar.addEventListener('click', (e)=>{ if(e.target.closest('.tk-item,.ph-head,.cs-phase-chip')) close(); });
+}
+function confirmReset(){ if(confirm('Reset all progress and start over?')){ clearState(); location.reload(); } }
+function selectHT(card){
+  document.querySelectorAll('#ob-step-hiretype .ht-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  document.getElementById('ob-ht-next').disabled=false;
+}
+function skipField(id){
+  const el=document.getElementById(id);
+  el.value='';
+  el.blur();
+}
+const OB_STEP_LABELS={
+  'ob-step-journey':'Step 1 — Journey',
+  'ob-step-hiretype':'Step 2 — Role',
+  'ob-step-about':'Step 3 — About you',
+  'ob-step-contacts':'Step 4 — Contacts',
+  'ob-contractor-step':'Contractor',
+};
+function obShowStep(id){
+  ['ob-step-journey','ob-step-hiretype','ob-step-about','ob-step-contacts','ob-contractor-step'].forEach(s=>{
+    document.getElementById(s).style.display = s===id ? '' : 'none';
+  });
+  const label=OB_STEP_LABELS[id];
+  if(label) document.getElementById('ob-step-indicator').textContent=label;
+}
+function showApp(){
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('topnav').style.display='';
+  document.getElementById('app').style.display='';
+  updateSidebar();
+  showResumeOrWelcome();
+}
+
+// ── Boot ──
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadContacts();
+  wireMobileSidebar('mobile-menu-btn', 'sidebar', 'sidebar-backdrop');
+  wireMobileSidebar('cs-mobile-menu-btn', 'cs-sidebar', 'cs-sidebar-backdrop');
+
+  // ── Journey step (always first) ──
+  window.chooseJourney=(journey)=>{
+    if(journey==='contractor'){ obShowStep('ob-contractor-step'); return; }
+    obShowStep('ob-step-hiretype');
+  };
+
+  document.getElementById('ob-ht-next').onclick=()=>{
+    const card=document.querySelector('#ob-step-hiretype .ht-card.selected'); if(!card) return;
+    window._ht=card.dataset.ht;
+    obShowStep('ob-step-about');
+    document.getElementById('ob-name').focus();
+  };
+  document.getElementById('ob-hiretype-back').onclick=(e)=>{ e.preventDefault(); obShowStep('ob-step-journey'); };
+
+  document.getElementById('ob-contractor-back').onclick=(e)=>{
+    e.preventDefault();
+    obShowStep('ob-step-journey');
+  };
+
+  const nameInput=document.getElementById('ob-name');
+  const aboutNext=document.getElementById('ob-about-next');
+  nameInput.addEventListener('input',()=>{ aboutNext.disabled = nameInput.value.trim().length<2; });
+  aboutNext.onclick=()=>{
+    const name=nameInput.value.trim(); if(!name) return;
+    const email=document.getElementById('ob-email').value.trim();
+    const errEl=document.getElementById('ob-email-error');
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errEl.style.display=''; return; }
+    errEl.style.display='none';
+    window._name=name;
+    obShowStep('ob-step-contacts');
+  };
+  document.getElementById('ob-about-back').onclick=(e)=>{ e.preventDefault(); obShowStep('ob-step-hiretype'); };
+  document.getElementById('ob-step3-back').onclick=(e)=>{ e.preventDefault(); obShowStep('ob-step-about'); };
+
+  // ── Contractor self-serve view ──
+  // Categorization matters: WAITING_ON_CONTRACTOR means the contractor
+  // themselves needs to act, so it belongs under "Your actions" with a real
+  // action, not lumped in with things NIIT or the client are handling.
+  const CS_STATUS_COLOR={NOT_STARTED:'var(--g300)',IN_PROGRESS:'var(--orange)',WAITING_ON_CONTRACTOR:'var(--orange)',WAITING_ON_INTERNAL:'#3B82F6',WAITING_ON_CLIENT:'#8B5CF6',COMPLETE:'var(--teal)',NOT_APPLICABLE:'var(--g300)',BLOCKED:'#EF4444'};
+  const CS_STATUS_LABEL={NOT_STARTED:'Not started',IN_PROGRESS:'In progress',WAITING_ON_CONTRACTOR:'Waiting on you',WAITING_ON_INTERNAL:'Waiting on NIIT',WAITING_ON_CLIENT:'Waiting on client',COMPLETE:'Complete',NOT_APPLICABLE:'Not applicable',BLOCKED:'Blocked'};
+  const CS_PHASE_ORDER=['clearance','access','kickoff','billing'];
+  const CS_PHASE_SHORT={clearance:'Contract',access:'Systems',kickoff:'Kickoff',billing:'Billing'};
+  const CS_PHASE_NAV_LABEL={clearance:'Contract and Compliance',access:'Systems and Access',kickoff:'Project Integration',billing:'Time and Billing'};
+  const CS_PHASE_WHY={
+    clearance:'Contract and compliance clearance has to be in place before NIIT can give you any systems access or client contact.',
+    access:'Systems and access setup is what lets you actually log in and start working once your contract is cleared.',
+    kickoff:'Project integration gets you introduced to the team and briefed on how the engagement runs day to day.',
+    billing:'Time and billing setup is what makes sure your hours or deliverables get tracked and invoiced correctly.',
+  };
+  let CS_CURRENT_TOKEN=null, CS_LAST_DATA=null;
+
+  function csEl(tag,opts){
+    const el=document.createElement(tag);
+    if(opts){
+      if(opts.class) el.className=opts.class;
+      if(opts.text!==undefined) el.textContent=opts.text;
+      if(opts.style) Object.assign(el.style,opts.style);
+    }
+    return el;
+  }
+  function csClear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+  function csEmpty(text){ return csEl('p',{class:'cs-empty',text}); }
+
+  function csTaskRow(t){
+    const row=csEl('div',{class:'cs-task'});
+    row.appendChild(csEl('span',{class:'cs-task-dot',style:{background:CS_STATUS_COLOR[t.status]}}));
+    row.appendChild(csEl('span',{class:'cs-task-title',text:t.title}));
+    row.appendChild(csEl('span',{class:'cs-task-owner',text:t.status==='WAITING_ON_CONTRACTOR'?'You':t.owner_label}));
+    row.onclick=()=>openTaskDetail(t.id);
+    row.tabIndex=0;
+    row.setAttribute('role','button');
+    row.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openTaskDetail(t.id); } });
+    return row;
+  }
+  function csFillList(id, tasks, emptyText){
+    const wrap=document.getElementById(id);
+    csClear(wrap);
+    if(!tasks.length){ wrap.appendChild(csEmpty(emptyText)); return; }
+    tasks.forEach(t=>wrap.appendChild(csTaskRow(t)));
+  }
+
+  async function markContractorTaskDone(taskId, btn){
+    if(!CS_CURRENT_TOKEN) return;
+    const original=btn.textContent;
+    btn.disabled=true; btn.textContent='Saving…';
+    try{
+      const r=await fetch('/api/contractor-self-task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:CS_CURRENT_TOKEN,taskId})});
+      if(!r.ok){ const d=await r.json().catch(()=>({})); btn.disabled=false; btn.textContent=original; alert(d.error||'Could not save — try again.'); return; }
+      closeTaskDetail();
+      await loadContractorSelf(CS_CURRENT_TOKEN);
+    }catch(e){
+      btn.disabled=false; btn.textContent=original;
+      alert('Could not reach the server — not saved.');
+    }
+  }
+
+  // ── Task detail ──
+  function openTaskDetail(taskId){
+    const t=CS_LAST_DATA?.tasks.find(x=>x.id===taskId); if(!t) return;
+    document.getElementById('cd-phase').textContent=t.phase_label;
+    document.getElementById('cd-title').textContent=t.title;
+    document.getElementById('cd-why').textContent=t.why_it_matters||CS_PHASE_WHY[t.phase]||'';
+    document.getElementById('cd-owner').textContent=t.status==='WAITING_ON_CONTRACTOR'?'You':t.owner_label;
+    document.getElementById('cd-status').textContent=CS_STATUS_LABEL[t.status]||t.status;
+
+    const dueRow=document.getElementById('cd-due');
+    if(t.due_date){ dueRow.style.display=''; document.getElementById('cd-due-val').textContent=t.due_date; } else dueRow.style.display='none';
+
+    const resourceRow=document.getElementById('cd-resource');
+    csClear(resourceRow);
+    resourceRow.appendChild(csEl('b',{text:'Resource: '}));
+    if(t.resource && t.resource.url){
+      const a=csEl('a',{text:t.resource.label||'Open resource'});
+      a.href=t.resource.url; a.target='_blank'; a.rel='noreferrer';
+      resourceRow.appendChild(a);
+    } else {
+      resourceRow.appendChild(csEl('span',{text:'Resource to be confirmed',style:{color:'var(--g500)',fontStyle:'italic'}}));
+    }
+
+    const contactRow=document.getElementById('cd-contact');
+    if(t.contact_for_help){
+      csClear(contactRow); contactRow.style.display='';
+      contactRow.appendChild(csEl('b',{text:'Contact for help: '}));
+      contactRow.appendChild(document.createTextNode(t.contact_for_help));
+    } else contactRow.style.display='none';
+
+    const depsRow=document.getElementById('cd-deps');
+    const deps=(t.depends_on||[]).map(id=>CS_LAST_DATA.tasks.find(x=>x.id===id)).filter(Boolean);
+    if(deps.length){
+      csClear(depsRow); depsRow.style.display='';
+      depsRow.appendChild(csEl('b',{text:'Depends on: '}));
+      depsRow.appendChild(document.createTextNode(deps.map(d=>d.title+' ('+(CS_STATUS_LABEL[d.status]||d.status)+')').join(', ')));
+    } else depsRow.style.display='none';
+
+    const blockedBox=document.getElementById('cd-blocked');
+    if(t.status==='BLOCKED'){ blockedBox.style.display=''; blockedBox.textContent=t.blocked_reason?('Blocked: '+t.blocked_reason):'This task is currently blocked.'; } else blockedBox.style.display='none';
+
+    const notesRow=document.getElementById('cd-notes');
+    if(t.notes){ csClear(notesRow); notesRow.style.display=''; notesRow.appendChild(csEl('b',{text:'Notes: '})); notesRow.appendChild(document.createTextNode(t.notes)); } else notesRow.style.display='none';
+
+    const actionWrap=document.getElementById('cd-action');
+    csClear(actionWrap);
+    if(t.status==='WAITING_ON_CONTRACTOR'){
+      const btn=csEl('button',{class:'ob-btn',text:'Mark as done',style:{width:'auto',padding:'10px 20px'}});
+      btn.onclick=()=>markContractorTaskDone(t.id, btn);
+      actionWrap.appendChild(btn);
+    }
+
+    document.getElementById('cs-detail-backdrop').style.display='flex';
+  }
+  function closeTaskDetail(){ document.getElementById('cs-detail-backdrop').style.display='none'; }
+  document.getElementById('cd-close').onclick=closeTaskDetail;
+  document.getElementById('cs-detail-backdrop').addEventListener('click',(e)=>{ if(e.target.id==='cs-detail-backdrop') closeTaskDetail(); });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeTaskDetail(); });
+
+  // ── Phase sidebar / phase view ──
+  function csShowHome(){
+    document.getElementById('cs-home-view').style.display='';
+    document.getElementById('cs-phase-view').style.display='none';
+    document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.remove('current'));
+  }
+  function csShowPhase(phaseId){
+    if(!CS_LAST_DATA) return;
+    document.getElementById('cs-home-view').style.display='none';
+    document.getElementById('cs-phase-view').style.display='';
+    document.getElementById('cs-phase-title').textContent=CS_PHASE_NAV_LABEL[phaseId];
+    const tasks=CS_LAST_DATA.tasks.filter(t=>t.phase===phaseId);
+    csFillList('cs-phase-tasks', tasks, 'No tasks in this phase.');
+    document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.toggle('current', h.dataset.phase===phaseId));
+  }
+  function csRenderSidebar(data){
+    const body=document.getElementById('cs-sb-body');
+    csClear(body);
+    const homeItem=csEl('div',{class:'ph-head current',text:'Home'});
+    homeItem.style.cursor='pointer';
+    homeItem.onclick=()=>{ csShowHome(); document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.remove('current')); homeItem.classList.add('current'); };
+    body.appendChild(homeItem);
+    CS_PHASE_ORDER.forEach(p=>{
+      const group=csEl('div',{class:'ph-group'});
+      const head=csEl('div',{class:'ph-head'});
+      head.dataset.phase=p;
+      head.style.cursor='pointer';
+      const gateOn=data.readiness[p];
+      head.innerHTML=`<span>${CS_PHASE_NAV_LABEL[p]}</span><span class="ph-badge ${gateOn?'done':''}">${gateOn?'✓':'○'}</span>`;
+      head.onclick=()=>{ csShowPhase(p); homeItem.classList.remove('current'); };
+      group.appendChild(head);
+      body.appendChild(group);
+    });
+  }
+
+  function csReadinessLabel(data){
+    if(data.ready_to_start) return { text:'✓ Ready to start', cls:'ready' };
+    if(data.tasks.some(t=>t.status==='WAITING_ON_CONTRACTOR')) return { text:'Waiting on you', cls:'' };
+    if(data.tasks.some(t=>t.status==='WAITING_ON_CLIENT')) return { text:'Waiting on client', cls:'' };
+    if(data.tasks.some(t=>t.status==='IN_PROGRESS'||t.status==='WAITING_ON_INTERNAL')) return { text:'Waiting on NIIT', cls:'' };
+    return { text:'Getting ready', cls:'' };
+  }
+
+  function renderContractorSelf(data){
+    CS_LAST_DATA=data;
+    document.getElementById('cs-name').textContent='Hi '+data.contractor_name;
+    document.getElementById('cs-project').textContent=data.project_name+(data.client?' · '+data.client:'');
+    document.getElementById('cs-nav-status').textContent=csReadinessLabel(data).text;
+
+    const rBox=document.getElementById('cs-readiness');
+    const rLabel=csReadinessLabel(data);
+    rBox.className='cs-readiness'+(rLabel.cls?' '+rLabel.cls:'');
+    csClear(rBox);
+    rBox.appendChild(csEl('div',{class:'cs-r-label',text:rLabel.text}));
+    const gatesRow=csEl('div',{class:'cs-r-gates'});
+    CS_PHASE_ORDER.forEach(p=>gatesRow.appendChild(csEl('span',{class:'cs-r-gate'+(data.readiness[p]?' on':''),text:(data.readiness[p]?'✓ ':'○ ')+CS_PHASE_SHORT[p]})));
+    rBox.appendChild(gatesRow);
+
+    csRenderSidebar(data);
+
+    const yours=data.tasks.filter(t=>t.status==='WAITING_ON_CONTRACTOR');
+    const niit=data.tasks.filter(t=>t.status==='IN_PROGRESS'||t.status==='WAITING_ON_INTERNAL');
+    const client=data.tasks.filter(t=>t.status==='WAITING_ON_CLIENT');
+    const blocked=data.tasks.filter(t=>t.status==='BLOCKED');
+    const upcoming=data.tasks.filter(t=>t.status==='NOT_STARTED');
+    const done=data.tasks.filter(t=>t.status==='COMPLETE');
+
+    // Single prioritized next action at the top of the home view.
+    const nextBox=document.getElementById('cs-next');
+    csClear(nextBox);
+    if(yours.length){
+      nextBox.appendChild(csEl('div',{class:'cs-next-label',text:'Your next action'}));
+      nextBox.appendChild(csEl('div',{class:'cs-next-title',text:yours[0].title}));
+      const btn=csEl('button',{class:'cs-task-action',text:'Mark as done'});
+      btn.onclick=()=>markContractorTaskDone(yours[0].id, btn);
+      nextBox.appendChild(btn);
+      if(yours.length>1){
+        const more=csEl('div',{style:{fontSize:'11.5px',color:'var(--g500)',marginTop:'8px'},text:`+${yours.length-1} more waiting on you`});
+        nextBox.appendChild(more);
+      }
+    } else {
+      nextBox.appendChild(csEl('div',{class:'cs-next-label',text:'Your next action'}));
+      nextBox.appendChild(csEl('div',{class:'cs-allset',text:"You're all set for now. We'll let you know when something needs you."}));
+    }
+
+    csFillList('cs-niit', niit, 'Nothing in motion right now.');
+    csFillList('cs-client', client, 'Nothing waiting on the client right now.');
+    csFillList('cs-blocked', blocked, 'Nothing blocked right now.');
+    csFillList('cs-upcoming', upcoming, 'No upcoming steps — everything is either in motion or done.');
+    csFillList('cs-done', done, 'Nothing completed yet.');
+
+    const done18=data.tasks.filter(t=>t.status!=='NOT_APPLICABLE');
+    const doneCount=done18.filter(t=>t.status==='COMPLETE').length;
+    const pct=done18.length?Math.round(doneCount/done18.length*100):0;
+    document.getElementById('cs-sb-done-lbl').textContent=`${doneCount}/${done18.length} tasks`;
+    document.getElementById('cs-sb-pct-lbl').textContent=pct+'%';
+    document.getElementById('cs-sb-bar').style.width=pct+'%';
+
+    const contactsWrap=document.getElementById('cs-contacts');
+    csClear(contactsWrap);
+    const contacts=[['Resourcing Lead',data.resourcing_lead],['Project Lead',data.project_lead],['Delivery Manager',data.delivery_manager]].filter(([,name])=>name);
+    if(!contacts.length){ contactsWrap.appendChild(csEmpty('Contacts will appear here once assigned.')); }
+    else contacts.forEach(([role,name])=>{
+      const row=csEl('div');
+      row.appendChild(csEl('b',{text:role+': '}));
+      row.appendChild(document.createTextNode(name));
+      contactsWrap.appendChild(row);
+    });
+  }
+
+  async function loadContractorSelf(token){
+    try{
+      const r=await fetch('/api/contractor-invite?token='+encodeURIComponent(token));
+      const data=await r.json();
+      if(!r.ok || !data.found){
+        document.getElementById('onboarding').style.display='';
+        document.getElementById('contractor-self').style.display='none';
+        obShowStep('ob-contractor-step');
+        const p=document.createElement('p');
+        p.style.cssText='font-size:12.5px;color:#DC2626;margin-top:10px;';
+        p.textContent=data.error||"This invitation link isn't valid. Please contact your Resourcing Lead.";
+        document.getElementById('ob-contractor-step').appendChild(p);
+        return;
+      }
+      CS_CURRENT_TOKEN=token;
+      document.getElementById('onboarding').style.display='none';
+      document.getElementById('contractor-self').style.display='flex';
+      document.getElementById('contractor-self').style.flexDirection='column';
+      csShowHome();
+      renderContractorSelf(data);
+    }catch(e){
+      document.getElementById('onboarding').style.display='';
+    }
+  }
+  document.getElementById('cs-back').onclick=(e)=>{
+    e.preventDefault();
+    CS_CURRENT_TOKEN=null; CS_LAST_DATA=null;
+    document.getElementById('contractor-self').style.display='none';
+    document.getElementById('onboarding').style.display='';
+    obShowStep('ob-step-journey');
+  };
+
+  document.getElementById('ob-start').onclick=()=>{
+    const buddy=document.getElementById('ob-buddy').value.trim();
+    const coach=document.getElementById('ob-coach').value.trim();
+    const email=document.getElementById('ob-email').value.trim(); // already validated at the "about you" step
+    S=defaultState(window._name, window._ht, buddy, coach, email);
+    saveState(); showApp();
+  };
+  // ── Resume on another device ──
+  // Previously: search by name and pull down any matching record. That let
+  // anyone view anyone's progress by typing a few letters of their name, so
+  // it's disabled — the record is still safe on the server, this device just
+  // can't self-serve a cross-device pickup yet. Secure recovery (a scoped
+  // resume link/token) is tracked as follow-up work.
+  function showResumeStep(){
+    obShowStep(null);
+    document.getElementById('ob-resume-step').style.display='';
+    document.getElementById('ob-step-indicator').textContent='Cross-device recovery';
+    const results = document.getElementById('ob-resume-results');
+    results.innerHTML = '<p style="font-size:12.5px;color:var(--g500);">Cross-device recovery is temporarily unavailable while we roll out a more secure version. Your progress is safe — please contact your coach or buddy and they can help you pick up where you left off.</p>';
+    const nameField = document.getElementById('ob-resume-name');
+    if(nameField) nameField.style.display='none';
+    const searchBtn = document.getElementById('ob-resume-search');
+    if(searchBtn) searchBtn.style.display='none';
+  }
+  function showStep1(){
+    document.getElementById('ob-resume-step').style.display='none';
+    obShowStep('ob-step-journey');
+  }
+  document.getElementById('ob-resume-link').onclick=(e)=>{ e.preventDefault(); showResumeStep(); };
+  document.getElementById('ob-resume-back').onclick=(e)=>{ e.preventDefault(); showStep1(); };
+
+  const inviteToken=new URLSearchParams(window.location.search).get('token')||new URLSearchParams(window.location.search).get('invite');
+  if(inviteToken){
+    loadContractorSelf(inviteToken);
+    return;
+  }
+
+  const existing=loadState();
+  if(existing){
+    S=existing;
+    migrateState(S);
+    showApp();
+  }
+});
+
+</script>
+
+</body>
+</html>
+

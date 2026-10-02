@@ -1,0 +1,143 @@
+/* Shared NAYA visual language for the admin surfaces (dashboard, wizard,
+   record detail, modals). Tokens and component patterns are lifted directly
+   from public/index.html so every screen reads as one product — this file
+   intentionally does not introduce a second design system. */
+
+:root {
+  --primary: #F97316;
+  --primary-end: #EC4899;
+  --primary-grad: linear-gradient(135deg, #F97316 0%, #EC4899 100%);
+  --primary-pale: #FFF5FA;
+  --teal: #2EC4B6;
+  --teal-pale: #E8FAF9;
+  --navy: #1E3A5F;
+  --navy-dark: #111827;
+  --navy-light: #EEF4FB;
+  --red: #EF4444;
+  --red-pale: #FEF2F2;
+
+  --g50: #F9FAFB;
+  --g100: #F3F4F6;
+  --g200: #E5E7EB;
+  --g300: #D1D5DB;
+  --g400: #9CA3AF;
+  --g500: #6B7280;
+  --g600: #4B5563;
+  --g800: #1F2937;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, .05);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, .3);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  color: var(--g800);
+  background: var(--g50);
+}
+button { cursor: pointer; font-family: inherit; }
+a { color: var(--primary); text-decoration: none; }
+
+/* ── Top nav — same bar used on every employee/contractor screen ── */
+.naya-topnav {
+  height: 56px;
+  background: linear-gradient(90deg, var(--navy-dark) 0%, var(--navy) 100%);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .25);
+  border-bottom: 2px solid var(--primary);
+}
+.naya-nav-brand { display: flex; align-items: center; gap: 10px; }
+.naya-nav-icon {
+  width: 34px; height: 34px;
+  background: white; border: 2.5px solid white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: var(--navy); letter-spacing: -0.5px;
+}
+.naya-nav-title { font-size: 15px; font-weight: 700; color: white; }
+.naya-nav-sub { font-size: 11px; color: rgba(255, 255, 255, .55); margin-top: 1px; }
+.naya-nav-right { display: flex; align-items: center; gap: 14px; }
+.naya-nav-badge {
+  background: var(--primary-grad); color: white;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+}
+
+/* ── Page shell ── */
+.naya-page { min-height: 100vh; background: var(--g50); }
+.naya-page-body { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; }
+.naya-page-narrow { max-width: 640px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* ── Cards ── */
+.naya-card {
+  background: white; border: 1px solid var(--g200); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); padding: 20px;
+}
+.naya-card-entry {
+  background: white; border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg); padding: 32px 28px;
+}
+
+/* ── Buttons ── */
+.naya-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: var(--radius-md); padding: 11px 20px;
+  font-size: 13.5px; font-weight: 700; font-family: inherit;
+  border: none; transition: transform .1s ease;
+}
+.naya-btn:active { transform: scale(.98); }
+.naya-btn-primary { background: var(--primary-grad); color: white; }
+.naya-btn-primary:disabled { background: var(--g300); color: white; cursor: not-allowed; }
+.naya-btn-secondary { background: white; color: var(--g800); border: 2px solid var(--g200); }
+.naya-btn-secondary:hover { border-color: var(--g300); }
+.naya-btn-text { background: none; color: var(--primary); font-weight: 700; padding: 8px 4px; }
+
+/* ── Forms ── */
+.naya-label { font-size: 11.5px; font-weight: 700; color: var(--g500); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; display: block; }
+.naya-input {
+  width: 100%; border: 2px solid var(--g200); border-radius: var(--radius-md);
+  padding: 10px 12px; font-size: 13.5px; font-family: inherit; background: white; color: var(--g800);
+}
+.naya-input:focus { outline: none; border-color: var(--primary); }
+.naya-tristate { display: flex; gap: 6px; flex-wrap: wrap; }
+.naya-tristate button {
+  padding: 6px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 600;
+  border: 1.5px solid var(--g200); background: white; color: var(--g600);
+}
+.naya-tristate button.active { border-color: var(--primary); background: var(--primary-pale); color: var(--navy); }
+
+/* ── Chips / status ── */
+.naya-chip { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.naya-chip-teal { background: var(--teal-pale); color: #047857; }
+.naya-chip-orange { background: var(--primary-pale); color: #C2410C; }
+.naya-chip-red { background: var(--red-pale); color: #B91C1C; }
+.naya-chip-gray { background: var(--g100); color: var(--g500); }
+.naya-chip-navy { background: var(--navy-light); color: var(--navy); }
+
+/* ── Task rows (shared between admin + contractor task lists) ── */
+.naya-task-row { display: flex; align-items: center; gap: 10px; padding: 9px 4px; cursor: pointer; border-bottom: 1px solid var(--g100); border-radius: 6px; }
+.naya-task-row:hover { background: var(--g50); }
+.naya-task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.naya-task-title { flex: 1; font-size: 13px; color: var(--g800); }
+.naya-task-owner { font-size: 10.5px; color: var(--g400); font-weight: 600; flex-shrink: 0; }
+
+/* ── Modal / drawer ── */
+.naya-modal-backdrop { position: fixed; inset: 0; background: rgba(17, 24, 39, .5); display: flex; align-items: center; justify-content: center; z-index: 300; padding: 20px; }
+.naya-modal { background: white; border-radius: 14px; padding: 26px 28px; width: 100%; max-width: 460px; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+.naya-modal-close { background: none; border: none; font-size: 22px; color: var(--g400); cursor: pointer; line-height: 1; }
+.naya-drawer-overlay { position: fixed; inset: 0; background: rgba(17, 24, 39, .4); display: flex; justify-content: flex-end; z-index: 250; }
+.naya-drawer { background: white; width: 100%; max-width: 560px; height: 100%; overflow-y: auto; padding: 24px; box-shadow: -2px 0 24px rgba(0, 0, 0, .15); }
+
+/* ── Empty / loading / error states ── */
+.naya-empty { font-size: 12.5px; color: var(--g500); line-height: 1.5; padding: 24px; text-align: center; }
+.naya-error { font-size: 13px; color: var(--red); }
+
+@media (max-width: 480px) {
+  .naya-page-body, .naya-page-narrow { padding-left: 16px; padding-right: 16px; }
+}
