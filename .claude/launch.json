@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "naya-app-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/private/tmp/naya-app", "run", "dev", "--", "-p", "3949"],
+      "port": 3949
+    }
+  ]
+}
