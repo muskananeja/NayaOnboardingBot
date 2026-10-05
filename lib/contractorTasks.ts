@@ -167,13 +167,15 @@ function makeTask(
   };
 }
 
-const RESOURCES = {
-  niitTraining: { label: 'NIIT Mandatory Training Hub', url: 'https://learning.niit.com/mandatory-training' } as TaskResource,
-  casInduction: { label: 'CAS Induction Pack', url: 'https://cas.niit.com/induction' } as TaskResource,
-};
-// Per the brief: never fabricate a resource that hasn't been validated.
-// Anything not explicitly confirmed stays null -> "Resource to be confirmed".
+// Never fabricate a resource link. Until a real, validated URL is supplied
+// (e.g. the NIIT mandatory-training hub or CAS induction pack), a task's
+// resource stays null and the UI shows "Resource to be confirmed".
 const UNCONFIRMED: TaskResource = null;
+
+// Two links an earlier build attached to the NIIT-training and CAS-induction
+// tasks were never validated by anyone at NIIT. Records created back then have
+// them stored, so they're withdrawn when a record is read.
+const WITHDRAWN_RESOURCE_URLS = new Set(['https://learning.niit.com/mandatory-training', 'https://cas.niit.com/induction']);
 
 // ── Core tasks — always generated regardless of requirements ──
 export function generateCoreTasks(opts?: { projectLeadKnown?: boolean }): ContractorTask[] {
@@ -188,8 +190,8 @@ export function generateCoreTasks(opts?: { projectLeadKnown?: boolean }): Contra
   tasks.push(makeTask('K2', 'kickoff', 'Explain project scope and ways of working', 'Avoids early misunderstandings about what\'s in scope and how the team actually works day to day.', 'project', 'core'));
   tasks.push(makeTask('K3', 'kickoff', 'Assign initial project tasks', 'Gives the person real work to start on immediately after kickoff, rather than a gap at the start.', 'project', 'core'));
 
-  tasks.push(makeTask('T1', 'kickoff', 'Complete applicable NIIT mandatory training', 'NIIT requires baseline training for anyone working under its name, regardless of engagement type.', 'contractor', 'core', { resource: RESOURCES.niitTraining }));
-  tasks.push(makeTask('T2', 'kickoff', 'Complete CAS induction', 'CAS induction covers how this specific practice operates — not covered by general NIIT training.', 'contractor', 'core', { resource: RESOURCES.casInduction }));
+  tasks.push(makeTask('T1', 'kickoff', 'Complete applicable NIIT mandatory training', 'NIIT requires baseline training for anyone working under its name, regardless of engagement type.', 'contractor', 'core', { resource: UNCONFIRMED }));
+  tasks.push(makeTask('T2', 'kickoff', 'Complete CAS induction', 'CAS induction covers how this specific practice operates — not covered by general NIIT training.', 'contractor', 'core', { resource: UNCONFIRMED }));
 
   tasks.push(makeTask('K4', 'kickoff', 'Confirm key contacts', 'Makes sure the person knows who to go to for access issues, project questions, and billing — before they need to ask.', 'resourcing', 'core'));
   tasks.push(makeTask('B0', 'billing', 'Confirm missing billing information (verification method, billing cadence, Delivery Manager)', 'These details are rarely known at engagement creation — this is where they get captured instead of blocking the record.', 'resourcing', 'core'));
@@ -218,7 +220,7 @@ export function generateConditionalTasks(req: ContractorRequirements): Contracto
   // Contract & Compliance
   if (req.nda === 'yes') {
     tasks.push(makeTask('C2', 'clearance', 'Send NDA', 'An NDA protects both sides before any confidential project information is shared.', 'resourcing', 'conditional'));
-    tasks.push(makeTask('C3', 'clearance', 'Sign NDA', 'The contractor\'s own signature is what makes the NDA enforceable.', 'contractor', 'conditional'));
+    tasks.push(makeTask('C3', 'clearance', 'Sign NDA', 'The signature is what makes the NDA enforceable.', 'contractor', 'conditional'));
   } else if (req.nda === 'unsure') {
     tasks.push(makeTask('C2_CONF', 'clearance', 'Confirm requirement: NDA', 'Left as "to be confirmed" — NAYA never assumes it away.', 'resourcing', 'conditional'));
   }
@@ -276,6 +278,9 @@ function assignDependencies(tasks: ContractorTask[]): ContractorTask[] {
 
   // Initial task assignment depends on kickoff having happened.
   setDeps('K3', ['K1']);
+
+  // The NDA can only be signed once it has been sent.
+  setDeps('C3', ['C2']);
 
   // First time-entry readiness depends on time-tracking setup.
   if (has('TT1')) setDeps('TT2', ['TT1']);
@@ -420,7 +425,7 @@ export function migrateContractorRecord(record: any): ContractorRecord {
       notes: t.notes ?? '',
       blocked_reason: t.blocked_reason ?? null,
       history: Array.isArray(t.history) ? t.history : [],
-      resource: t.resource ?? null,
+      resource: t.resource && !WITHDRAWN_RESOURCE_URLS.has(t.resource.url) ? t.resource : null,
       contact_for_help: t.contact_for_help ?? '',
       blocks_readiness: t.blocks_readiness !== false,
     }));
@@ -465,4 +470,56 @@ export function migrateContractorRecord(record: any): ContractorRecord {
     created_at: record.created_at || record.last_saved || Date.now(),
     last_saved: record.last_saved || Date.now(),
   };
+}
+
+
+export const ALL_STATUSES: TaskStatus[] = [
+  'NOT_STARTED', 'IN_PROGRESS', 'WAITING_ON_CONTRACTOR', 'WAITING_ON_INTERNAL',
+  'WAITING_ON_CLIENT', 'COMPLETE', 'NOT_APPLICABLE', 'BLOCKED',
+];
+
+// ── Derived, server-side view of a task from the contractor's point of view ──
+// One place decides "whose turn is it?" so the contractor page, the admin
+// preview and the API all agree (the API enforces it; the UI only reflects it).
+export type TaskView = 'done' | 'na' | 'blocked' | 'your_turn' | 'locked' | 'with_niit' | 'with_client' | 'upcoming';
+
+export function taskView(task: ContractorTask, all: ContractorTask[]): TaskView {
+  if (task.status === 'NOT_APPLICABLE') return 'na';
+  if (task.status === 'COMPLETE') return 'done';
+  if (task.status === 'BLOCKED') return 'blocked';
+  const waiting = blockingDependencies(all, task).length > 0;
+  if (task.owner === 'contractor') return waiting ? 'locked' : 'your_turn';
+  if (task.status === 'WAITING_ON_CLIENT') return 'with_client';
+  return waiting ? 'upcoming' : 'with_niit';
+}
+
+/** The only tasks a contractor may complete themselves. */
+export function contractorCanComplete(task: ContractorTask, all: ContractorTask[]): boolean {
+  return taskView(task, all) === 'your_turn';
+}
+
+/** Who to ask about a task — always a named person where we know one. */
+export function helpContact(record: ContractorRecord, task: ContractorTask): string {
+  if (task.contact_for_help) return task.contact_for_help;
+  const rl = record.resourcing_lead ? `Resourcing Lead: ${record.resourcing_lead}` : 'your Resourcing Lead';
+  if (task.owner === 'project' && record.project_lead) return `Project Lead: ${record.project_lead}`;
+  if (task.owner === 'delivery' && record.delivery_manager) return `Delivery Manager: ${record.delivery_manager}`;
+  return rl;
+}
+
+export type PhaseSummary = { id: TaskPhase; label: string; done: number; total: number; state: 'done' | 'active' | 'upcoming' | 'not_needed' };
+
+export function phaseSummaries(tasks: ContractorTask[]): PhaseSummary[] {
+  let activeAssigned = false;
+  return PHASE_ORDER.map(id => {
+    const inPhase = tasks.filter(t => t.phase === id && t.status !== 'NOT_APPLICABLE');
+    const done = inPhase.filter(t => t.status === 'COMPLETE').length;
+    const total = inPhase.length;
+    let state: PhaseSummary['state'];
+    if (total === 0) state = 'not_needed';
+    else if (done === total) state = 'done';
+    else if (!activeAssigned) { state = 'active'; activeAssigned = true; }
+    else state = 'upcoming';
+    return { id, label: PHASE_LABELS[id], done, total, state };
+  });
 }

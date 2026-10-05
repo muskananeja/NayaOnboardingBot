@@ -1,15 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { storeGet, storeSet } from '../../lib/store';
-import { migrateContractorRecord } from '../../lib/contractorTasks';
+import { migrateContractorRecord, contractorCanComplete, blockingDependencies } from '../../lib/contractorTasks';
 import type { ContractorRecord } from '../../lib/contractorTasks';
 import { verifyInviteToken } from '../../lib/inviteToken';
 import { checkRateLimit } from '../../lib/rateLimit';
 import { writeAudit } from '../../lib/audit';
 
 // Lets a contractor (proven by invite token, not just email) close out their
-// own action items. Deliberately narrow: only a task currently
-// WAITING_ON_CONTRACTOR can be touched, and only to COMPLETE — a contractor
-// can never edit an internally-owned task's status, notes, or anything else.
+// OWN action items. Deliberately narrow, and enforced here rather than in the
+// UI: the task must be owned by the contractor, not already finished or
+// blocked, and every task it depends on must be done. A contractor can never
+// touch internally owned work, however the request is crafted.
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -31,8 +32,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const record: ContractorRecord = migrateContractorRecord(raw);
   const task = record.tasks.find(t => t.id === taskId);
   if (!task) return res.status(404).json({ error: 'Task not found' });
-  if (task.status !== 'WAITING_ON_CONTRACTOR') {
-    return res.status(409).json({ error: 'This task is not currently waiting on you.' });
+
+  if (task.owner !== 'contractor') {
+    return res.status(403).json({ error: 'This step is handled by the NIIT team — there is nothing for you to do here.' });
+  }
+  if (task.status === 'COMPLETE') {
+    // Idempotent: a retry or double click must not error or add history.
+    return res.status(200).json({ ok: true, already_complete: true });
+  }
+  if (task.status === 'NOT_APPLICABLE' || task.status === 'BLOCKED') {
+    return res.status(409).json({ error: 'This step isn’t available right now.' });
+  }
+  const blockers = blockingDependencies(record.tasks, task);
+  if (blockers.length || !contractorCanComplete(task, record.tasks)) {
+    return res.status(409).json({
+      error: blockers.length
+        ? `This step opens once the earlier step is done: ${blockers.map(b => b.title).join(', ')}.`
+        : 'This step isn’t available yet.',
+    });
   }
 
   const previousStatus = task.status;

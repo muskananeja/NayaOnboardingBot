@@ -14,15 +14,39 @@ export function __clearMemStoreForTests() {
   memExpiry.clear();
 }
 
+// Storage isolation: only a real production deployment may use the production
+// KV credentials. Every other environment (Vercel Preview, local dev, tests)
+// ignores KV_REST_API_* entirely — even though Vercel injects them into
+// Preview builds — and may use a separate store via ISOLATED_KV_REST_API_*,
+// otherwise it falls back to in-memory. This makes it impossible for a review
+// deployment to read or write production data by accident.
+function kvConfig(): { url: string; token: string } | null {
+  const production = process.env.VERCEL_ENV === 'production';
+  const url = production ? process.env.KV_REST_API_URL : process.env.ISOLATED_KV_REST_API_URL;
+  const token = production ? process.env.KV_REST_API_TOKEN : process.env.ISOLATED_KV_REST_API_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
 function hasKV() {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  return !!kvConfig();
+}
+
+/** 'kv' = durable; 'memory' = per-process only (not durable on serverless). */
+export function storeMode(): 'kv' | 'memory' {
+  return hasKV() ? 'kv' : 'memory';
+}
+
+/** True when running on Vercel without a durable store (i.e. an unconfigured Preview). */
+export function storeIsEphemeralOnServerless(): boolean {
+  return !hasKV() && !!process.env.VERCEL;
 }
 
 async function kvFetch(path: string, init?: RequestInit) {
-  const res = await fetch(`${process.env.KV_REST_API_URL}${path}`, {
+  const cfg = kvConfig()!;
+  const res = await fetch(`${cfg.url}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+      Authorization: `Bearer ${cfg.token}`,
       'Content-Type': 'application/json',
       ...(init?.headers ?? {}),
     },

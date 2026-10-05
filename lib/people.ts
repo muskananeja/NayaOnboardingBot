@@ -3,7 +3,7 @@
 // model — this is only the summary-card layer that lets both sit in one
 // filtered list.
 import { derive, PHASE_LABELS as ANALYST_PHASE_LABELS, TASKS, TASK_ORDER } from '../pages/dashboard';
-import { taskProgress, isReadyToStart, readinessGates, PHASE_LABELS as CONTRACTOR_PHASE_LABELS } from './contractorTasks';
+import { taskProgress, isReadyToStart, readinessGates, taskView, OWNER_LABELS, PHASE_LABELS as CONTRACTOR_PHASE_LABELS } from './contractorTasks';
 import type { ContractorRecord } from './contractorTasks';
 
 export type StatusBucket = 'waiting' | 'blocked' | 'ready' | 'complete' | 'active';
@@ -22,6 +22,7 @@ export type PersonCard = {
   status_bucket: StatusBucket;
   progress_pct: number;
   next_action: string;
+  next_owner: string;
   last_activity: number;
   invite_status: InviteStatus;
   invite_expires_at: number | null;
@@ -52,6 +53,7 @@ export function analystToCard(u: any): PersonCard {
     status_bucket: bucket,
     progress_pct: d.requiredPct,
     next_action: nextAction,
+    next_owner: nextAction ? 'Analyst' : '',
     last_activity: u.last_saved || 0,
     invite_status: 'not_generated', // employees join via the self-serve joiner link, not an invite token
     invite_expires_at: null,
@@ -73,8 +75,11 @@ export function contractorToCard(c: ContractorRecord): PersonCard {
   else if (blockedTask) { bucket = 'blocked'; statusLabel = 'Blocked'; }
   else if (waitingTask) { bucket = 'waiting'; statusLabel = 'Waiting'; }
 
-  const nextTask = c.tasks.find(t => t.status === 'WAITING_ON_CONTRACTOR')
-    || c.tasks.find(t => t.status !== 'COMPLETE' && t.status !== 'NOT_APPLICABLE');
+  // The next step is the first one that someone can act on right now — the
+  // contractor's own step if they have one, otherwise the earliest unblocked
+  // team step — so the dashboard says both what is next and who owns it.
+  const nextTask = c.tasks.find(t => taskView(t, c.tasks) === 'your_turn')
+    || c.tasks.find(t => taskView(t, c.tasks) === 'with_niit' || taskView(t, c.tasks) === 'with_client');
 
   let inviteStatus: InviteStatus = 'not_generated';
   if (c.invite_token_hash) {
@@ -99,7 +104,8 @@ export function contractorToCard(c: ContractorRecord): PersonCard {
     status_label: statusLabel,
     status_bucket: bucket,
     progress_pct: p.pct,
-    next_action: nextTask ? nextTask.title : '',
+    next_action: nextTask ? nextTask.title : (allComplete || ready ? 'Nothing outstanding' : ''),
+    next_owner: nextTask ? (nextTask.owner === 'contractor' ? 'Contractor' : OWNER_LABELS[nextTask.owner]) : '',
     last_activity: c.last_saved || 0,
     invite_status: inviteStatus,
     invite_expires_at: c.invite_expires_at || null,

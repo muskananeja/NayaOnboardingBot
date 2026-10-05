@@ -562,7 +562,7 @@ strong,.bub-strong{font-weight:600;}
 }
 
 /* Contractor self-serve view — reuses the employee shell's classes
-   (topnav/sidebar/ph-*/tk-*) so it looks like the same product rather than
+   (topnav, sidebar, ph- and tk- classes) so it looks like the same product rather than
    a bolted-on separate page. */
 .cs-main{flex:1;overflow-y:auto;padding:24px 28px 60px;}
 .cs-next{background:linear-gradient(135deg,var(--orange-pale),var(--navy-light));border:1.5px solid var(--orange-border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
@@ -683,6 +683,72 @@ strong,.bub-strong{font-weight:600;}
 .cs-task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .cs-task-title{flex:1;}
 .cs-task-owner{font-size:10.5px;color:var(--g400);font-weight:600;flex-shrink:0;}
+
+/* ── Contractor journey: same shell, one clear path ── */
+.cs-main{padding-left:max(28px,calc((100% - 820px)/2));padding-right:max(28px,calc((100% - 820px)/2));}
+#cs-invalid{position:fixed;inset:0;background:linear-gradient(160deg,#111827 0%,#1E3A5F 60%,#2EC4B6 100%);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
+.cs-hero{background:linear-gradient(135deg,#FFF5FA,#EEF4FB);border:1px solid var(--g200);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:18px;}
+.cs-hero-label{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;display:inline-block;}
+.cs-hero h1{font-size:22px;font-weight:800;color:var(--navy);margin:0 0 2px;line-height:1.25;}
+.cs-hero-sub{font-size:13px;color:var(--g600);margin:0 0 14px;}
+.cs-hero-progress{max-width:440px;margin-bottom:10px;}
+.cs-hero-explain{font-size:12.5px;color:var(--g500);line-height:1.6;margin:10px 0 0;max-width:600px;}
+.cs-gate{font-size:11.5px;font-weight:600;color:var(--g500);}
+.cs-gate.done{color:#047857;}
+.cs-gate.active{color:var(--navy);}
+.cs-next{border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:18px;background:white;border:1.5px solid var(--orange-border);box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.cs-next.ready{background:var(--teal-pale);border-color:var(--teal);}
+.cs-next.hold{background:#FEF2F2;border-color:#FCA5A5;}
+.cs-next-label{font-size:11px;font-weight:800;color:#C2410C;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.cs-next.ready .cs-next-label{color:#047857;}
+.cs-next.hold .cs-next-label{color:#B91C1C;}
+.cs-next-title{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px;line-height:1.35;}
+.cs-next-why{font-size:13px;color:var(--g600);line-height:1.55;margin-bottom:12px;max-width:640px;}
+.cs-next-meta{font-size:12px;color:var(--g500);margin-bottom:12px;}
+.cs-next-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.cs-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 18px;border-radius:var(--radius-md);border:none;background:var(--primary-grad);color:white;font-family:Poppins,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;}
+.cs-btn:disabled{background:var(--g300);cursor:not-allowed;}
+.cs-btn-secondary{background:white;color:var(--g800);border:2px solid var(--g200);}
+.cs-btn-secondary:hover{border-color:var(--g300);}
+.cs-linkbtn{background:none;border:none;color:var(--g600);font-family:Poppins,sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;padding:6px 0;margin-bottom:6px;}
+.cs-linkbtn:hover{color:var(--navy);text-decoration:underline;}
+.cs-section h3{color:#C2410C;}
+.cs-section>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.cs-section>summary::-webkit-details-marker{display:none;}
+.cs-section>summary h3{margin:0;}
+.cs-section>summary .cs-count{font-size:11.5px;color:var(--g500);font-weight:600;}
+.cs-section>summary::after{content:'Show';font-size:11.5px;font-weight:700;color:var(--g500);}
+.cs-section[open]>summary::after{content:'Hide';}
+.cs-section[open]>summary{margin-bottom:8px;}
+.cs-section-note{font-size:12px;color:var(--g500);margin:-2px 0 8px;line-height:1.5;}
+.cs-task{min-height:40px;}
+.cs-task-main{flex:1;min-width:0;}
+.cs-task-title{display:block;line-height:1.35;}
+.cs-task-sub{display:block;font-size:11px;color:var(--g500);margin-top:1px;line-height:1.4;}
+.cs-chip{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--g100);color:var(--g600);}
+.cs-chip.your_turn{background:var(--primary-pale);color:#C2410C;}
+.cs-chip.done{background:var(--teal-pale);color:#047857;}
+.cs-chip.blocked{background:#FEF2F2;color:#B91C1C;}
+.cs-chip.with_niit{background:var(--navy-light);color:var(--navy);}
+.cs-preview-banner{background:#FEF3C7;color:#92400E;border-radius:var(--radius-md);padding:10px 14px;font-size:12.5px;font-weight:600;margin-bottom:14px;}
+.cs-toast{background:#ECFDF5;color:#047857;border:1px solid #A7F3D0;border-radius:var(--radius-md);padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:14px;}
+.cs-toast.err{background:#FEF2F2;color:#B91C1C;border-color:#FCA5A5;}
+.cs-phase-title{font-size:11.5px;font-weight:800;color:#C2410C;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.cd-row .cs-chip{margin-right:6px;}
+.cd-list{margin:4px 0 0 0;padding:0;list-style:none;}
+.cd-list li{display:flex;gap:8px;align-items:flex-start;margin-bottom:3px;}
+.cd-hint{font-size:12.5px;color:var(--g600);background:var(--g50);border-radius:var(--radius-md);padding:10px 12px;line-height:1.5;}
+@media(max-width:720px){
+  #cs-topnav .nav-title{font-size:13px;white-space:nowrap;}
+  #cs-topnav .nav-sub,#cs-topnav .nav-pct{display:none;}
+  .cs-main{padding-left:16px;padding-right:16px;}
+  .cs-hero{padding:16px;}
+  .cs-hero h1{font-size:19px;}
+  .cs-next{padding:16px;}
+  .cs-btn{width:100%;}
+  .cs-next-actions{flex-direction:column;align-items:stretch;}
+  .cd-modal{padding:20px;}
+}
 </style>
 </head>
 <body>
@@ -803,7 +869,7 @@ strong,.bub-strong{font-weight:600;}
       </div>
     </div>
     <div class="nav-right">
-      <span class="nav-badge">Contractor</span>
+      <span class="nav-badge" id="cs-nav-badge">Contractor</span>
       <span class="nav-pct" id="cs-nav-status"></span>
     </div>
   </nav>
@@ -820,29 +886,34 @@ strong,.bub-strong{font-weight:600;}
       <div class="sb-foot"><span>NIIT Naya v1.0</span></div>
     </aside>
 
-    <div class="cs-main" id="cs-main">
-      <h1 id="cs-name" style="font-size:20px;color:var(--navy);font-weight:800;margin-bottom:2px;"></h1>
-      <p id="cs-project" style="color:var(--g500);font-size:13px;margin-bottom:18px;"></p>
+    <div class="cs-main" id="cs-main" tabindex="-1">
+      <div id="cs-preview-banner" class="cs-preview-banner" style="display:none;" role="status"></div>
+      <div id="cs-toast" class="cs-toast" role="status" aria-live="polite" style="display:none;"></div>
 
-      <div class="cs-readiness" id="cs-readiness"></div>
+      <section class="cs-hero" aria-labelledby="cs-name">
+        <div class="cs-hero-label" id="cs-hero-label">Your onboarding</div>
+        <h1 id="cs-name"></h1>
+        <p id="cs-project" class="cs-hero-sub"></p>
+        <div class="cs-hero-progress">
+          <div class="sb-progress-labels"><span id="cs-hero-done-lbl"></span><strong id="cs-hero-pct-lbl"></strong></div>
+          <div class="sb-bar-wrap"><div class="sb-bar" id="cs-hero-bar" style="width:0%"></div></div>
+        </div>
+        <div class="cs-r-gates" id="cs-hero-gates"></div>
+        <p class="cs-hero-explain" id="cs-hero-explain"></p>
+      </section>
 
       <div id="cs-home-view">
-        <div class="cs-next" id="cs-next"><!-- single prioritized next action, injected by JS --></div>
-
-        <div class="cs-section"><h3>NIIT actions</h3><div id="cs-niit" class="cs-task-list"></div></div>
-        <div class="cs-section"><h3>Waiting on client</h3><div id="cs-client" class="cs-task-list"></div></div>
-        <div class="cs-section"><h3>Blocked</h3><div id="cs-blocked" class="cs-task-list"></div></div>
-        <div class="cs-section"><h3>Upcoming</h3><div id="cs-upcoming" class="cs-task-list"></div></div>
-        <div class="cs-section"><h3>Completed</h3><div id="cs-done" class="cs-task-list"></div></div>
-        <div class="cs-section"><h3>Key contacts</h3><div id="cs-contacts" class="cs-contacts"></div></div>
+        <section class="cs-next" id="cs-next" tabindex="-1" aria-live="polite"><!-- one clear next step, injected by JS --></section>
+        <div id="cs-sections"><!-- grouped steps, injected by JS --></div>
+        <div class="cs-section" id="cs-help-card"><h3>Need help?</h3><div id="cs-contacts" class="cs-contacts"></div></div>
       </div>
 
       <div id="cs-phase-view" style="display:none;">
-        <div id="cs-phase-title" style="font-size:11.5px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;"></div>
+        <button type="button" class="cs-linkbtn" id="cs-phase-back">← Back to overview</button>
+        <div id="cs-phase-title" class="cs-phase-title"></div>
+        <p id="cs-phase-why" class="cs-hero-explain" style="margin:0 0 12px;"></p>
         <div class="cs-section"><div id="cs-phase-tasks" class="cs-task-list"></div></div>
       </div>
-
-      <p style="text-align:center;margin-top:10px;"><a href="#" id="cs-back" style="color:var(--g500);font-size:12.5px;">← Back to journey selection</a></p>
     </div>
   </div>
 </div>
@@ -857,16 +928,19 @@ strong,.bub-strong{font-weight:600;}
       </div>
       <button type="button" class="cd-close" id="cd-close" aria-label="Close">×</button>
     </div>
-    <div class="cd-row" id="cd-why"></div>
-    <div class="cd-row"><b>Owner:</b> <span id="cd-owner"></span></div>
-    <div class="cd-row"><b>Status:</b> <span id="cd-status"></span></div>
-    <div class="cd-row" id="cd-due" style="display:none;"><b>Due:</b> <span id="cd-due-val"></span></div>
-    <div class="cd-row" id="cd-deps" style="display:none;"></div>
-    <div class="cd-row" id="cd-resource"></div>
-    <div class="cd-row" id="cd-contact" style="display:none;"></div>
-    <div class="cd-warn" id="cd-blocked" style="display:none;"></div>
-    <div class="cd-row" id="cd-notes" style="display:none;"></div>
-    <div id="cd-action" style="margin-top:14px;"></div>
+    <div id="cd-body"></div>
+    <div class="cd-warn" id="cd-error" style="display:none;" role="alert"></div>
+    <div id="cd-action" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- Invitation problems get their own calm, human screen (never the journey picker) -->
+<div id="cs-invalid" style="display:none;">
+  <div class="ob-card">
+    <div class="ob-logo">N</div>
+    <h1 id="cs-invalid-title">This link isn't working</h1>
+    <p class="tagline" id="cs-invalid-body"></p>
+    <div id="cs-invalid-actions"></div>
   </div>
 </div>
 
@@ -1883,21 +1957,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('ob-step3-back').onclick=(e)=>{ e.preventDefault(); obShowStep('ob-step-about'); };
 
   // ── Contractor self-serve view ──
-  // Categorization matters: WAITING_ON_CONTRACTOR means the contractor
-  // themselves needs to act, so it belongs under "Your actions" with a real
-  // action, not lumped in with things NIIT or the client are handling.
-  const CS_STATUS_COLOR={NOT_STARTED:'var(--g300)',IN_PROGRESS:'var(--orange)',WAITING_ON_CONTRACTOR:'var(--orange)',WAITING_ON_INTERNAL:'#3B82F6',WAITING_ON_CLIENT:'#8B5CF6',COMPLETE:'var(--teal)',NOT_APPLICABLE:'var(--g300)',BLOCKED:'#EF4444'};
-  const CS_STATUS_LABEL={NOT_STARTED:'Not started',IN_PROGRESS:'In progress',WAITING_ON_CONTRACTOR:'Waiting on you',WAITING_ON_INTERNAL:'Waiting on NIIT',WAITING_ON_CLIENT:'Waiting on client',COMPLETE:'Complete',NOT_APPLICABLE:'Not applicable',BLOCKED:'Blocked'};
+  // Same shell as the analyst experience (topnav, phase sidebar, progress),
+  // organised around the analyst pattern: one clear next step, everything else
+  // quietly grouped by whose turn it is. All decisions about whose turn it is,
+  // what a step waits for and who to ask are made by the server
+  // (/api/contractor-invite); this code only renders them. The same rules are
+  // enforced again by /api/contractor-self-task, so the UI is never the guard.
   const CS_PHASE_ORDER=['clearance','access','kickoff','billing'];
-  const CS_PHASE_SHORT={clearance:'Contract',access:'Systems',kickoff:'Kickoff',billing:'Billing'};
-  const CS_PHASE_NAV_LABEL={clearance:'Contract and Compliance',access:'Systems and Access',kickoff:'Project Integration',billing:'Time and Billing'};
+  const CS_PHASE_NAV_LABEL={clearance:'Contract and Compliance',access:'Systems and Access',kickoff:'Project Integration and Induction',billing:'Time and Billing'};
+  const CS_PHASE_SHORT={clearance:'Contract',access:'Systems',kickoff:'Induction',billing:'Billing'};
   const CS_PHASE_WHY={
-    clearance:'Contract and compliance clearance has to be in place before NIIT can give you any systems access or client contact.',
-    access:'Systems and access setup is what lets you actually log in and start working once your contract is cleared.',
-    kickoff:'Project integration gets you introduced to the team and briefed on how the engagement runs day to day.',
-    billing:'Time and billing setup is what makes sure your hours or deliverables get tracked and invoiced correctly.',
+    clearance:'Contract and compliance has to be in place before NIIT can give you systems access or client contact.',
+    access:'Systems and access setup is what lets you log in and start working once your contract is cleared.',
+    kickoff:'Project integration and induction gets you introduced to the team, trained, and briefed on how the engagement runs day to day.',
+    billing:'Time and billing setup makes sure your hours or deliverables are tracked and invoiced correctly.',
   };
-  let CS_CURRENT_TOKEN=null, CS_LAST_DATA=null;
+  const CS_DOT={done:'var(--teal)',your_turn:'var(--orange)',locked:'var(--g300)',with_niit:'#3B82F6',with_client:'#8B5CF6',blocked:'#EF4444',upcoming:'var(--g300)',na:'var(--g300)'};
+  const CS_VIEW_LABEL={done:'Done',your_turn:'Your step',locked:'Opens later',with_niit:'With the NIIT team',with_client:'With the client',blocked:'On hold',upcoming:'Coming up',na:'Not needed'};
+  const CS_GLYPH={done:'✓',active:'●',upcoming:'○',not_needed:'–'};
+  let CS_CURRENT_TOKEN=null, CS_PREVIEW_ID=null, CS_LAST_DATA=null, CS_TOAST_TIMER=null;
+  const CS_READONLY=()=>!!CS_PREVIEW_ID;
 
   function csEl(tag,opts){
     const el=document.createElement(tag);
@@ -1909,241 +1988,303 @@ document.addEventListener('DOMContentLoaded', async () => {
     return el;
   }
   function csClear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
-  function csEmpty(text){ return csEl('p',{class:'cs-empty',text}); }
+  const csById=id=>document.getElementById(id);
+  function csDate(s){
+    if(!s) return '';
+    const d=new Date(s+'T00:00:00'); if(isNaN(d)) return s;
+    return d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+  }
+  function csTask(id){ return CS_LAST_DATA && CS_LAST_DATA.tasks.find(t=>t.id===id); }
+  function csCanAct(t){ return !!t && t.can_complete && !CS_READONLY(); }
+  function csToast(text,isError){
+    const el=csById('cs-toast'); el.textContent=text; el.className='cs-toast'+(isError?' err':''); el.style.display='';
+    clearTimeout(CS_TOAST_TIMER); if(!isError) CS_TOAST_TIMER=setTimeout(()=>{ el.style.display='none'; },8000);
+  }
 
   function csTaskRow(t){
     const row=csEl('div',{class:'cs-task'});
-    row.appendChild(csEl('span',{class:'cs-task-dot',style:{background:CS_STATUS_COLOR[t.status]}}));
-    row.appendChild(csEl('span',{class:'cs-task-title',text:t.title}));
-    row.appendChild(csEl('span',{class:'cs-task-owner',text:t.status==='WAITING_ON_CONTRACTOR'?'You':t.owner_label}));
+    row.appendChild(csEl('span',{class:'cs-task-dot',style:{background:CS_DOT[t.view]||'var(--g300)'}}));
+    const main=csEl('span',{class:'cs-task-main'});
+    main.appendChild(csEl('span',{class:'cs-task-title',text:t.title}));
+    let sub='';
+    if(t.view==='locked'||t.view==='upcoming') sub=(t.waiting_for&&t.waiting_for.length)?'Opens after: '+t.waiting_for.map(w=>w.title).join(', '):'';
+    else if(t.view==='blocked'&&t.blocked_reason) sub=t.blocked_reason;
+    if(sub) main.appendChild(csEl('span',{class:'cs-task-sub',text:sub}));
+    row.appendChild(main);
+    row.appendChild(csEl('span',{class:'cs-task-owner',text:t.owned_by_you?'You':t.owner_label}));
     row.onclick=()=>openTaskDetail(t.id);
-    row.tabIndex=0;
-    row.setAttribute('role','button');
-    row.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openTaskDetail(t.id); } });
+    row.tabIndex=0; row.setAttribute('role','button');
+    row.setAttribute('aria-label',t.title+', '+(t.owned_by_you?'your step':t.owner_label)+', '+(CS_VIEW_LABEL[t.view]||''));
+    row.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openTaskDetail(t.id); } });
     return row;
   }
-  function csFillList(id, tasks, emptyText){
-    const wrap=document.getElementById(id);
-    csClear(wrap);
-    if(!tasks.length){ wrap.appendChild(csEmpty(emptyText)); return; }
-    tasks.forEach(t=>wrap.appendChild(csTaskRow(t)));
+  function csSection(title,tasks,opts){
+    if(!tasks.length) return null;
+    opts=opts||{};
+    const collapsible=opts.collapsed!==undefined;
+    const sec=csEl(collapsible?'details':'div',{class:'cs-section'});
+    if(collapsible && !opts.collapsed) sec.open=true;
+    const head=csEl(collapsible?'summary':'div',collapsible?{}:{});
+    const h=csEl('h3',{text:title}); head.appendChild(h);
+    if(collapsible) head.appendChild(csEl('span',{class:'cs-count',text:String(tasks.length)}));
+    sec.appendChild(head);
+    if(opts.note) sec.appendChild(csEl('p',{class:'cs-section-note',text:opts.note}));
+    const list=csEl('div',{class:'cs-task-list'});
+    tasks.forEach(t=>list.appendChild(csTaskRow(t)));
+    sec.appendChild(list);
+    return sec;
   }
 
-  async function markContractorTaskDone(taskId, btn){
-    if(!CS_CURRENT_TOKEN) return;
+  // ── Completing a step (server decides; we show the real outcome) ──
+  async function csComplete(taskId,btn,errBox){
+    if(!CS_CURRENT_TOKEN||CS_READONLY()||btn.disabled) return;
     const original=btn.textContent;
     btn.disabled=true; btn.textContent='Saving…';
+    if(errBox) errBox.style.display='none';
+    const fail=(msg)=>{
+      btn.disabled=false; btn.textContent=original;
+      if(errBox){ errBox.textContent=msg; errBox.style.display=''; } else csToast(msg,true);
+    };
     try{
       const r=await fetch('/api/contractor-self-task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:CS_CURRENT_TOKEN,taskId})});
-      if(!r.ok){ const d=await r.json().catch(()=>({})); btn.disabled=false; btn.textContent=original; alert(d.error||'Could not save — try again.'); return; }
+      if(!r.ok){ const d=await r.json().catch(()=>({})); fail(d.error||'We couldn’t save that. Please try again.'); return; }
+      const title=(csTask(taskId)||{}).title||'that step';
       closeTaskDetail();
-      await loadContractorSelf(CS_CURRENT_TOKEN);
-    }catch(e){
-      btn.disabled=false; btn.textContent=original;
-      alert('Could not reach the server — not saved.');
-    }
+      const fresh=await csFetch();
+      if(fresh.ok){
+        renderContractorSelf(fresh.data);
+        const nxt=fresh.data.next&&fresh.data.next.kind==='your_turn'?fresh.data.tasks.find(t=>t.id===fresh.data.next.task_id):null;
+        csToast('Done: '+title+'.'+(nxt?' Next for you: '+nxt.title+'.':fresh.data.ready_to_start?' You’re ready to start.':' The NIIT team will take it from here.'));
+        csShowHome(); csById('cs-main').scrollTo({top:0,behavior:'smooth'}); csById('cs-next').focus({preventScroll:true});
+      } else {
+        csToast('Saved — but we couldn’t refresh the page. Reload to see your latest progress.',true);
+      }
+    }catch(e){ fail('We couldn’t reach the server. Check your connection and try again — nothing was changed.'); }
   }
 
-  // ── Task detail ──
+  // ── Task detail: what, why, whose, what first, where to learn, who to ask ──
+  function csRow(label,node){
+    const row=csEl('div',{class:'cd-row'});
+    row.appendChild(csEl('b',{text:label.endsWith('?')?label+' ':label+': '}));
+    if(typeof node==='string') row.appendChild(document.createTextNode(node)); else row.appendChild(node);
+    return row;
+  }
   function openTaskDetail(taskId){
-    const t=CS_LAST_DATA?.tasks.find(x=>x.id===taskId); if(!t) return;
-    document.getElementById('cd-phase').textContent=t.phase_label;
-    document.getElementById('cd-title').textContent=t.title;
-    document.getElementById('cd-why').textContent=t.why_it_matters||CS_PHASE_WHY[t.phase]||'';
-    document.getElementById('cd-owner').textContent=t.status==='WAITING_ON_CONTRACTOR'?'You':t.owner_label;
-    document.getElementById('cd-status').textContent=CS_STATUS_LABEL[t.status]||t.status;
+    const t=csTask(taskId); if(!t) return;
+    csById('cd-phase').textContent=t.phase_label;
+    csById('cd-title').textContent=t.title;
+    const body=csById('cd-body'); csClear(body);
+    csById('cd-error').style.display='none';
 
-    const dueRow=document.getElementById('cd-due');
-    if(t.due_date){ dueRow.style.display=''; document.getElementById('cd-due-val').textContent=t.due_date; } else dueRow.style.display='none';
+    const status=csEl('div',{class:'cd-row'});
+    status.appendChild(csEl('span',{class:'cs-chip '+t.view,text:CS_VIEW_LABEL[t.view]||t.status_label}));
+    body.appendChild(status);
+    body.appendChild(csEl('div',{class:'cd-row',text:t.why_it_matters||CS_PHASE_WHY[t.phase]||''}));
+    body.appendChild(csRow('Handled by',t.owned_by_you?'You':t.owner_label));
+    if(t.due_date) body.appendChild(csRow('Due',csDate(t.due_date)));
 
-    const resourceRow=document.getElementById('cd-resource');
-    csClear(resourceRow);
-    resourceRow.appendChild(csEl('b',{text:'Resource: '}));
-    if(t.resource && t.resource.url){
-      const a=csEl('a',{text:t.resource.label||'Open resource'});
-      a.href=t.resource.url; a.target='_blank'; a.rel='noreferrer';
-      resourceRow.appendChild(a);
+    if(t.depends_on&&t.depends_on.length){
+      const wrap=csEl('div',{class:'cd-row'});
+      wrap.appendChild(csEl('b',{text:'Needs first: '}));
+      if(t.waiting_for&&t.waiting_for.length){
+        const ul=csEl('ul',{class:'cd-list'});
+        t.waiting_for.forEach(w=>{ const li=csEl('li'); li.appendChild(csEl('span',{text:'○'})); li.appendChild(csEl('span',{text:w.title})); ul.appendChild(li); });
+        wrap.appendChild(ul);
+      } else wrap.appendChild(document.createTextNode('earlier steps are done ✓'));
+      body.appendChild(wrap);
+    }
+
+    const res=csEl('div',{class:'cd-row'}); res.appendChild(csEl('b',{text:'Resource: '}));
+    if(t.resource&&t.resource.url){
+      const a=csEl('a',{text:(t.resource.label||'Open resource')+' ↗'}); a.href=t.resource.url; a.target='_blank'; a.rel='noopener noreferrer'; res.appendChild(a);
+    } else res.appendChild(csEl('span',{text:'Resource to be confirmed',style:{color:'var(--g500)',fontStyle:'italic'}}));
+    body.appendChild(res);
+    body.appendChild(csRow('Need help?',t.help||'your Resourcing Lead'));
+    if(t.view==='blocked') body.appendChild(csEl('div',{class:'cd-warn',text:t.blocked_reason?('On hold: '+t.blocked_reason):'This step is on hold. Your Resourcing Lead will update you.'}));
+    if(t.notes) body.appendChild(csRow('Note',t.notes));
+
+    const action=csById('cd-action'); csClear(action);
+    if(csCanAct(t)){
+      const btn=csEl('button',{class:'cs-btn',text:'Mark as done'}); btn.type='button';
+      btn.onclick=()=>csComplete(t.id,btn,csById('cd-error'));
+      action.appendChild(btn);
     } else {
-      resourceRow.appendChild(csEl('span',{text:'Resource to be confirmed',style:{color:'var(--g500)',fontStyle:'italic'}}));
+      let msg='';
+      if(CS_READONLY()) msg='Preview only — buttons are switched off.';
+      else if(t.view==='done') msg='You’re all done with this one.';
+      else if(t.view==='locked') msg='You can do this as soon as the earlier step is finished.';
+      else if(t.view==='blocked') msg='Nothing to do for now.';
+      else msg='This step is handled by '+t.owner_label+' — there’s nothing for you to do here.';
+      action.appendChild(csEl('div',{class:'cd-hint',text:msg}));
     }
-
-    const contactRow=document.getElementById('cd-contact');
-    if(t.contact_for_help){
-      csClear(contactRow); contactRow.style.display='';
-      contactRow.appendChild(csEl('b',{text:'Contact for help: '}));
-      contactRow.appendChild(document.createTextNode(t.contact_for_help));
-    } else contactRow.style.display='none';
-
-    const depsRow=document.getElementById('cd-deps');
-    const deps=(t.depends_on||[]).map(id=>CS_LAST_DATA.tasks.find(x=>x.id===id)).filter(Boolean);
-    if(deps.length){
-      csClear(depsRow); depsRow.style.display='';
-      depsRow.appendChild(csEl('b',{text:'Depends on: '}));
-      depsRow.appendChild(document.createTextNode(deps.map(d=>d.title+' ('+(CS_STATUS_LABEL[d.status]||d.status)+')').join(', ')));
-    } else depsRow.style.display='none';
-
-    const blockedBox=document.getElementById('cd-blocked');
-    if(t.status==='BLOCKED'){ blockedBox.style.display=''; blockedBox.textContent=t.blocked_reason?('Blocked: '+t.blocked_reason):'This task is currently blocked.'; } else blockedBox.style.display='none';
-
-    const notesRow=document.getElementById('cd-notes');
-    if(t.notes){ csClear(notesRow); notesRow.style.display=''; notesRow.appendChild(csEl('b',{text:'Notes: '})); notesRow.appendChild(document.createTextNode(t.notes)); } else notesRow.style.display='none';
-
-    const actionWrap=document.getElementById('cd-action');
-    csClear(actionWrap);
-    if(t.status==='WAITING_ON_CONTRACTOR'){
-      const btn=csEl('button',{class:'ob-btn',text:'Mark as done',style:{width:'auto',padding:'10px 20px'}});
-      btn.onclick=()=>markContractorTaskDone(t.id, btn);
-      actionWrap.appendChild(btn);
-    }
-
-    document.getElementById('cs-detail-backdrop').style.display='flex';
+    csById('cs-detail-backdrop').style.display='flex';
+    csById('cd-close').focus();
   }
-  function closeTaskDetail(){ document.getElementById('cs-detail-backdrop').style.display='none'; }
-  document.getElementById('cd-close').onclick=closeTaskDetail;
-  document.getElementById('cs-detail-backdrop').addEventListener('click',(e)=>{ if(e.target.id==='cs-detail-backdrop') closeTaskDetail(); });
-  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeTaskDetail(); });
+  function closeTaskDetail(){ csById('cs-detail-backdrop').style.display='none'; }
+  csById('cd-close').onclick=closeTaskDetail;
+  csById('cs-detail-backdrop').addEventListener('click',e=>{ if(e.target.id==='cs-detail-backdrop') closeTaskDetail(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTaskDetail(); });
 
-  // ── Phase sidebar / phase view ──
+  // ── Navigation: overview ⇄ one phase ──
   function csShowHome(){
-    document.getElementById('cs-home-view').style.display='';
-    document.getElementById('cs-phase-view').style.display='none';
-    document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.remove('current'));
+    csById('cs-home-view').style.display=''; csById('cs-phase-view').style.display='none';
+    document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.toggle('current',h.dataset.phase==='home'));
   }
   function csShowPhase(phaseId){
     if(!CS_LAST_DATA) return;
-    document.getElementById('cs-home-view').style.display='none';
-    document.getElementById('cs-phase-view').style.display='';
-    document.getElementById('cs-phase-title').textContent=CS_PHASE_NAV_LABEL[phaseId];
-    const tasks=CS_LAST_DATA.tasks.filter(t=>t.phase===phaseId);
-    csFillList('cs-phase-tasks', tasks, 'No tasks in this phase.');
-    document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.toggle('current', h.dataset.phase===phaseId));
+    csById('cs-home-view').style.display='none'; csById('cs-phase-view').style.display='';
+    const ph=CS_LAST_DATA.phases.find(p=>p.id===phaseId);
+    csById('cs-phase-title').textContent=CS_PHASE_NAV_LABEL[phaseId]+(ph&&ph.total?' · '+ph.done+' of '+ph.total+' done':'');
+    csById('cs-phase-why').textContent=CS_PHASE_WHY[phaseId]||'';
+    const list=csById('cs-phase-tasks'); csClear(list);
+    const tasks=CS_LAST_DATA.tasks.filter(t=>t.phase===phaseId&&t.view!=='na');
+    if(!tasks.length) list.appendChild(csEl('p',{class:'cs-empty',text:'Nothing is needed in this phase for your engagement.'}));
+    tasks.forEach(t=>list.appendChild(csTaskRow(t)));
+    document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.toggle('current',h.dataset.phase===phaseId));
+    csById('cs-main').scrollTo({top:0});
   }
+  csById('cs-phase-back').onclick=()=>csShowHome();
   function csRenderSidebar(data){
-    const body=document.getElementById('cs-sb-body');
-    csClear(body);
-    const homeItem=csEl('div',{class:'ph-head current',text:'Home'});
-    homeItem.style.cursor='pointer';
-    homeItem.onclick=()=>{ csShowHome(); document.querySelectorAll('#cs-sb-body .ph-head').forEach(h=>h.classList.remove('current')); homeItem.classList.add('current'); };
-    body.appendChild(homeItem);
-    CS_PHASE_ORDER.forEach(p=>{
+    const body=csById('cs-sb-body'); csClear(body);
+    const mk=(key,label,badge,state)=>{
       const group=csEl('div',{class:'ph-group'});
-      const head=csEl('div',{class:'ph-head'});
-      head.dataset.phase=p;
-      head.style.cursor='pointer';
-      const gateOn=data.readiness[p];
-      head.innerHTML=`<span>${CS_PHASE_NAV_LABEL[p]}</span><span class="ph-badge ${gateOn?'done':''}">${gateOn?'✓':'○'}</span>`;
-      head.onclick=()=>{ csShowPhase(p); homeItem.classList.remove('current'); };
-      group.appendChild(head);
-      body.appendChild(group);
-    });
+      const head=csEl('div',{class:'ph-head'+(key==='home'?' current':'')}); head.dataset.phase=key;
+      head.tabIndex=0; head.setAttribute('role','button'); head.style.cursor='pointer';
+      head.appendChild(csEl('span',{text:label}));
+      if(badge!==null){ head.appendChild(csEl('span',{class:'ph-badge'+(state==='done'?' done':state==='active'?' active':''),text:badge})); }
+      const go=()=>{ key==='home'?csShowHome():csShowPhase(key); };
+      head.onclick=go; head.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+      group.appendChild(head); body.appendChild(group);
+    };
+    mk('home','Overview',null);
+    data.phases.forEach(p=>mk(p.id,CS_PHASE_NAV_LABEL[p.id],p.state==='not_needed'?'–':(p.state==='done'?'✓':p.done+'/'+p.total),p.state));
   }
 
-  function csReadinessLabel(data){
-    if(data.ready_to_start) return { text:'✓ Ready to start', cls:'ready' };
-    if(data.tasks.some(t=>t.status==='WAITING_ON_CONTRACTOR')) return { text:'Waiting on you', cls:'' };
-    if(data.tasks.some(t=>t.status==='WAITING_ON_CLIENT')) return { text:'Waiting on client', cls:'' };
-    if(data.tasks.some(t=>t.status==='IN_PROGRESS'||t.status==='WAITING_ON_INTERNAL')) return { text:'Waiting on NIIT', cls:'' };
-    return { text:'Getting ready', cls:'' };
+  function csHero(data){
+    const typeLabel=data.engagement_type==='associate'?'Associate':'Contractor';
+    csById('cs-hero-label').textContent='Your '+typeLabel.toLowerCase()+' onboarding';
+    csById('cs-name').textContent='Welcome, '+data.contractor_name.split(' ')[0];
+    csById('cs-project').textContent=data.project_name+(data.client?' · '+data.client:'')+(data.start_date?' · Planned start '+csDate(data.start_date):'');
+    const p=data.progress;
+    const txt=p.done+' of '+p.total+' steps done';
+    csById('cs-hero-done-lbl').textContent=txt; csById('cs-hero-pct-lbl').textContent=p.pct+'%';
+    csById('cs-hero-bar').style.width=p.pct+'%';
+    const gates=csById('cs-hero-gates'); csClear(gates);
+    data.phases.forEach(ph=>{ gates.appendChild(csEl('span',{class:'cs-gate '+(ph.state==='done'?'done':ph.state==='active'?'active':''),text:(CS_GLYPH[ph.state]||'○')+' '+CS_PHASE_SHORT[ph.id]+(ph.state==='not_needed'?' (not needed)':'')})); });
+    csById('cs-hero-explain').textContent=p.done===0
+      ?'Getting ready takes four phases. Some steps are yours and some are handled by the NIIT team — this page shows which is which, what’s waiting on what, and who to ask.'
+      :'Some steps are yours and some are handled by the NIIT team. Anything marked “Your step” is for you; everything else is being taken care of.';
+    document.title=(data.ready_to_start?'Ready to start':'Your onboarding')+' — NIIT CAS';
+    csById('cs-nav-sub').textContent=typeLabel;
+    csById('cs-nav-badge').textContent=CS_READONLY()?'Preview':typeLabel;
+    csById('cs-nav-status').textContent=data.ready_to_start?'✓ Ready to start':p.pct+'% done';
+  }
+
+  // One clear next step — the heart of the analyst experience, now for contractors.
+  function csNext(data){
+    const box=csById('cs-next'); csClear(box); box.className='cs-next';
+    const label=csEl('div',{class:'cs-next-label'}); box.appendChild(label);
+    const yours=data.tasks.filter(t=>t.view==='your_turn');
+    if(data.next.kind==='ready'){
+      box.classList.add('ready'); label.textContent='You’re ready';
+      box.appendChild(csEl('div',{class:'cs-next-title',text:'You’re ready to start'+(data.start_date?' on '+csDate(data.start_date):'')+'.'}));
+      box.appendChild(csEl('div',{class:'cs-next-why',text:'Everything is in place. If anything changes, ask '+(data.resourcing_lead||'your Resourcing Lead')+'.'}));
+      return;
+    }
+    if(data.next.kind==='your_turn'&&yours.length){
+      const t=yours[0]; label.textContent='Your next step';
+      box.appendChild(csEl('div',{class:'cs-next-title',text:t.title}));
+      box.appendChild(csEl('div',{class:'cs-next-why',text:t.why_it_matters||CS_PHASE_WHY[t.phase]||''}));
+      const actions=csEl('div',{class:'cs-next-actions'});
+      if(t.resource&&t.resource.url){ const a=csEl('a',{class:'cs-btn cs-btn-secondary',text:(t.resource.label||'Open resource')+' ↗'}); a.href=t.resource.url; a.target='_blank'; a.rel='noopener noreferrer'; actions.appendChild(a); }
+      if(csCanAct(t)){ const b=csEl('button',{class:'cs-btn',text:'Mark as done'}); b.type='button'; b.onclick=()=>csComplete(t.id,b,null); actions.appendChild(b); }
+      const more=csEl('button',{class:'cs-linkbtn',text:'Details'}); more.type='button'; more.onclick=()=>openTaskDetail(t.id); actions.appendChild(more);
+      box.appendChild(actions);
+      const meta=[]; if(yours.length>1) meta.push('+'+(yours.length-1)+' more step'+(yours.length>2?'s':'')+' for you below'); meta.push('Need help? '+t.help);
+      box.appendChild(csEl('div',{class:'cs-next-meta',style:{marginTop:'12px',marginBottom:'0'},text:meta.join(' · ')}));
+      return;
+    }
+    if(data.next.kind==='blocked'){
+      box.classList.add('hold'); label.textContent='On hold';
+      box.appendChild(csEl('div',{class:'cs-next-title',text:'One of your steps is on hold'}));
+      box.appendChild(csEl('div',{class:'cs-next-why',text:'Nothing you need to do right now. '+(data.resourcing_lead||'Your Resourcing Lead')+' will update this page when it moves.'}));
+      return;
+    }
+    label.textContent='Right now';
+    box.appendChild(csEl('div',{class:'cs-next-title',text:'Nothing needed from you at the moment'}));
+    const now=data.tasks.filter(t=>t.view==='with_niit'||t.view==='with_client').slice(0,3);
+    box.appendChild(csEl('div',{class:'cs-next-why',text:'The NIIT team is working through the next steps. This page updates as each one is finished, so check back any time to see what’s next for you.'}));
+    if(now.length){
+      const ul=csEl('ul',{class:'cd-list',style:{marginBottom:'6px'}});
+      now.forEach(t=>{ const li=csEl('li',{style:{fontSize:'12.5px',color:'var(--g600)'}}); li.appendChild(csEl('span',{text:'•'})); li.appendChild(csEl('span',{text:t.title+' — '+t.owner_label})); ul.appendChild(li); });
+      box.appendChild(ul);
+    }
   }
 
   function renderContractorSelf(data){
     CS_LAST_DATA=data;
-    document.getElementById('cs-name').textContent='Hi '+data.contractor_name;
-    document.getElementById('cs-project').textContent=data.project_name+(data.client?' · '+data.client:'');
-    document.getElementById('cs-nav-status').textContent=csReadinessLabel(data).text;
-
-    const rBox=document.getElementById('cs-readiness');
-    const rLabel=csReadinessLabel(data);
-    rBox.className='cs-readiness'+(rLabel.cls?' '+rLabel.cls:'');
-    csClear(rBox);
-    rBox.appendChild(csEl('div',{class:'cs-r-label',text:rLabel.text}));
-    const gatesRow=csEl('div',{class:'cs-r-gates'});
-    CS_PHASE_ORDER.forEach(p=>gatesRow.appendChild(csEl('span',{class:'cs-r-gate'+(data.readiness[p]?' on':''),text:(data.readiness[p]?'✓ ':'○ ')+CS_PHASE_SHORT[p]})));
-    rBox.appendChild(gatesRow);
-
-    csRenderSidebar(data);
-
-    const yours=data.tasks.filter(t=>t.status==='WAITING_ON_CONTRACTOR');
-    const niit=data.tasks.filter(t=>t.status==='IN_PROGRESS'||t.status==='WAITING_ON_INTERNAL');
-    const client=data.tasks.filter(t=>t.status==='WAITING_ON_CLIENT');
-    const blocked=data.tasks.filter(t=>t.status==='BLOCKED');
-    const upcoming=data.tasks.filter(t=>t.status==='NOT_STARTED');
-    const done=data.tasks.filter(t=>t.status==='COMPLETE');
-
-    // Single prioritized next action at the top of the home view.
-    const nextBox=document.getElementById('cs-next');
-    csClear(nextBox);
-    if(yours.length){
-      nextBox.appendChild(csEl('div',{class:'cs-next-label',text:'Your next action'}));
-      nextBox.appendChild(csEl('div',{class:'cs-next-title',text:yours[0].title}));
-      const btn=csEl('button',{class:'cs-task-action',text:'Mark as done'});
-      btn.onclick=()=>markContractorTaskDone(yours[0].id, btn);
-      nextBox.appendChild(btn);
-      if(yours.length>1){
-        const more=csEl('div',{style:{fontSize:'11.5px',color:'var(--g500)',marginTop:'8px'},text:`+${yours.length-1} more waiting on you`});
-        nextBox.appendChild(more);
-      }
-    } else {
-      nextBox.appendChild(csEl('div',{class:'cs-next-label',text:'Your next action'}));
-      nextBox.appendChild(csEl('div',{class:'cs-allset',text:"You're all set for now. We'll let you know when something needs you."}));
-    }
-
-    csFillList('cs-niit', niit, 'Nothing in motion right now.');
-    csFillList('cs-client', client, 'Nothing waiting on the client right now.');
-    csFillList('cs-blocked', blocked, 'Nothing blocked right now.');
-    csFillList('cs-upcoming', upcoming, 'No upcoming steps — everything is either in motion or done.');
-    csFillList('cs-done', done, 'Nothing completed yet.');
-
-    const done18=data.tasks.filter(t=>t.status!=='NOT_APPLICABLE');
-    const doneCount=done18.filter(t=>t.status==='COMPLETE').length;
-    const pct=done18.length?Math.round(doneCount/done18.length*100):0;
-    document.getElementById('cs-sb-done-lbl').textContent=`${doneCount}/${done18.length} tasks`;
-    document.getElementById('cs-sb-pct-lbl').textContent=pct+'%';
-    document.getElementById('cs-sb-bar').style.width=pct+'%';
-
-    const contactsWrap=document.getElementById('cs-contacts');
-    csClear(contactsWrap);
-    const contacts=[['Resourcing Lead',data.resourcing_lead],['Project Lead',data.project_lead],['Delivery Manager',data.delivery_manager]].filter(([,name])=>name);
-    if(!contacts.length){ contactsWrap.appendChild(csEmpty('Contacts will appear here once assigned.')); }
-    else contacts.forEach(([role,name])=>{
-      const row=csEl('div');
-      row.appendChild(csEl('b',{text:role+': '}));
-      row.appendChild(document.createTextNode(name));
-      contactsWrap.appendChild(row);
+    csHero(data); csRenderSidebar(data); csNext(data);
+    const secs=csById('cs-sections'); csClear(secs);
+    const by=v=>data.tasks.filter(t=>t.view===v);
+    const add=el=>{ if(el) secs.appendChild(el); };
+    add(csSection('Your steps',[...by('your_turn'),...by('locked')],{note:'The steps that are yours. Some open once an earlier step is finished.'}));
+    add(csSection('On hold',by('blocked'),{}));
+    add(csSection('With the NIIT team',by('with_niit'),{collapsed:by('with_niit').length>5,note:'Handled for you — nothing to do, just so you can see what’s happening.'}));
+    add(csSection('With the client',by('with_client'),{}));
+    add(csSection('Coming up',by('upcoming'),{collapsed:true}));
+    add(csSection('Completed',by('done'),{collapsed:true}));
+    const contacts=csById('cs-contacts'); csClear(contacts);
+    [['Resourcing Lead',data.resourcing_lead,'Your first point of contact for anything.'],['Project Lead',data.project_lead,''],['Delivery Manager',data.delivery_manager,'']].filter(c=>c[1]).forEach(c=>{
+      const row=csEl('div'); row.appendChild(csEl('b',{text:c[0]+': '})); row.appendChild(document.createTextNode(c[1]+(c[2]?' — '+c[2]:''))); contacts.appendChild(row);
     });
+    if(!contacts.firstChild) contacts.appendChild(csEl('p',{class:'cs-empty',text:'Contacts will appear here once assigned.'}));
+    const done=data.progress.done, total=data.progress.total;
+    csById('cs-sb-done-lbl').textContent=done+' of '+total+' steps'; csById('cs-sb-pct-lbl').textContent=data.progress.pct+'%'; csById('cs-sb-bar').style.width=data.progress.pct+'%';
+    const banner=csById('cs-preview-banner');
+    if(CS_READONLY()){ banner.style.display=''; banner.textContent='Preview — this is exactly what '+data.contractor_name+' sees. It’s read-only: nothing here can be changed, and no invitation is affected.'; } else banner.style.display='none';
   }
 
-  async function loadContractorSelf(token){
-    try{
-      const r=await fetch('/api/contractor-invite?token='+encodeURIComponent(token));
-      const data=await r.json();
-      if(!r.ok || !data.found){
-        document.getElementById('onboarding').style.display='';
-        document.getElementById('contractor-self').style.display='none';
-        obShowStep('ob-contractor-step');
-        const p=document.createElement('p');
-        p.style.cssText='font-size:12.5px;color:#DC2626;margin-top:10px;';
-        p.textContent=data.error||"This invitation link isn't valid. Please contact your Resourcing Lead.";
-        document.getElementById('ob-contractor-step').appendChild(p);
-        return;
-      }
-      CS_CURRENT_TOKEN=token;
-      document.getElementById('onboarding').style.display='none';
-      document.getElementById('contractor-self').style.display='flex';
-      document.getElementById('contractor-self').style.flexDirection='column';
-      csShowHome();
-      renderContractorSelf(data);
-    }catch(e){
-      document.getElementById('onboarding').style.display='';
+  // ── Loading + problem states ──
+  function csShowProblem(kind,message,retry){
+    csById('onboarding').style.display='none'; csById('contractor-self').style.display='none';
+    const box=csById('cs-invalid'); box.style.display='flex';
+    const title=csById('cs-invalid-title'), body=csById('cs-invalid-body'), act=csById('cs-invalid-actions'); csClear(act);
+    if(kind==='invalid'){
+      title.textContent='This link isn’t working';
+      body.textContent='It may have expired, or a newer link may have replaced it. Please ask your Resourcing Lead to send you a new one — your onboarding is safe and waiting.';
+    } else if(kind==='signin'){
+      title.textContent='Sign in to preview';
+      body.textContent='Previews are for NAYA admins. Sign in, then open the preview again.';
+      const a=csEl('a',{class:'cs-btn',text:'Sign in to NAYA'}); a.href='/login?next='+encodeURIComponent(location.pathname+location.search); act.appendChild(a);
+    } else {
+      title.textContent='We couldn’t load your onboarding';
+      body.textContent=message||'Something went wrong on our side. Please try again in a moment.';
+      if(retry){ const b=csEl('button',{class:'cs-btn',text:'Try again'}); b.type='button'; b.onclick=retry; act.appendChild(b); }
     }
   }
-  document.getElementById('cs-back').onclick=(e)=>{
-    e.preventDefault();
-    CS_CURRENT_TOKEN=null; CS_LAST_DATA=null;
-    document.getElementById('contractor-self').style.display='none';
-    document.getElementById('onboarding').style.display='';
-    obShowStep('ob-step-journey');
-  };
+  async function csFetch(){
+    const url=CS_PREVIEW_ID?'/api/contractor-invite?id='+encodeURIComponent(CS_PREVIEW_ID):'/api/contractor-invite?token='+encodeURIComponent(CS_CURRENT_TOKEN);
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      const data=await r.json().catch(()=>({}));
+      return {ok:r.ok&&data.found,status:r.status,data};
+    }catch(e){ return {ok:false,status:0,data:{}}; }
+  }
+  async function loadContractorSelf(token,previewId){
+    CS_CURRENT_TOKEN=token||null; CS_PREVIEW_ID=previewId||null;
+    const res=await csFetch();
+    if(!res.ok){
+      if(res.status===0) return csShowProblem('error','We couldn’t reach the server. Check your connection and try again.',()=>loadContractorSelf(token,previewId));
+      if(res.status===429) return csShowProblem('error','Too many attempts in a short time. Please wait a few minutes and try again.',()=>loadContractorSelf(token,previewId));
+      if(res.status===401&&CS_PREVIEW_ID) return csShowProblem('signin');
+      if(res.status===404&&CS_PREVIEW_ID) return csShowProblem('error','That person could not be found.');
+      if(res.status>=500) return csShowProblem('error',null,()=>loadContractorSelf(token,previewId));
+      return csShowProblem('invalid');
+    }
+    csById('onboarding').style.display='none'; csById('cs-invalid').style.display='none';
+    const root=csById('contractor-self'); root.style.display='flex'; root.style.flexDirection='column';
+    renderContractorSelf(res.data); csShowHome();
+  }
 
   document.getElementById('ob-start').onclick=()=>{
     const buddy=document.getElementById('ob-buddy').value.trim();
@@ -2176,11 +2317,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('ob-resume-link').onclick=(e)=>{ e.preventDefault(); showResumeStep(); };
   document.getElementById('ob-resume-back').onclick=(e)=>{ e.preventDefault(); showStep1(); };
 
-  const inviteToken=new URLSearchParams(window.location.search).get('token')||new URLSearchParams(window.location.search).get('invite');
-  if(inviteToken){
-    loadContractorSelf(inviteToken);
-    return;
-  }
+  const qs=new URLSearchParams(window.location.search);
+  const previewId=qs.get('preview');
+  const inviteToken=qs.get('token')||qs.get('invite'); // ?token= is canonical; ?invite= still honoured for older links
+  if(previewId){ loadContractorSelf(null,previewId); return; }
+  if(inviteToken){ loadContractorSelf(inviteToken); return; }
 
   const existing=loadState();
   if(existing){

@@ -46,6 +46,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const d = await r.json();
     state = d.state || null;
   } catch { /* fall through to not-found */ }
+  if (!state) return { notFound: true };
   return { props: { state } };
 };
 
