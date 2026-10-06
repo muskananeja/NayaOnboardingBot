@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   PHASE_LABELS, PHASE_ORDER, OWNER_LABELS, STATUS_LABELS, CLASSIFICATION_LABELS,
-  taskProgress, isReadyToStart, readinessGates, blockingDependencies,
+  taskProgress, isReadyToStart, readinessGates, blockingDependencies, taskView, phaseSummaries,
 } from '../../lib/contractorTasks';
 import type { ContractorRecord, ContractorTask, TaskStatus } from '../../lib/contractorTasks';
 
@@ -131,8 +131,13 @@ export function TaskDetailModal({ task, allTasks, onClose, onUpdate }: {
         <div style={{ marginTop: 16 }}>
           <div className="naya-label">Update status</div>
           <select value={status} onChange={e => setStatus(e.target.value as TaskStatus)} className="naya-input">
-            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            {Object.entries(STATUS_LABELS)
+              .filter(([k]) => k !== 'WAITING_ON_CONTRACTOR' || task.owner === 'contractor')
+              .map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
+          {task.owner === 'contractor' && (
+            <div className="naya-hint">This is the contractor’s own step: they can mark it done themselves from their link once any earlier step is complete — you don’t need to release it.</div>
+          )}
         </div>
 
         <div style={{ marginTop: 10 }}>
@@ -171,145 +176,186 @@ export function ContractorDetail({ record, onRefresh }: { record: ContractorReco
   const [inviteLink, setInviteLink] = useState('');
   const [busy, setBusy] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [confirmReplace, setConfirmReplace] = useState(false);
 
   const progress = taskProgress(record.tasks);
   const ready = isReadyToStart(record.tasks);
   const gates = readinessGates(record.tasks);
+  const phases = phaseSummaries(record.tasks);
   const hasInvite = !!record.invite_token_hash;
   const expired = record.invite_expires_at ? record.invite_expires_at < Date.now() : false;
+  const expiresBeforeStart = hasInvite && !expired && !!record.invite_expires_at && !!record.start_date
+    && new Date(record.invite_expires_at).toISOString().slice(0, 10) < record.start_date;
+  const typeLabel = record.engagement_type === 'associate' ? 'Associate' : 'Contractor';
+
+  const views = record.tasks.map(t => ({ t, v: taskView(t, record.tasks) }));
+  const nextYours = views.find(x => x.v === 'your_turn');
+  const nextTeam = views.find(x => x.v === 'with_niit' || x.v === 'with_client');
+  const blockedCount = views.filter(x => x.v === 'blocked').length;
+  const unresolved = record.tasks.filter(t => t.id.endsWith('_CONF') && t.status !== 'COMPLETE' && t.status !== 'NOT_APPLICABLE');
+  const notCleared = phases.filter(p => p.state !== 'done' && p.state !== 'not_needed').map(p => p.label);
 
   const updateTask = async (taskId: string, status: TaskStatus, note: string) => {
     const r = await fetch('/api/contractor-task', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: record.contractor_id, taskId, status, note }),
     });
-    const d = await r.json();
+    const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.error || 'Could not save this update.');
     onRefresh();
   };
 
   const generateOrReplace = async () => {
-    setBusy(true); setInviteMsg('');
+    if (hasInvite && !confirmReplace) { setConfirmReplace(true); return; }
+    setBusy(true); setInviteMsg(''); setConfirmReplace(false);
     try {
       const r = await fetch('/api/contractor-invite-regenerate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: record.contractor_id }),
       });
-      const d = await r.json();
+      const d = await r.json().catch(() => ({}));
       if (!r.ok) { setInviteMsg(d.error || 'Could not generate a link.'); return; }
       setInviteLink(d.invite_token ? `${window.location.origin}/?token=${d.invite_token}` : '');
-      setInviteMsg(hasInvite ? 'New invitation link generated — the previous link no longer works.' : 'Invitation link generated.');
+      setInviteMsg(hasInvite ? 'New link generated. The previous link no longer works.' : 'Invitation link generated.');
       onRefresh();
-    } finally { setBusy(false); }
+    } catch { setInviteMsg('Could not reach the server. Nothing was changed.'); }
+    finally { setBusy(false); }
   };
 
   const copyLink = async () => {
     try { await navigator.clipboard.writeText(inviteLink); setInviteMsg('Link copied to clipboard.'); }
-    catch { setInviteMsg('Could not copy automatically — select and copy the link below.'); }
+    catch { setInviteMsg('Couldn’t copy automatically — select the link and copy it.'); }
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
         <div>
+          <div className="naya-label" style={{ marginBottom: 2 }}>{typeLabel} onboarding</div>
           <h2 style={{ margin: 0, fontSize: 20, color: 'var(--navy-dark)' }}>{record.contractor_name}</h2>
           <div style={{ color: 'var(--g600)', fontSize: 13.5 }}>
-            {record.engagement_type === 'associate' ? 'Associate' : 'Contractor'} · {record.project_name}{record.client ? ` · ${record.client}` : ''}
+            {record.project_name}{record.client ? ` · ${record.client}` : ''}{record.country_of_work ? ` · ${record.country_of_work}` : ''}
           </div>
+          <div style={{ color: 'var(--g500)', fontSize: 12, marginTop: 2 }}>{record.contractor_email}</div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div className="naya-label" style={{ marginBottom: 2 }}>Ready to start</div>
-          <span className={`naya-chip ${ready ? 'naya-chip-teal' : 'naya-chip-gray'}`}>{ready ? 'Yes' : 'Not yet'}</span>
-        </div>
+        <span className={`naya-chip ${ready ? 'naya-chip-teal' : 'naya-chip-gray'}`}>{ready ? 'Ready to start' : 'Not ready to start yet'}</span>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, marginTop: 14, flexWrap: 'wrap' }}>
+      <div className="naya-card" style={{ marginTop: 16, background: ready ? 'var(--teal-pale)' : 'var(--navy-light)', borderColor: 'transparent' }} aria-label="Where this stands">
+        <div className="naya-label">Where this stands</div>
+        <div style={{ fontSize: 13.5, color: 'var(--navy-dark)', fontWeight: 700 }}>
+          {progress.done} of {progress.total} steps done ({progress.pct}%)
+        </div>
+        <div className="naya-progress" style={{ margin: '8px 0 10px', maxWidth: 'none' }} aria-hidden="true"><span style={{ width: `${progress.pct}%` }} /></div>
+        {ready ? (
+          <div style={{ fontSize: 13 }}>Every required phase is complete. Planned start {fmtDate(record.start_date)}.</div>
+        ) : (
+          <>
+            {nextYours && <div style={{ fontSize: 13, marginBottom: 4 }}><b>Waiting on {record.contractor_name.split(' ')[0]}:</b> {nextYours.t.title}</div>}
+            {nextTeam && <div style={{ fontSize: 13, marginBottom: 4 }}><b>Next for the team:</b> {nextTeam.t.title} <span style={{ color: 'var(--g500)' }}>· Owner: {OWNER_LABELS[nextTeam.t.owner]}</span></div>}
+            {blockedCount > 0 && <div style={{ fontSize: 13, color: '#B91C1C', marginBottom: 4 }}><b>{blockedCount} step{blockedCount > 1 ? 's' : ''} on hold</b></div>}
+            {unresolved.length > 0 && <div style={{ fontSize: 13, color: '#C2410C', marginBottom: 4 }}><b>{unresolved.length} to confirm:</b> {unresolved.map(u => u.title.replace('Confirm requirement: ', '')).join(', ')}</div>}
+            <div className="naya-hint">Not ready until: {notCleared.join(' · ') || 'final confirmation'}.</div>
+          </>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', gap: 18, marginTop: 14, flexWrap: 'wrap' }}>
         <MetaItem label="Planned start" value={fmtDate(record.start_date)} />
+        {record.end_date && <MetaItem label="Planned end" value={fmtDate(record.end_date)} />}
         <MetaItem label="Resourcing Lead" value={record.resourcing_lead || 'Unassigned'} />
         <MetaItem label="Project Lead" value={record.project_lead || 'Not yet confirmed'} />
-        <MetaItem label="Progress" value={`${progress.done}/${progress.total} tasks (${progress.pct}%)`} />
+        <MetaItem label="Delivery Manager" value={record.delivery_manager || 'Not yet set'} />
       </div>
 
       <div className="naya-card" style={{ marginTop: 16, background: 'var(--g50)' }}>
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: 'var(--navy-dark)' }}>Invitation</div>
-        {!hasInvite && <div style={{ fontSize: 13, color: 'var(--g600)', marginBottom: 8 }}>No invitation has been generated yet.</div>}
-        {hasInvite && !expired && <div style={{ fontSize: 13, color: '#047857', marginBottom: 8 }}>Active — expires {record.invite_expires_at ? fmtDate(new Date(record.invite_expires_at).toISOString().slice(0, 10)) : ''}</div>}
-        {hasInvite && expired && <div className="naya-error" style={{ marginBottom: 8 }}>Expired — generate a new one to invite this person.</div>}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button onClick={generateOrReplace} disabled={busy} className="naya-btn naya-btn-secondary">
-            {busy ? 'Working…' : hasInvite ? 'Replace invitation link' : 'Generate invitation link'}
-          </button>
-          <button onClick={() => setPreviewOpen(true)} className="naya-btn naya-btn-secondary">Preview journey</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--navy-dark)' }}>Invitation</div>
+          {!hasInvite && <span className="naya-chip naya-chip-gray">Not sent</span>}
+          {hasInvite && !expired && <span className="naya-chip naya-chip-teal">Link active · expires {record.invite_expires_at ? fmtDate(new Date(record.invite_expires_at).toISOString().slice(0, 10)) : ''}</span>}
+          {hasInvite && expired && <span className="naya-chip naya-chip-red">Link expired</span>}
         </div>
-        {inviteMsg && <div style={{ fontSize: 12.5, color: 'var(--g600)', marginTop: 8 }}>{inviteMsg}</div>}
+        {expiresBeforeStart && <div className="naya-hint" style={{ color: '#92400E', marginTop: 8 }}>This link expires before the planned start date. Replace it closer to the start if {record.contractor_name.split(' ')[0]} still needs access.</div>}
+        {hasInvite && <div className="naya-hint" style={{ marginTop: 8 }}>For security, links can’t be shown again after they’re created. If the link was lost, replace it — the old one stops working immediately.</div>}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+          <button onClick={generateOrReplace} disabled={busy} className={confirmReplace ? 'naya-btn naya-btn-primary' : 'naya-btn naya-btn-secondary'}>
+            {busy ? 'Working…' : confirmReplace ? 'Yes, replace — old link stops working' : hasInvite ? 'Replace invitation link' : 'Generate invitation link'}
+          </button>
+          {confirmReplace && <button onClick={() => setConfirmReplace(false)} className="naya-btn naya-btn-secondary">Cancel</button>}
+          <button onClick={() => setPreviewOpen(true)} className="naya-btn naya-btn-secondary">Preview what {record.contractor_name.split(' ')[0]} sees</button>
+        </div>
+        {inviteMsg && <div role="status" style={{ fontSize: 12.5, color: 'var(--g600)', marginTop: 10 }}>{inviteMsg}</div>}
         {inviteLink && (
           <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <input readOnly value={inviteLink} className="naya-input" style={{ flex: 1, minWidth: 220, fontFamily: 'monospace', fontSize: 12 }} onFocus={e => e.currentTarget.select()} />
+            <input readOnly aria-label="New invitation link" value={inviteLink} className="naya-input" style={{ flex: 1, minWidth: 220, fontFamily: 'monospace', fontSize: 12 }} onFocus={e => e.currentTarget.select()} />
             <button onClick={copyLink} className="naya-btn naya-btn-secondary">Copy</button>
             <a href={inviteLink} target="_blank" rel="noreferrer" className="naya-btn naya-btn-secondary">Open</a>
           </div>
         )}
-        {hasInvite && !expired && <div style={{ fontSize: 11.5, color: 'var(--g400)', marginTop: 6 }}>Previously issued links aren't stored or retrievable — replace if the original was lost.</div>}
       </div>
 
-      {PHASE_ORDER.map(phase => (
-        <div key={phase} style={{ marginTop: 18 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy-dark)' }}>{PHASE_LABELS[phase]}</div>
-            <span className={`naya-chip ${gates[phase] ? 'naya-chip-teal' : 'naya-chip-gray'}`}>{gates[phase] ? 'Cleared' : 'In progress'}</span>
-          </div>
-          {record.tasks.filter(t => t.phase === phase).map(t => (
-            <div key={t.id} onClick={() => setActiveTask(t)} className="naya-task-row">
-              <span className="naya-task-dot" style={{ background: STATUS_COLOR[t.status] }} />
-              <span className="naya-task-title" style={{ opacity: t.status === 'NOT_APPLICABLE' ? 0.5 : 1 }}>{t.title}</span>
-              <span className="naya-task-owner">{OWNER_LABELS[t.owner]}</span>
+      {PHASE_ORDER.map(phase => {
+        const ps = phases.find(p => p.id === phase)!;
+        const chip = ps.state === 'done' ? ['naya-chip-teal', 'Done'] : ps.state === 'active' ? ['naya-chip-navy', 'In progress'] : ps.state === 'not_needed' ? ['naya-chip-gray', 'Not needed'] : ['naya-chip-gray', 'Not started'];
+        const phaseTasks = record.tasks.filter(t => t.phase === phase);
+        if (!phaseTasks.length) return null;
+        return (
+          <div key={phase} style={{ marginTop: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy-dark)' }}>{PHASE_LABELS[phase]} <span style={{ color: 'var(--g400)', fontWeight: 600, fontSize: 12 }}>{ps.done}/{ps.total}</span></div>
+              <span className={`naya-chip ${chip[0]}`}>{chip[1]}</span>
             </div>
-          ))}
-        </div>
-      ))}
+            {phaseTasks.map(t => {
+              const v = taskView(t, record.tasks);
+              const waitingOn = v === 'locked' || v === 'upcoming' ? blockingDependencies(record.tasks, t).map(d => d.title).join(', ') : '';
+              return (
+                <div key={t.id} onClick={() => setActiveTask(t)} className="naya-task-row" role="button" tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTask(t); } }}
+                  aria-label={`${t.title}, ${STATUS_LABELS[t.status]}, owner ${OWNER_LABELS[t.owner]}`}>
+                  <span className="naya-task-dot" style={{ background: STATUS_COLOR[t.status] }} />
+                  <span className="naya-task-title" style={{ opacity: t.status === 'NOT_APPLICABLE' ? 0.5 : 1 }}>
+                    {t.title}
+                    {waitingOn && <span className="naya-cell-sub" style={{ display: 'block' }}>After: {waitingOn}</span>}
+                  </span>
+                  <span className="naya-task-owner">{STATUS_LABELS[t.status]} · {OWNER_LABELS[t.owner]}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
 
       {activeTask && (
         <TaskDetailModal task={activeTask} allTasks={record.tasks} onClose={() => setActiveTask(null)}
           onUpdate={(status, note) => updateTask(activeTask.id, status, note)} />
       )}
-      {previewOpen && <PreviewModal contractorId={record.contractor_id} onClose={() => setPreviewOpen(false)} />}
+      {previewOpen && <PreviewModal contractorId={record.contractor_id} name={record.contractor_name} onClose={() => setPreviewOpen(false)} />}
     </div>
   );
 }
 
-function PreviewModal({ contractorId, onClose }: { contractorId: string; onClose: () => void }) {
-  const [data, setData] = useState<any>(null);
-  const [error, setError] = useState('');
+// The preview is the real contractor page in read-only mode (same code, same
+// layout), not a lookalike — so what the admin reviews is exactly what the
+// contractor sees. It reads through the admin-only preview endpoint, so it
+// neither needs nor touches the invitation link.
+function PreviewModal({ contractorId, name, onClose }: { contractorId: string; name: string; onClose: () => void }) {
   useEffect(() => {
-    fetch(`/api/contractor-invite?id=${encodeURIComponent(contractorId)}`)
-      .then(r => r.json().then(d => ({ ok: r.ok, d })))
-      .then(({ ok, d }) => ok ? setData(d) : setError(d.error || 'Could not load preview.'))
-      .catch(() => setError('Could not load preview.'));
-  }, [contractorId]);
-
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  const src = `/?preview=${encodeURIComponent(contractorId)}`;
   return (
     <div className="naya-modal-backdrop" onClick={onClose}>
-      <div className="naya-modal" onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <h2 style={{ fontSize: 16, margin: 0, color: 'var(--navy-dark)' }}>Contractor journey preview</h2>
-          <button onClick={onClose} className="naya-modal-close" aria-label="Close">×</button>
-        </div>
-        <div style={{ fontSize: 11.5, color: 'var(--g400)', margin: '6px 0 12px' }}>Read-only — this does not generate or affect any real invitation.</div>
-        {error && <div className="naya-error">{error}</div>}
-        {!data && !error && <div style={{ fontSize: 13, color: 'var(--g400)' }}>Loading…</div>}
-        {data && (
-          <div>
-            <div style={{ fontWeight: 700, color: 'var(--navy-dark)' }}>{data.contractor_name}</div>
-            <div style={{ fontSize: 13, color: 'var(--g600)', marginBottom: 10 }}>{data.project_name}{data.client ? ` · ${data.client}` : ''} · {data.ready_to_start ? 'Ready to start' : 'Not yet ready'}</div>
-            {data.tasks.map((t: any) => (
-              <div key={t.id} className="naya-task-row" style={{ cursor: 'default' }}>
-                <span className="naya-task-dot" style={{ background: STATUS_COLOR[t.status as TaskStatus] }} />
-                <span className="naya-task-title">{t.title}</span>
-                <span className="naya-task-owner">{STATUS_LABELS[t.status as TaskStatus] || t.status}</span>
-              </div>
-            ))}
+      <div className="naya-modal naya-modal-wide" role="dialog" aria-modal="true" aria-label={`Preview of ${name}'s onboarding`} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 18px', borderBottom: '1px solid var(--g200)', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ fontWeight: 700, color: 'var(--navy-dark)', fontSize: 14 }}>Preview · what {name.split(' ')[0]} sees <span className="naya-chip naya-chip-gray" style={{ marginLeft: 8 }}>Read-only</span></div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <a href={src} target="_blank" rel="noreferrer" className="naya-link">Open in new tab ↗</a>
+            <button onClick={onClose} className="naya-btn naya-btn-secondary" style={{ padding: '7px 14px' }}>Close preview</button>
           </div>
-        )}
+        </div>
+        <iframe src={src} title={`Preview of ${name}'s onboarding`} />
       </div>
     </div>
   );

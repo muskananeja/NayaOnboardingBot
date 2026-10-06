@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { storeGet, storeSet } from '../../lib/store';
-import { blockingDependencies, migrateContractorRecord } from '../../lib/contractorTasks';
+import { blockingDependencies, migrateContractorRecord, ALL_STATUSES } from '../../lib/contractorTasks';
 import type { ContractorRecord, TaskStatus } from '../../lib/contractorTasks';
 import { requireAdmin } from '../../lib/auth';
 import { writeAudit } from '../../lib/audit';
@@ -13,7 +13,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!ok) return;
 
   const { id, taskId, status, note } = req.body as { id: string; taskId: string; status: TaskStatus; note?: string };
-  if (!id || !taskId || !status) return res.status(400).json({ error: 'Missing id, taskId, or status' });
+  if (typeof id !== 'string' || typeof taskId !== 'string' || typeof status !== 'string' || !id || !taskId || !status) {
+    return res.status(400).json({ error: 'Missing id, taskId, or status' });
+  }
+  if (!ALL_STATUSES.includes(status)) return res.status(400).json({ error: 'Unknown status' });
+  if (note !== undefined && (typeof note !== 'string' || note.length > 1000)) return res.status(400).json({ error: 'Note must be text of 1000 characters or fewer' });
 
   if (REASON_REQUIRED.includes(status) && !note?.trim()) {
     return res.status(400).json({ error: `A reason is required to mark a task ${status === 'BLOCKED' ? 'Blocked' : 'Not applicable'}.` });
@@ -25,6 +29,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const task = record.tasks.find(t => t.id === taskId);
   if (!task) return res.status(404).json({ error: 'Task not found on this contractor' });
+
+  // "Waiting on contractor" means the contractor must act — only valid for work the contractor owns.
+  if (status === 'WAITING_ON_CONTRACTOR' && task.owner !== 'contractor') {
+    return res.status(400).json({ error: 'Only contractor-owned tasks can be set to "Waiting on contractor".' });
+  }
 
   if (status === 'COMPLETE') {
     const blockers = blockingDependencies(record.tasks, task);

@@ -151,17 +151,15 @@ describe('contractor self-serve task completion', () => {
     expect(completeRes._status).toBe(200);
   });
 
-  it('rejects a contractor completing a task not currently waiting on them', async () => {
+  it('rejects a contractor completing internally owned work, however the request is crafted', async () => {
     const cookie = await adminCookieHeader();
-    const createReq = mockReq({ method: 'POST', body: baseContractorBody({ contractor_id: 'c_self_2' }), headers: { cookie } });
     const createRes = mockRes();
-    await callHandler(contractorStateHandler, createReq, createRes);
+    await callHandler(contractorStateHandler, mockReq({ method: 'POST', body: baseContractorBody({ contractor_id: 'c_self_2' }), headers: { cookie } }), createRes);
     const token = createRes._json.invite_token;
 
-    const req = mockReq({ method: 'POST', body: { token, taskId: 'T1' } });
     const res = mockRes();
-    await callHandler(contractorSelfTaskHandler, req, res);
-    expect(res._status).toBe(409);
+    await callHandler(contractorSelfTaskHandler, mockReq({ method: 'POST', body: { token, taskId: 'K0' } }), res);
+    expect(res._status).toBe(403);
   });
 
   it('rejects an invalid token outright', async () => {

@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 /** Redirects to /login if there's no valid admin session. Returns whether the check has finished and passed. */
-export function useAdminGuard(): { checked: boolean; allowed: boolean } {
+export function useAdminGuard(): { checked: boolean; allowed: boolean; ephemeral: boolean } {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
   const [allowed, setAllowed] = useState(false);
+  const [ephemeral, setEphemeral] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -15,6 +16,7 @@ export function useAdminGuard(): { checked: boolean; allowed: boolean } {
         if (cancelled) return;
         if (d.admin) {
           setAllowed(true);
+          setEphemeral(!!d.ephemeral_storage);
           setChecked(true);
         } else {
           router.replace(`/login?next=${encodeURIComponent(router.asPath)}`);
@@ -27,5 +29,5 @@ export function useAdminGuard(): { checked: boolean; allowed: boolean } {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { checked, allowed };
+  return { checked, allowed, ephemeral };
 }

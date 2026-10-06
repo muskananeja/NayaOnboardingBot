@@ -17,7 +17,9 @@ export default function Login() {
       });
       const d = await r.json();
       if (!r.ok) { setError(d.error || 'Incorrect password.'); return; }
-      router.push('/dashboard');
+      // Return to where the admin was heading — same-site relative paths only.
+      const next = typeof router.query.next === 'string' ? router.query.next : '';
+      router.push(next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard');
     } catch {
       setError('Could not sign in. Please try again.');
     } finally {
