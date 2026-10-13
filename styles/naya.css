@@ -44,7 +44,7 @@ body {
 button { cursor: pointer; font-family: inherit; }
 a { color: var(--primary); text-decoration: none; }
 
-/* ── Top nav — same bar used on every employee/contractor screen ── */
+/* ── Top nav — same bar used on every NAYA screen ── */
 .naya-topnav {
   height: 56px;
   background: linear-gradient(90deg, var(--navy-dark) 0%, var(--navy) 100%);
@@ -120,7 +120,7 @@ a { color: var(--primary); text-decoration: none; }
 .naya-chip-gray { background: var(--g100); color: var(--g500); }
 .naya-chip-navy { background: var(--navy-light); color: var(--navy); }
 
-/* ── Task rows (shared between admin + contractor task lists) ── */
+/* ── Task rows ── */
 .naya-task-row { display: flex; align-items: center; gap: 10px; padding: 9px 4px; cursor: pointer; border-bottom: 1px solid var(--g100); border-radius: 6px; }
 .naya-task-row:hover { background: var(--g50); }
 .naya-task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
