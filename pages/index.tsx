@@ -2,7 +2,7 @@ import type { GetServerSideProps } from 'next';
 import fs from 'fs';
 import path from 'path';
 
-// The employee/contractor conversational joiner is a single self-contained
+// The analyst conversational joiner is a single self-contained
 // static file (public/index.html) rather than a React page — serving it at
 // `/` (not `/index.html`) means streaming its raw bytes directly from here.
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {

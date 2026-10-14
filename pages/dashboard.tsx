@@ -1,13 +1,11 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useAdminGuard } from '../lib/useAdminGuard';
-import { analystToCard, contractorToCard } from '../lib/people';
+import { analystToCard } from '../lib/people';
 import type { PersonCard } from '../lib/people';
-import { migrateContractorRecord } from '../lib/contractorTasks';
-import { ContractorDetail, timeSince } from './contractors/index';
 import NayaHeader from '../components/NayaHeader';
 
-// ── Employee ("analyst") engine — unchanged from the pre-contractor phases.
+// ── Analyst engine.
 // Exported because lib/people.ts's analystToCard derives off these. ──
 export type AnalystPhase = 'PH0' | 'PH1' | 'PH2' | 'PH3' | 'PH4' | 'PH5';
 export const PHASE_LABELS: Record<AnalystPhase, string> = {
@@ -47,42 +45,34 @@ export function derive(u: any) {
   return { requiredPct, complete, blocked, stalled, daysSinceActivity };
 }
 
-// ── Unified People dashboard ──
-type JourneyFilter = 'all' | 'employee' | 'contractor' | 'associate';
-const FILTER_LABEL: Record<JourneyFilter, string> = { all: 'All', employee: 'Analysts', contractor: 'Contractors', associate: 'Associates' };
+// ── People dashboard ──
+export function timeSince(ts: number): string {
+  if (!ts) return 'never';
+  const mins = Math.floor((Date.now() - ts) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
 
 export default function Dashboard() {
   const { ephemeral } = useAdminGuard();
   const router = useRouter();
   const [people, setPeople] = useState<PersonCard[]>([]);
-  const [contractorRecords, setContractorRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
   const [joinerCopied, setJoinerCopied] = useState(false);
-  const [filter, setFilter] = useState<JourneyFilter>('all');
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    const j = router.query.journey;
-    if (j === 'contractor' || j === 'associate' || j === 'employee') setFilter(j);
-    if (typeof router.query.open === 'string') setSelectedId(router.query.open);
-  }, [router.isReady, router.query.journey, router.query.open]);
 
   const load = async () => {
     setLoading(true); setError('');
     try {
-      const [usersRes, contractorsRes] = await Promise.all([fetch('/api/users'), fetch('/api/contractors')]);
-      if (usersRes.status === 401 || contractorsRes.status === 401) { router.replace('/login?next=/dashboard'); return; }
-      if (!usersRes.ok || !contractorsRes.ok) throw new Error('bad status');
+      const usersRes = await fetch('/api/users');
+      if (usersRes.status === 401) { router.replace('/login?next=/dashboard'); return; }
+      if (!usersRes.ok) throw new Error('bad status');
       const usersData = await usersRes.json();
-      const contractorsData = await contractorsRes.json();
-      const records = (contractorsData.contractors || []).map(migrateContractorRecord);
-      setContractorRecords(records);
-      const cards = [...((usersData.users || []).map(analystToCard)), ...records.map(contractorToCard)];
+      const cards: PersonCard[] = (usersData.users || []).map(analystToCard);
       cards.sort((a, b) => b.last_activity - a.last_activity);
       setPeople(cards);
     } catch {
@@ -93,35 +83,12 @@ export default function Dashboard() {
   };
   useEffect(() => { load(); }, []);
 
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onDown = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false); };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
-    document.addEventListener('mousedown', onDown); document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
-  }, [menuOpen]);
+  const filtered = useMemo(() => people.filter(p =>
+    !search || `${p.name} ${p.email}`.toLowerCase().includes(search.toLowerCase())), [people, search]);
 
-  const filtered = useMemo(() => people.filter(p => {
-    if (filter !== 'all' && p.journey_type !== filter) return false;
-    if (search && !(`${p.name} ${p.email}`.toLowerCase().includes(search.toLowerCase()))) return false;
-    return true;
-  }), [people, filter, search]);
-
-  const counts = useMemo(() => ({
-    all: people.length,
-    employee: people.filter(p => p.journey_type === 'employee').length,
-    contractor: people.filter(p => p.journey_type === 'contractor').length,
-    associate: people.filter(p => p.journey_type === 'associate').length,
-  }), [people]);
-
-  const selectedRecord = selectedId ? contractorRecords.find(r => r.contractor_id === selectedId) : null;
-  const closeDrawer = () => {
-    setSelectedId(null);
-    if (router.query.open) router.replace({ pathname: '/dashboard', query: filter === 'all' ? {} : { journey: filter } }, undefined, { shallow: true });
-  };
   const copyJoiner = async () => {
     try { await navigator.clipboard.writeText(`${window.location.origin}/`); setJoinerCopied(true); setTimeout(() => setJoinerCopied(false), 2500); }
-    catch { setJoinerCopied(false); window.prompt('Copy the analyst joiner link:', `${window.location.origin}/`); }
+    catch { window.prompt('Copy the analyst joiner link:', `${window.location.origin}/`); }
   };
 
   return (
@@ -130,42 +97,20 @@ export default function Dashboard() {
       <div className="naya-page-body">
         {ephemeral && (
           <div className="naya-banner naya-banner-warn" role="alert">
-            <b>Review environment — temporary storage.</b> This preview has no durable database connected, so anything saved here may disappear between requests. Don’t rely on it for review of saved data.
+            <b>Review environment — temporary storage.</b> This preview has no durable database connected, so anything saved here may disappear between requests.
           </div>
         )}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <h1 style={{ fontSize: 22, margin: 0, color: 'var(--navy-dark)' }}>People</h1>
-            <div style={{ fontSize: 12.5, color: 'var(--g500)', marginTop: 2 }}>Everyone onboarding with NIIT CAS — what’s next, and who owns it.</div>
+            <div style={{ fontSize: 12.5, color: 'var(--g500)', marginTop: 2 }}>Analysts onboarding with NIIT CAS — where they are and what’s next.</div>
           </div>
-          <div className="naya-menu-wrap" ref={menuRef}>
-            <button className="naya-btn naya-btn-primary" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(o => !o)}>+ Add person</button>
-            {menuOpen && (
-              <div className="naya-menu" role="menu">
-                <button role="menuitem" className="naya-menu-item" onClick={() => router.push('/contractors/new?type=contractor')}>
-                  <h4>Contractor</h4><p>Engaged for a project through a Resourcing Lead. You set up their onboarding and send them an invitation.</p>
-                </button>
-                <button role="menuitem" className="naya-menu-item" onClick={() => router.push('/contractors/new?type=associate')}>
-                  <h4>Associate</h4><p>Same onboarding checklist as a contractor, labelled as an associate. You set it up and send an invitation.</p>
-                </button>
-                <div className="naya-menu-sep" />
-                <div className="naya-menu-item" style={{ cursor: 'default' }}>
-                  <h4>Analyst (employee)</h4>
-                  <p>Analysts join themselves — there’s nothing to create here. Share the NAYA joiner link and they choose “Employee”.</p>
-                  <button className="naya-btn naya-btn-secondary" style={{ marginTop: 8, padding: '7px 14px' }} onClick={copyJoiner}>{joinerCopied ? 'Copied ✓' : 'Copy joiner link'}</button>
-                </div>
-              </div>
-            )}
-          </div>
+          <button className="naya-btn naya-btn-primary" onClick={copyJoiner} title="Analysts join themselves from this link">{joinerCopied ? 'Copied ✓' : 'Copy joiner link'}</button>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, margin: '18px 0 16px', flexWrap: 'wrap', alignItems: 'center' }} role="tablist" aria-label="Filter people">
-          {(['all', 'employee', 'contractor', 'associate'] as JourneyFilter[]).map(f => (
-            <button key={f} role="tab" aria-selected={filter === f} onClick={() => setFilter(f)} style={filterPillStyle(filter === f)}>
-              {FILTER_LABEL[f]}{!loading && !error && <span style={{ color: 'var(--g400)', fontWeight: 600 }}> {counts[f]}</span>}
-            </button>
-          ))}
+        <div style={{ display: 'flex', gap: 8, margin: '18px 0 16px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {!loading && !error && <span style={{ fontSize: 12.5, color: 'var(--g500)' }}>{people.length} analyst{people.length === 1 ? '' : 's'}</span>}
           <input aria-label="Search by name or email" placeholder="Search name or email" value={search} onChange={e => setSearch(e.target.value)} className="naya-input naya-search" />
         </div>
 
@@ -178,85 +123,39 @@ export default function Dashboard() {
         )}
         {!loading && !error && filtered.length === 0 && (
           <div className="naya-card naya-empty">
-            {people.length === 0 ? (<><b style={{ color: 'var(--navy-dark)' }}>No one is onboarding yet.</b><div style={{ margin: '6px 0 14px' }}>Add a contractor or associate to get started — analysts appear here once they join.</div><button className="naya-btn naya-btn-primary" onClick={() => router.push('/contractors/new?type=contractor')}>Add a contractor</button></>)
-              : search ? <>Nobody matches “{search}”.</> : <>No {FILTER_LABEL[filter].toLowerCase()} yet.</>}
+            {people.length === 0 ? <>No analysts yet. Share the joiner link — analysts appear here once they start.</> : <>Nobody matches “{search}”.</>}
           </div>
         )}
 
         {!loading && !error && filtered.length > 0 && (
           <div className="naya-card" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="naya-th" aria-hidden="true">
-              <div>Person</div><div>Project / stage</div><div>Status</div><div>Progress</div><div>Next step · owner</div><div>Invitation</div>
+              <div>Person</div><div>Phase</div><div>Status</div><div>Progress</div><div>Next required step</div><div>Last active</div>
             </div>
-            {filtered.map(p => {
-              const open = () => (p.journey_type !== 'employee' ? setSelectedId(p.id) : router.push(`/snapshot/${p.id}`));
-              return (
-                <button key={`${p.journey_type}-${p.id}`} onClick={open} className="naya-tr" aria-label={`${p.name}, ${p.journey_label}, ${p.status_label}, ${p.progress_pct}% complete`}>
-                  <div>
-                    <div className="naya-cell-main">{p.name}</div>
-                    <div className="naya-cell-sub">{p.journey_label}{p.email ? ` · ${p.email}` : ''}</div>
-                  </div>
-                  <div data-label="Project / stage">
-                    <div style={{ fontSize: 13, color: 'var(--g800)' }}>{p.stage}</div>
-                    <div className="naya-cell-sub">{p.current_phase}</div>
-                  </div>
-                  <div data-label="Status"><StatusPill bucket={p.status_bucket} label={p.status_label} /></div>
-                  <div data-label="Progress">
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--navy)', marginBottom: 4 }}>{p.progress_pct}%</div>
-                    <div className="naya-progress" aria-hidden="true"><span style={{ width: `${p.progress_pct}%` }} /></div>
-                  </div>
-                  <div className="naya-span" data-label="Next step · owner">
-                    <div style={{ fontSize: 13, color: 'var(--g800)' }}>{p.next_action || '—'}</div>
-                    {p.next_owner && <div className="naya-cell-sub">Owner: {p.next_owner}</div>}
-                  </div>
-                  <div data-label="Invitation">
-                    {p.journey_type === 'employee' ? <span className="naya-cell-sub">Joins via link</span> : <InvitePill status={p.invite_status} />}
-                    <div className="naya-cell-sub" style={{ marginTop: 4 }}>Active {timeSince(p.last_activity)}</div>
-                  </div>
-                </button>
-              );
-            })}
+            {filtered.map(p => (
+              <button key={p.id} onClick={() => router.push(`/snapshot/${p.id}`)} className="naya-tr" aria-label={`${p.name}, ${p.journey_label}, ${p.status_label}, ${p.progress_pct}% complete`}>
+                <div>
+                  <div className="naya-cell-main">{p.name}</div>
+                  <div className="naya-cell-sub">{p.journey_label}{p.email ? ` · ${p.email}` : ''}</div>
+                </div>
+                <div data-label="Phase"><div style={{ fontSize: 13, color: 'var(--g800)' }}>{p.current_phase}</div><div className="naya-cell-sub">Coach / Buddy: {p.owner}</div></div>
+                <div data-label="Status"><StatusPill bucket={p.status_bucket} label={p.status_label} /></div>
+                <div data-label="Progress">
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--navy)', marginBottom: 4 }}>{p.progress_pct}%</div>
+                  <div className="naya-progress" aria-hidden="true"><span style={{ width: `${p.progress_pct}%` }} /></div>
+                </div>
+                <div className="naya-span" data-label="Next required step"><div style={{ fontSize: 13, color: 'var(--g800)' }}>{p.next_action || '—'}</div></div>
+                <div data-label="Last active"><span className="naya-cell-sub">{timeSince(p.last_activity)}</span></div>
+              </button>
+            ))}
           </div>
         )}
       </div>
-
-      {selectedId && !loading && !selectedRecord && (
-        <div className="naya-banner naya-banner-warn" style={{ margin: '0 auto', maxWidth: 1040 }} role="alert">That record couldn’t be found — it may have been removed.</div>
-      )}
-      {selectedRecord && (
-        <div className="naya-drawer-overlay" onClick={closeDrawer}>
-          <div className="naya-drawer" role="dialog" aria-modal="true" aria-label={`${selectedRecord.contractor_name} onboarding`} onClick={e => e.stopPropagation()}>
-            <button onClick={closeDrawer} className="naya-btn naya-btn-secondary" style={{ marginBottom: 16 }}>← Back to People</button>
-            <ContractorDetail record={selectedRecord} onRefresh={load} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-function filterPillStyle(active: boolean): React.CSSProperties {
-  return {
-    padding: '7px 14px', borderRadius: 999, fontSize: 12.5, fontWeight: 600, minHeight: 36,
-    border: active ? '1.5px solid var(--primary)' : '1.5px solid var(--g200)',
-    background: active ? 'var(--primary-pale)' : 'white',
-    color: active ? 'var(--navy)' : 'var(--g600)',
-  };
-}
-
 function StatusPill({ bucket, label }: { bucket: string; label: string }) {
-  const chipClass: Record<string, string> = {
-    waiting: 'naya-chip-orange', blocked: 'naya-chip-red', ready: 'naya-chip-teal', complete: 'naya-chip-teal', active: 'naya-chip-navy',
-  };
+  const chipClass: Record<string, string> = { blocked: 'naya-chip-red', complete: 'naya-chip-teal', active: 'naya-chip-navy' };
   return <span className={`naya-chip ${chipClass[bucket] || 'naya-chip-gray'}`}>{label}</span>;
-}
-
-function InvitePill({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    not_generated: { label: 'Not sent', cls: 'naya-chip-gray' },
-    active: { label: 'Link active', cls: 'naya-chip-teal' },
-    expired: { label: 'Link expired', cls: 'naya-chip-red' },
-  };
-  const m = map[status] || map.not_generated;
-  return <span className={`naya-chip ${m.cls}`}>{m.label}</span>;
 }

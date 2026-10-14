@@ -1,4 +1,4 @@
-// The same top nav bar used across the employee/contractor experience
+// The same top nav bar used across the analyst experience
 // (public/index.html's #topnav), reused here so admin screens read as the
 // same product rather than a separate back-office tool.
 export default function NayaHeader({ title, subtitle, badge }: { title: string; subtitle: string; badge?: string }) {
